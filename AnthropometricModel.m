@@ -41,10 +41,10 @@ classdef AnthropometricModel
             % Currently not being used: global pFootAndLegCOM pAbdomenCOM pPelvisCOM pAbdomenAndPelvisCOM;
     
             % COM variable declarations
-            map(pFootCOM) = footLength*0.5;
-            map(pLegCOM) = rightShankLength*0.433;
-            map(pThighCOM) = thighLength*0.433;
-            map(pTotalLegCOM) = (thighLength + rightShankLength)*0.161;
+            map(pFootCOM) = map(footLength)*0.5;
+            map(pLegCOM) = map(rightShankLength)*0.433;
+            map(pThighCOM) = map(thighLength)*0.433;
+            map(pTotalLegCOM) = (map(thighLength) + map(rightShankLength))*0.161;
         end
         
         function map = GetWeight(weight)
