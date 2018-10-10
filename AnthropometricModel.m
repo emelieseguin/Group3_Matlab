@@ -3,21 +3,25 @@ classdef AnthropometricModel
         errorMessage
         dimensionMap
         weightMap
+        height
+        weight
     end
     methods
-        function obj = AnthropometricDimensions(height, weight)
+        function obj = AnthropometricModel(height, weight)
             % Here we can put restrictions on the height and weight, can
             % throw an error if they don't meet our restrictions
-            if(height < 0 || weight < 0)
+            if(height <= 0.0 || weight <= 0.0)
                 obj.errorMessage = "You have entered invalid parameters.";
                 error ('You have entered a height or weight less than 0.')
             end
-           
-            obj.dimensionMap = GetDimensions(height);
-            obj.weightMap = GetWeight(weight);  
+
+            obj.height = height;
+            obj.weight = weight;
+            obj.dimensionMap = obj.GetDimensions(height);
+            obj.weightMap = obj.GetWeight(weight);  
         end
         
-        function map = GetDimensions(height)
+        function map = GetDimensions(~, height)
             map = containers.Map();
             
             % Foot naming global variables 
@@ -46,8 +50,7 @@ classdef AnthropometricModel
             map(pThighCOM) = map(thighLength)*0.433;
             map(pTotalLegCOM) = (map(thighLength) + map(rightShankLength))*0.161;
         end
-        
-        function map = GetWeight(weight)
+        function map = GetWeight(~, weight)
             map = containers.Map();
             
             % Leg and Foot naming global variables
