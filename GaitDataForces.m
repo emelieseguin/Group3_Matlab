@@ -1,10 +1,10 @@
 classdef GaitDataForces
     properties
         % Force columns stored from the excel
-        time
-        xForces
-        yForces
-        zForces
+        Time
+        LGRFX
+        LGRFY
+        LGRFZ
     end
     methods
         function obj = GaitDataForces(csvFileName)
@@ -15,10 +15,10 @@ classdef GaitDataForces
 
             csvArray=csvread(csvFileName, 1);
             % The second number is the column number
-            obj.time = csvArray(:, 1);
-            obj.xForces = csvArray(:, 2);
-            obj.yForces = csvArray(:, 3);
-            obj.zForces = csvArray(:, 4);
+            obj.Time = csvArray(:, 1);
+            obj.LGRFX = csvArray(:, 23);
+            obj.LGRFY = csvArray(:, 24);
+            obj.LGRFZ = csvArray(:, 25);
             
             %plot(col1, col2)
         end
