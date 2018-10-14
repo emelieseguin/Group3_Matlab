@@ -1,7 +1,7 @@
 classdef GaitDataAngles
     properties
         % Angle columns stored from the excel
-        time
+        Time
         LPelvisAngleX
         LPelvisAngleY
         LPelvisAngleZ
@@ -27,7 +27,7 @@ classdef GaitDataAngles
 
             csvArray=csvread(csvFileName, 1);
             % The second number is the column number
-            obj.time = csvArray(:, 1);
+            obj.Time = csvArray(:, 1);
             obj.LPelvisAngleX = csvArray(:, 5);
             obj.LPelvisAngleY = csvArray(:, 6);
             obj.LPelvisAngleZ = csvArray(:, 7);

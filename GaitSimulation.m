@@ -1,0 +1,115 @@
+function GaitSimulation(model, patientAngles)   
+    global index;
+    index = 1;
+    
+    % Names of body parts
+    global leftShankLength thighLength footLength;
+    % Labels on the GUI
+    global hipLabel kneeLabel footLabel;
+    
+    positionArray = [];
+    for item = 1:(length(patientAngles.LFootAngleZ))
+        
+        % Get the angles from the object
+        foot = patientAngles.LFootAngleZ(item);
+        knee = patientAngles.LKneeAngleZ(item);
+        hip = patientAngles.LHipAngleZ(item);
+        
+        % Create the position of the leg, add it to the array
+        position = GaitLegPosition(model.dimensionMap(thighLength), model.dimensionMap(leftShankLength), ...
+            model.dimensionMap(footLength), foot, knee, hip);
+        positionArray = [positionArray position];
+    end    
+    
+    % Create a UI figure window
+    fig = uifigure;
+    
+    % Create labels on GUI
+    hipLabel = uilabel(fig, 'Position',[460, 240, 100, 20]); 
+    kneeLabel = uilabel(fig, 'Position',[460, 215, 100, 20]);
+    footLabel = uilabel(fig, 'Position',[460, 190, 100, 20]);
+
+    % Create the axis to draw on - positioning is [left bottom width height]
+    ax = uiaxes(fig, 'Position',[50 50 400 400], 'GridLineStyle', 'none');
+    ax.XLim = [-30 70];
+    ax.YLim = [-80 20];
+    set(ax, 'visible', 'off')    
+    
+    % Create the 3 UI buttons  
+    nextBtn = uibutton(fig,'Position',[440, 30, 100, 22],'Text','Next Position', ...
+        'ButtonPushedFcn', @(nextBtn,event) MoveToNextGaitPositionOnClick(nextBtn,ax, positionArray));
+    previousBtn = uibutton(fig,'Position',[40, 30, 100, 22],'Text','Previous Position', ...
+        'ButtonPushedFcn', @(previousBtn,event) MoveToPreviousGaitPositionOnClick(previousBtn,ax, positionArray));
+    
+    simBtn = uibutton(fig,'Position',[460, 150, 75, 20],'Text','Run Sim', ...
+        'ButtonPushedFcn', @(previousBtn,event) RunFullGaitSimOnClick(previousBtn,ax, positionArray));
+    
+    DrawCurrentPosition(ax, positionArray);
+end
+
+function MoveToNextGaitPositionOnClick(nextBtn, ax, positionArray)
+        global index;
+        RemoveCurrentDrawing(); 
+        
+        % If it is the last postion, loop to the first position of the array
+        if(index == length(positionArray))
+            index = 1;
+        else
+            index = index +1;
+        end
+        DrawCurrentPosition(ax, positionArray);
+end
+
+function MoveToPreviousGaitPositionOnClick(previousBtn, ax, positionArray)
+        global index;
+        RemoveCurrentDrawing();
+        
+        % If it is the first postion, loop to the end of the array
+        if(index == 1)
+            index = length(positionArray);
+        else
+            index = index -1;
+        end
+        DrawCurrentPosition(ax, positionArray);    
+end
+
+function RunFullGaitSimOnClick(simBtn, ax, positionArray)
+    global index;
+    RemoveCurrentDrawing();
+    
+    % Store Index so that it can be set back to the previous frame after
+    % the loop
+    previousIndex = index;
+    index=1;
+    
+    for num = 1:(length(positionArray))
+       DrawCurrentPosition(ax, positionArray);
+       pause(.01);
+       RemoveCurrentDrawing();
+       index = index + 1;
+    end
+    
+    index = previousIndex;
+    DrawCurrentPosition(ax, positionArray);
+end
+
+function RemoveCurrentDrawing()
+    global ThighLine ShankLine FootLine;
+    clearpoints(ThighLine);
+    clearpoints(ShankLine);
+    clearpoints(FootLine); 
+end
+
+function DrawCurrentPosition(ax, positionArray)
+    global index ThighLine ShankLine FootLine;
+    global hipLabel kneeLabel footLabel;
+    % Draw the lines for the 3 limbs
+    ThighLine = animatedline(positionArray(index).ThighPositionX, positionArray(index).ThighPositionY,'Parent', ax, 'Color','r','LineWidth',3);
+    ShankLine = animatedline(positionArray(index).ShankPositionX, positionArray(index).ShankPositionY,'Parent', ax,'Color','r','LineWidth',3);
+    FootLine = animatedline(positionArray(index).FootPositionX, positionArray(index).FootPositionY,'Parent', ax,'Color','r','LineWidth',3);
+    % Add label to the GUI
+    % char(176) is degree
+    hipLabel.Text = ['Hip Angle: ' , num2str(round(positionArray(index).HipAngleZ)), char(176)];
+    kneeLabel.Text = ['Knee Angle: ' , num2str(round(positionArray(index).KneeAngleZ)), char(176)];
+    footLabel.Text = ['Foot Angle: ' , num2str(round(positionArray(index).FootAngleZ)), char(176)];  
+end
