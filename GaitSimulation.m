@@ -1,25 +1,9 @@
-function GaitSimulation(model, patientAngles)   
+function GaitSimulation(positionArray)   
     global index;
     index = 1;
-    
-    % Names of body parts
-    global leftShankLength thighLength footLength;
+
     % Labels on the GUI
-    global hipLabel kneeLabel footLabel;
-    
-    positionArray = [];
-    for item = 1:(length(patientAngles.LFootAngleZ))
-        
-        % Get the angles from the object
-        foot = patientAngles.LFootAngleZ(item);
-        knee = patientAngles.LKneeAngleZ(item);
-        hip = patientAngles.LHipAngleZ(item);
-        
-        % Create the position of the leg, add it to the array
-        position = GaitLegPosition(model.dimensionMap(thighLength), model.dimensionMap(leftShankLength), ...
-            model.dimensionMap(footLength), foot, knee, hip);
-        positionArray = [positionArray position];
-    end    
+    global hipLabel kneeLabel footLabel;  
     
     % Create a UI figure window
     fig = uifigure;
@@ -94,19 +78,28 @@ function RunFullGaitSimOnClick(simBtn, ax, positionArray)
 end
 
 function RemoveCurrentDrawing()
-    global ThighLine ShankLine FootLine;
+    global ThighLine ShankLine FootLine ThighComPoint ShankComPoint FootComPoint;
     clearpoints(ThighLine);
     clearpoints(ShankLine);
     clearpoints(FootLine); 
+    clearpoints(ThighComPoint); 
+    clearpoints(ShankComPoint); 
+    clearpoints(FootComPoint); 
 end
 
 function DrawCurrentPosition(ax, positionArray)
-    global index ThighLine ShankLine FootLine;
+    global index ThighLine ShankLine FootLine ThighComPoint ShankComPoint FootComPoint;
     global hipLabel kneeLabel footLabel;
     % Draw the lines for the 3 limbs
     ThighLine = animatedline(positionArray(index).ThighPositionX, positionArray(index).ThighPositionY,'Parent', ax, 'Color','r','LineWidth',3);
     ShankLine = animatedline(positionArray(index).ShankPositionX, positionArray(index).ShankPositionY,'Parent', ax,'Color','r','LineWidth',3);
     FootLine = animatedline(positionArray(index).FootPositionX, positionArray(index).FootPositionY,'Parent', ax,'Color','r','LineWidth',3);
+    
+    % Draw lines for the Com Pieces
+    ThighComPoint = animatedline(positionArray(index).ThighComXVector, positionArray(index).ThighComYVector,'Parent', ax,'Color','b','LineWidth',3);
+    ShankComPoint = animatedline(positionArray(index).ShankComXVector, positionArray(index).ShankComYVector,'Parent', ax,'Color','b','LineWidth',3);
+    FootComPoint = animatedline(positionArray(index).FootComXVector, positionArray(index).FootComYVector,'Parent', ax,'Color','b','LineWidth',3);
+    
     % Add label to the GUI
     % char(176) is degree
     hipLabel.Text = ['Hip Angle: ' , num2str(round(positionArray(index).HipAngleZ)), char(176)];

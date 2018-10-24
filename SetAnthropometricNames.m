@@ -51,11 +51,11 @@ function SetAnthropometricNames()
     abdomenAndPelvisSegmentWeight = 'Abdomen and Pelvis Segment Weight';
     
     % Centre of Mass Locations from Proximal End of Joint)
-    global pFootCOM pLegCOM pThighCOM pFootAndLegCOM pTotalLegCOM;
+    global pFootCOM pShankCOM pThighCOM pFootAndLegCOM pTotalLegCOM;
     global pAbdomenCOM pPelvisCOM pAbdomenAndPelvisCOM;
     
     pFootCOM = 'Foot Center of Mass Location';
-    pLegCOM = 'Leg Center of Mass Location';
+    pShankCOM = 'Leg Center of Mass Location';
     pThighCOM = 'Thigh Center of Mass Location';
     pFootAndLegCOM = 'Foot and Leg Center of Mass Location';
     pTotalLegCOM = 'Total Leg Center of Mass Location';

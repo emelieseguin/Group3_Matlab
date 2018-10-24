@@ -1,6 +1,9 @@
 function Main()
-    
+    % Names of body parts
+    global leftShankLength thighLength footLength;
     SetAnthropometricNames(); % Run this to initialize all global naming variables
+    
+    % Build the anthropomtric model
     model = AnthropometricModel(120.0, 50.0);
 
     patient29AnglesCsvFileName = 'Patient29_Normal_Walking_Angles.csv';
@@ -10,10 +13,29 @@ function Main()
     patient29Angles = GaitDataAngles(patient29AnglesCsvFileName);
     %patient29Forces = GaitDataForces(patient29ForcesCsvFileName);
     
-    %PlotPatientGaitAngles(patient29Angles);
-    %PlotPatientGaitForces(patient29Forces);
-    GaitSimulation(model, patient29Angles);
+    
+    % Build the position array from the csv file
+    positionArray = [];
+    for item = 1:(length(patient29Angles.LFootAngleZ))
+        
+        % Get the angles from the object
+        foot = patient29Angles.LFootAngleZ(item);
+        knee = patient29Angles.LKneeAngleZ(item);
+        hip = patient29Angles.LHipAngleZ(item);
+        
+        % Create the position of the leg, add it to the array
+        position = GaitLegPosition(model.dimensionMap(thighLength), model.dimensionMap(leftShankLength), ...
+            model.dimensionMap(footLength), foot, knee, hip, model.comPercentageMap);
+        positionArray = [positionArray position];
+    end   
+    
+    % Run the gait simulation
+    GaitSimulation(positionArray);
 end
+
+
+%PlotPatientGaitAngles(patient29Angles);
+%PlotPatientGaitForces(patient29Forces);
 
 function PlotPatientGaitAngles(patientAngles)
     figure
