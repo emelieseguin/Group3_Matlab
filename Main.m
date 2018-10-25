@@ -29,6 +29,21 @@ function Main()
         positionArray = [positionArray position];
     end   
     
+    %PlotPatientGaitAngles(patient29Angles); -- looks same as the old
+    %people data from the power point
+    
+    %PlotPatientGaitForces(patient29Forces);
+    
+    % Plot the Linear Velocity and Accelerations
+    linearAccel = LinearAcceleration(positionArray, 1.3);
+    linearAccel.PlotVelocityInterpolationCurves();
+    linearAccel.PlotAccelerationCurves();
+    
+    % Plot the Angular Velocity and Accelerations
+    angularAccel = AngularAcceleration(positionArray, 1.3);
+    angularAccel.PlotVelocityInterpolationCurves();
+    angularAccel.PlotAccelerationCurves();
+    
     % Run the gait simulation
     GaitSimulation(positionArray);
 end
@@ -40,20 +55,25 @@ end
 function PlotPatientGaitAngles(patientAngles)
     figure
     % Graph number 1
-    topLeft = subplot(1,3,1);
-    plot(topLeft, patientAngles.Time, patientAngles.LFootAngleX);
-    title(topLeft,'Left Foot Angle X');
+    top = subplot(4,1,1);
+    plot(top, patientAngles.Time, patientAngles.LHipAngleZ);
+    title(top,'Left Hip Angle Z');
     %topLeft.FontSize = 14;
     
-    topModel = subplot(1,3,2);
-    plot(topModel, patientAngles.Time, patientAngles.LFootAngleY);
-    title(topModel,'Left Foot Angle Y');
-    grid(topModel,'on');
+    middle = subplot(4,1,2);
+    plot(middle, patientAngles.Time, patientAngles.LKneeAngleZ);
+    title(middle,'Left Knee Angle Z');
+    grid(middle,'on');
     
-    topModel = subplot(1,3,3);
-    scatter(topModel, patientAngles.Time, patientAngles.LFootAngleZ);
-    title(topModel,'Left Foot Angle Z');
-    grid(topModel,'on');
+    middleBottom = subplot(4,1,3);
+    plot(middleBottom, patientAngles.Time, patientAngles.LAnkleAngleZ);
+    title(middleBottom,'Left Ankle Angle Z');
+    grid(middleBottom,'on');
+    
+    bottom = subplot(4,1,4);
+    plot(bottom, patientAngles.Time, patientAngles.LFootAngleZ);
+    title(bottom,'Left Foot Angle Z');
+    grid(bottom,'on');
 end
 
 function PlotPatientGaitForces(patientForces)

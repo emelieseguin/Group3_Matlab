@@ -67,11 +67,11 @@ classdef AnthropometricModel
             weightMap(abdomenAndPelvisSegmentWeight) = weight*0.281;
         end
         
-        function comMap = GetCom(~, dimensionMap)
+        function comMap = GetCom(~)
             comMap = containers.Map();
             
             % COM naming global variables
-            global pFootCOM pShankCOM pThighCOM pTotalLegCOM ;
+            global pFootCOM pShankCOM pThighCOM ;
             % Currently not being used: global pFootAndLegCOM pAbdomenCOM pPelvisCOM pAbdomenAndPelvisCOM;
         
             % COM variable declarations, all referenced from proximal
