@@ -35,7 +35,7 @@ classdef AnthropometricModel
             % Foot variable declaration
             dimensionMap(footWidth) = height*0.055;
             dimensionMap(footLength) = height*0.152;
-            dimensionMap(toeLength) = obj.footLength*(1/3);
+            dimensionMap(toeLength) = dimensionMap(footLength)*(1/3);
             dimensionMap(footHeight) = height*0.039;
             
             % Leg naming global variables

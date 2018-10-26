@@ -1,6 +1,5 @@
 function Main()
     % Names of body parts
-    global leftShankLength thighLength footLength;
     SetAnthropometricNames(); % Run this to initialize all global naming variables
     
     % Build the anthropomtric model
@@ -26,8 +25,7 @@ function Main()
         hip = patient29Angles.LHipAngleZ(item);
         
         % Create the position of the leg, add it to the array
-        position = GaitLegPosition(model.dimensionMap(thighLength), model.dimensionMap(leftShankLength), ...
-            model.dimensionMap(footLength), foot, knee, hip, model.comPercentageMap);
+        position = GaitLegPosition(model, foot, knee, hip);
         positionArray = [positionArray position];
         
         linkagePosition = FourBarLinkagePosition(personHeight, hip, knee);
