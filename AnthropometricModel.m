@@ -6,6 +6,8 @@ classdef AnthropometricModel
         comPercentageMap
         height
         weight
+        % TalocalcanealAngle in Radians
+        TalocalcanealAngleRad
     end
     methods
         function obj = AnthropometricModel(height, weight)
@@ -18,6 +20,7 @@ classdef AnthropometricModel
 
             obj.height = height;
             obj.weight = weight;
+            obj.TalocalcanealAngleRad = deg2rad(41);
             obj.dimensionMap = obj.GetDimensions(height);
             obj.weightMap = obj.GetWeight(weight);  
             obj.comPercentageMap = obj.GetCom();
@@ -27,12 +30,13 @@ classdef AnthropometricModel
             dimensionMap = containers.Map();
             
             % Foot naming global variables 
-            global footWidth footLength heelToAnkle;
+            global footWidth footLength footHeight toeLength;
             
             % Foot variable declaration
             dimensionMap(footWidth) = height*0.055;
             dimensionMap(footLength) = height*0.152;
-            dimensionMap(heelToAnkle) = height*0.039;
+            dimensionMap(toeLength) = obj.footLength*(1/3);
+            dimensionMap(footHeight) = height*0.039;
             
             % Leg naming global variables
             global rightShankLength leftShankLength thighLength;
@@ -71,11 +75,12 @@ classdef AnthropometricModel
             comMap = containers.Map();
             
             % COM naming global variables
-            global pFootCOM pShankCOM pThighCOM ;
+            global pFootCOMx pFootCOMy pShankCOM pThighCOM ;
             % Currently not being used: global pFootAndLegCOM pAbdomenCOM pPelvisCOM pAbdomenAndPelvisCOM;
         
             % COM variable declarations, all referenced from proximal
-            comMap(pFootCOM) = 0.5;
+            comMap(pFootCOMx) = 0.5;
+            comMap(pFootCOMy) = (1/3);
             comMap(pShankCOM) = 0.433;
             comMap(pThighCOM) = 0.433;
             %comMap(pTotalLegCOM) = (dimensionMap(thighLength) + dimensionMap(rightShankLength))*0.161;

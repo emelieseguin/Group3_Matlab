@@ -55,6 +55,8 @@ function Main()
     % Run the gait simulation
     FourBarLinkageSim(fourBarArray);
     GaitSimulation(positionArray);
+    
+    InverseDynamics(model, linearAccel, angularAccel, patient29Forces, normCopData);
 end
 
 %PlotPatientGaitAngles(patient29Angles);

@@ -1,9 +1,11 @@
 function SetAnthropometricNames()
     
     % Foot Dimensions Naming
-    global footWidth footLength;
+    global footWidth footLength footHeight toeLength;
     footWidth = 'Foot Width';
     footLength = 'Foot Length';
+    footHeight = 'Foot Height'; 
+    toeLength = 'Toe Length';
     
     % Ankle Dimensions
     global heelToAnkle;
@@ -50,11 +52,12 @@ function SetAnthropometricNames()
     global abdomenAndPelvisSegmentWeight;
     abdomenAndPelvisSegmentWeight = 'Abdomen and Pelvis Segment Weight';
     
-    % Centre of Mass Locations from Proximal End of Joint)
-    global pFootCOM pShankCOM pThighCOM pFootAndLegCOM pTotalLegCOM;
+    % Centre of Mass Locations from Proximal End of Joint
+    global pFootCOMx pFootCOMy pShankCOM pThighCOM pFootAndLegCOM pTotalLegCOM;
     global pAbdomenCOM pPelvisCOM pAbdomenAndPelvisCOM;
     
-    pFootCOM = 'Foot Center of Mass Location';
+    pFootCOMx = 'Foot Center of Mass Location in X';
+    pFootCOMy = 'Foot Center of Mass Location in Y';
     pShankCOM = 'Leg Center of Mass Location';
     pThighCOM = 'Thigh Center of Mass Location';
     pFootAndLegCOM = 'Foot and Leg Center of Mass Location';
