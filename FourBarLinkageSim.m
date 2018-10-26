@@ -13,8 +13,8 @@ function FourBarLinkageSim(fourBarArray)
 
     % Create the axis to draw on - positioning is [left bottom width height]
     ax = uiaxes(fig, 'Position',[50 50 400 400], 'GridLineStyle', 'none');
-    ax.XLim = [-30 30];
-    ax.YLim = [-60 0];
+    ax.XLim = [-100 100];
+    ax.YLim = [-100 100];
     set(ax, 'visible', 'off')    
     
     % Create the 3 UI buttons  
