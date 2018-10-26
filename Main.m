@@ -1,4 +1,5 @@
 function Main()
+    global rightShankLength;
     % Names of body parts
     SetAnthropometricNames(); % Run this to initialize all global naming variables
     
@@ -28,7 +29,8 @@ function Main()
         position = GaitLegPosition(model, foot, knee, hip);
         positionArray = [positionArray position];
         
-        linkagePosition = FourBarLinkagePosition(personHeight, hip, knee);
+        linkagePosition = FourBarLinkagePosition(personHeight, position.KneeJointX, position.KneeJointY, ...
+            model.dimensionMap(rightShankLength), hip, knee);
         fourBarArray = [fourBarArray linkagePosition];
     end   
     

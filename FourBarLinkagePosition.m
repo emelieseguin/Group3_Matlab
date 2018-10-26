@@ -4,67 +4,110 @@ classdef FourBarLinkagePosition
         Link1Y
         Link2X
         Link2Y
+        Link4Y
         Link3X
         Link3Y
         Link4X
-        Link4Y
         
         IntersectPointX
         IntersectPointY
     end
     
     methods
-        function obj = FourBarLinkagePosition(personHeight, hipAngleZ, kneeAngleZ)
+        function obj = FourBarLinkagePosition(personHeight, kneeJointXPos, kneeJointYPos, ...
+            shankLength, hipAngleZ, kneeAngleZ)
             
             % Convert angles to radians
             kneeAngleZRads = deg2rad(kneeAngleZ);
             hipAngleZRads = deg2rad(hipAngleZ);
             
-            % Create all of the points when projected straight down
+            % Variables needed for calculations
+                % If Hip Flexion and Knee Flexion
+                kneeAngleRelative = hipAngleZRads - kneeAngleZRads;
+                % If either (Hip Extension, Knee Flexion) 
+                if((hipAngleZRads < 0 && kneeAngleZRads > 0))
+                    kneeAngleRelative = hipAngleZRads + kneeAngleZRads;
+                end
+            Ltopbar = 50; %manually change value
+            Lbotbar = 50; %manually change value
+            L1 = 30; %manually change value
+            L3 = 30; %manually change value
+            Theta2 = 25.6; %manually change value
+                Theta2Rads = deg2rad(Theta2);
+            Theta3 = 90 - Theta2;
+                Theta3Rads = deg2rad(Theta3);
+            Theta4 = 19.5; %manually change value
+                Theta4Rads = deg2rad(Theta4);
+            Theta5Rads = 90 - Theta4Rads - kneeAngleRelative;
+    
+            % Hip Position
             x4 = 0;
             y4 = 0;
             
-            ax = -0.01586685*personHeight;
-            ay= -0.24707416*personHeight;
+            % Create point R1 in space
+            xR1 = Ltopbar*sin(hipAngleZRads);         % If hipAngleZ > 0
+            if(hipAngleZ < 0)
+                xR1 = -1*Ltopbar*sin(hipAngleZRads);
+            end
+            yR1 = -1*Ltopbar*cos(hipAngleZRads);
             
-            bx = 0.0078837079*personHeight;
-            by = -0.255416854*personHeight;
-            
-            cx = -0.010286*personHeight;
-            cy = -0.232313*personHeight;
-            
-            dx = 0.010286*personHeight;
-            dy = -0.24293*personHeight;
-            
-            cxRotated = (cx*cos(hipAngleZRads)) - (cy*sin(hipAngleZRads));
-            cyRotated = (cy*cos(hipAngleZRads)) + (cx*sin(hipAngleZRads));
-            
-            dxRotated = (dx*cos(hipAngleZRads)) - (dy*sin(hipAngleZRads));
-            dyRotated = (dy*cos(hipAngleZRads)) + (dx*sin(hipAngleZRads));
-            
-            % Find the relative Knee Rotation
-            kneeAngleRelative = hipAngleZRads - kneeAngleZRads;
-            
-            % If either (Hip Extension, Knee Flexion) or (Hip Flexion, Knee Extension)
-            if((hipAngleZRads < 0 && kneeAngleZRads > 0)||(hipAngleZRads > 0 && kneeAngleZRads < 0))
-                kneeAngleRelative = hipAngleZRads + kneeAngleZRads;
+            %Create point D in space
+                %if hipAngleZ <= theta2
+            yD = yR1 - (1/2)*L3*sin(Theta2Rads - hipAngleZRads);
+            if(hipAngleZ>Theta2)
+                yD = yR1 + (1/2)*L3*sin(hipAngleZRads - Theta2Rads);
+            end
+                %if hipAngleZ >= 0
+            xD = xR1 + (1/2)*L3*cos(Theta2Rads - hipAngleZRads);
+            if (hipAngleZ < 0)
+                xD = xR1 + (1/2)*L3*cos(Theta2Rads + hipAngleZRads);
             end
             
-            % Create all rotated angles based on the hip and knee angle
-            axRotated = (ax*cos(kneeAngleRelative)) - (ay*sin(kneeAngleRelative));
-            ayRotated = (ay*cos(kneeAngleRelative)) + (ax*sin(kneeAngleRelative));
+            %Create point C in space
+                %if hipAngleZ <= theta2
+            yC = yR1 + (1/2)*L3*sin(Theta2Rads - hipAngleZRads);
+            if(hipAngleZ>Theta2)
+                yC = yR1 - (1/2)*L3*sin(hipAngleZRads - Theta2Rads);
+            end
+                %if hipAngleZ < 0 
+            xC = xR1 - (1/2)*L3*cos(Theta2Rads + hipAngleZRads);
+            if(hipAngleZ > 0)
+                %if hipAngleZ <= theta2
+                xC = xR1 - (1/2)*L3*cos(Theta2Rads - hipAngleZRads);
+                if(hipAngleZ>Theta2)
+                    xC = xR1 - (1/2)*L3*cos(hipAngleZRads - Theta2Rads);
+                end
+            end
             
-            bxRotated = (bx*cos(kneeAngleRelative)) - (by*sin(kneeAngleRelative));
-            byRotated = (by*cos(kneeAngleRelative)) + (bx*sin(kneeAngleRelative));
+            %Create point R2 in space
+            xR2 = kneeJointXPos - (shankLength - Lbotbar)*sin(kneeAngleZRads);
+            yR2 = kneeJointYPos - (shankLength - Lbotbar)*cos(kneeAngleZRads);
             
-            obj.Link1X = [axRotated bxRotated];
-            obj.Link1Y = [ayRotated byRotated];
-            obj.Link2X = [bxRotated cxRotated];
-            obj.Link2Y = [byRotated cyRotated];
-            obj.Link3X = [cxRotated dxRotated];
-            obj.Link3Y = [cyRotated dyRotated];
-            obj.Link4X = [dxRotated axRotated];
-            obj.Link4Y = [dyRotated ayRotated];
+            %Create point B in space
+            yB = yR2 - (1/3)*L1*cos(Theta5Rads);
+                %if Theta5Rads >= 0 
+            xB = xR2 + (1/3)*L1*sin(Theta5Rads);
+            if (Theta5Rads <= 0)
+                xB = xR2 - (1/3)*L1*sin(Theta5Rads);
+            end
+                        
+            %Create point A in space
+            yA = yR2 + (2/3)*L1*cos(Theta5Rads);
+                %if Theta5Rads >= 0 
+            xA = xR2 - (2/3)*L1*sin(Theta5Rads);
+            if (Theta5Rads <= 0)
+                xA = xR2 + (2/3)*L1*sin(Theta5Rads);
+            end
+            
+            % Create link vectors
+            obj.Link1X = [xA xB];
+            obj.Link1Y = [yA yB];
+            obj.Link2X = [xB xC];
+            obj.Link2Y = [yB yC];
+            obj.Link3X = [xC xD];
+            obj.Link3Y = [yC yD];
+            obj.Link4X = [xD xA];
+            obj.Link4Y = [yD yA];
         end
     end
 end
