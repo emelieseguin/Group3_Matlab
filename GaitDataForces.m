@@ -5,6 +5,7 @@ classdef GaitDataForces
         LGRFX
         LGRFY
         LGRFZ
+        ToeOffPercentage
     end
     methods
         function obj = GaitDataForces(csvFileName)
@@ -20,7 +21,8 @@ classdef GaitDataForces
             obj.LGRFY = csvArray(:, 24);
             obj.LGRFZ = csvArray(:, 25);
             
-            %plot(col1, col2)
+            % Find when toe off is in the data
+            obj.ToeOffPercentage = find(obj.LGRFX==0, 1, 'first');
         end
     end  
 end

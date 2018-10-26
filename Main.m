@@ -4,18 +4,20 @@ function Main()
     SetAnthropometricNames(); % Run this to initialize all global naming variables
     
     % Build the anthropomtric model
+    personHeight = 178;
     model = AnthropometricModel(120.0, 50.0);
 
     patient29AnglesCsvFileName = 'Patient29_Normal_Walking_Angles.csv';
     patient29ForcesCsvFileName = 'Patient29_Normal_Walking_Forces.csv';
+    patient29CopData_Left = 'Patient29_ForcePlateData_LeftFoot.csv';
     
     % Create objects to store the gait information (angles, forces) of patient 29
     patient29Angles = GaitDataAngles(patient29AnglesCsvFileName);
-    %patient29Forces = GaitDataForces(patient29ForcesCsvFileName);
+    patient29Forces = GaitDataForces(patient29ForcesCsvFileName);
     
-    
-    % Build the position array from the csv file
+    % Build the position and 4Bar array from the patientAngle data
     positionArray = [];
+    fourBarArray = [];
     for item = 1:(length(patient29Angles.LFootAngleZ))
         
         % Get the angles from the object
@@ -27,27 +29,33 @@ function Main()
         position = GaitLegPosition(model.dimensionMap(thighLength), model.dimensionMap(leftShankLength), ...
             model.dimensionMap(footLength), foot, knee, hip, model.comPercentageMap);
         positionArray = [positionArray position];
+        
+        linkagePosition = FourBarLinkagePosition(personHeight, hip, knee);
+        fourBarArray = [fourBarArray linkagePosition];
     end   
     
-    %PlotPatientGaitAngles(patient29Angles); -- looks same as the old
-    %people data from the power point
+    % Calc the linear and angular accelerations 
+    % 1.3 is a dummy time for the gait cycle
+    patient29_HeelStrike = 0;
+    patient29_ToeOff = patient29Forces.ToeOffPercentage;
+    timeForGaitCycle = 1.3;
+    linearAccel = LinearAcceleration(positionArray, timeForGaitCycle);
+    angularAccel = AngularAcceleration(positionArray, timeForGaitCycle);
+    normCopData = NormalizeCopData(patient29CopData_Left, ...
+        patient29_HeelStrike, patient29_ToeOff);
     
-    %PlotPatientGaitForces(patient29Forces);
-    
-    % Plot the Linear Velocity and Accelerations
-    linearAccel = LinearAcceleration(positionArray, 1.3);
-    linearAccel.PlotVelocityInterpolationCurves();
-    linearAccel.PlotAccelerationCurves();
+    % Plot the Linear Velocity and Acceleration
+        %linearAccel.PlotVelocityInterpolationCurves();
+        %linearAccel.PlotAccelerationCurves();
     
     % Plot the Angular Velocity and Accelerations
-    angularAccel = AngularAcceleration(positionArray, 1.3);
-    angularAccel.PlotVelocityInterpolationCurves();
-    angularAccel.PlotAccelerationCurves();
-    
+        %angularAccel.PlotVelocityInterpolationCurves();
+        %angularAccel.PlotAccelerationCurves();
+        
     % Run the gait simulation
+    FourBarLinkageSim(fourBarArray);
     GaitSimulation(positionArray);
 end
-
 
 %PlotPatientGaitAngles(patient29Angles);
 %PlotPatientGaitForces(patient29Forces);
