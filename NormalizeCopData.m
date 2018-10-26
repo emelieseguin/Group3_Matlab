@@ -3,12 +3,13 @@ classdef NormalizeCopData
        % Percentage in gait
        HealStrikePercentage
        ToeOffPercentage
-       NormalizedCopArray
+       % Normalized COP array as a percentage of foot length from the heel
+       NormalizedCopArray_FromHeel
    end
    
    methods 
       function obj = NormalizeCopData(rawCopDataCsv, ...
-          heelStrikePercentage, toeOffPercentage)
+          heelStrikePercentage, toeOffPercentage, patientFootLengthInMm)
         
         obj.HealStrikePercentage = heelStrikePercentage;
         obj.ToeOffPercentage = toeOffPercentage;
@@ -22,7 +23,9 @@ classdef NormalizeCopData
         numberGaitFrames = toeOffPercentage - heelStrikePercentage;
         %forceInLeftLegGaitTime = numberGaitFrames*timeSamplingRate;
         
-        obj.NormalizedCopArray = obj.GetNormalizedCop(rawCopX, numberCopFrames, numberGaitFrames);
+        mmCopArray = obj.GetNormalizedCop(rawCopX, numberCopFrames, numberGaitFrames);
+        % Get the array in terms of mm from the heel
+        obj.NormalizedCopArray_FromHeel = obj.GetCopArrayAsPercentageFootLengthFromHeel(mmCopArray, patientFootLengthInMm);
       end 
       
       function normalizedCopArray = GetNormalizedCop(~, rawCopX, numberCopFrames, ...
@@ -51,6 +54,24 @@ classdef NormalizeCopData
               % Divide the totalCop value by the # of frames to avg
               normalizedCopArray(gaitFrameCount) = totalCom/framesToAvg;
               gaitFrameCount = gaitFrameCount + 1;
+          end
+      end
+      % Take the position on the force plate in mm, subtract heel contact
+      % position from all values - gives the distance from heel in mm
+      % Then divide by the length of the foot in mm, to give the percentage
+      % distance in terms of foot length from heel, the COP is at
+      function copArray = GetCopArrayAsPercentageFootLengthFromHeel(~, mmCopArray, ... 
+              patientFootLengthInMm)
+          % Initialize the copArray
+          copArray = zeros(1, length(mmCopArray));
+          
+          % Smallest position in the array (furtherest back on the force)
+          % is at heel strike or at position 1
+          heelContactPosition = mmCopArray(1);
+          
+          for i=1:length(mmCopArray)
+              distanceAlongFootFromInitialContact = mmCopArray(i) - heelContactPosition;
+              copArray(i) = distanceAlongFootFromInitialContact/patientFootLengthInMm;
           end
       end
    end    

@@ -28,11 +28,11 @@ classdef FourBarLinkagePosition
                 if((hipAngleZRads < 0 && kneeAngleZRads > 0))
                     kneeAngleRelative = hipAngleZRads + kneeAngleZRads;
                 end
-            Ltopbar = 50; %manually change value
-            Lbotbar = 50; %manually change value
-            L1 = 30; %manually change value
-            L3 = 30; %manually change value
-            Theta2 = 25.6; %manually change value
+            Ltopbar = 26; %manually change value - in CM
+            Lbotbar = 22; %manually change value - in CM
+            L1 = 4.45; %manually change value - in CM
+            L3 = 4.09; %manually change value - in CM
+            Theta2 = 27.5; %manually change value
                 Theta2Rads = deg2rad(Theta2);
             Theta3 = 90 - Theta2;
                 Theta3Rads = deg2rad(Theta3);

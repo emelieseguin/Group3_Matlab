@@ -88,9 +88,9 @@ function DrawCurrentPosition(ax, fourBarArray)
     global barIndex Link1Line Link2Line Link3Line Link4Line;
     global intersectPoint;
     % Draw the lines for the 4 linkages
-    Link1Line = animatedline(fourBarArray(barIndex).Link1X, fourBarArray(barIndex).Link1Y,'Parent', ax,'Color','r','LineWidth',3);
+    Link1Line = animatedline(fourBarArray(barIndex).Link1X, fourBarArray(barIndex).Link1Y,'Parent', ax,'Color','y','LineWidth',3);
     Link2Line = animatedline(fourBarArray(barIndex).Link2X, fourBarArray(barIndex).Link2Y,'Parent', ax,'Color','r','LineWidth',3);
-    Link3Line = animatedline(fourBarArray(barIndex).Link3X, fourBarArray(barIndex).Link3Y,'Parent', ax,'Color','b','LineWidth',3);
+    Link3Line = animatedline(fourBarArray(barIndex).Link3X, fourBarArray(barIndex).Link3Y,'Parent', ax,'Color','g','LineWidth',3);
     Link4Line = animatedline(fourBarArray(barIndex).Link4X, fourBarArray(barIndex).Link4Y,'Parent', ax,'Color','b','LineWidth',3);
     
     % Add label to the GUI

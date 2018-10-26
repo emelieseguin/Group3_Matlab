@@ -4,12 +4,13 @@ function Main()
     SetAnthropometricNames(); % Run this to initialize all global naming variables
     
     % Build the anthropomtric model
-    personHeight = 178;
-    model = AnthropometricModel(120.0, 50.0);
+    personHeight = 120; % in cm
+    model = AnthropometricModel(personHeight, 50.0);
 
     patient29AnglesCsvFileName = 'Patient29_Normal_Walking_Angles.csv';
     patient29ForcesCsvFileName = 'Patient29_Normal_Walking_Forces.csv';
     patient29CopData_Left = 'Patient29_ForcePlateData_LeftFoot.csv';
+    patient29FootLengthInMm = 100;  % Need to actually find the patientFootLength for correct Moments
     
     % Create objects to store the gait information (angles, forces) of patient 29
     patient29Angles = GaitDataAngles(patient29AnglesCsvFileName);
@@ -42,7 +43,7 @@ function Main()
     linearAccel = LinearAcceleration(positionArray, timeForGaitCycle);
     angularAccel = AngularAcceleration(positionArray, timeForGaitCycle);
     normCopData = NormalizeCopData(patient29CopData_Left, ...
-        patient29_HeelStrike, patient29_ToeOff);
+        patient29_HeelStrike, patient29_ToeOff, patient29FootLengthInMm);
     
     % Plot the Linear Velocity and Acceleration
         %linearAccel.PlotVelocityInterpolationCurves();
@@ -55,6 +56,8 @@ function Main()
     % Run the gait simulation
     FourBarLinkageSim(fourBarArray);
     GaitSimulation(positionArray);
+    %FullSimulation(fourBarArray, positionArray);
+    
     
     InverseDynamics(model, linearAccel, angularAccel, patient29Forces, normCopData);
 end

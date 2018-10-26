@@ -6,21 +6,18 @@ classdef GaitLegPosition
         ShankPositionX
         ShankPositionY
         
+        KneeJointX
+        KneeJointY
+        
         % Distance from the Ankle to the Calcaneous
         AnkleToCalcX
         AnkleToCalcY
         % Distance from the Ankle to the Meta
         AnkleToMetaX
         AnkleToMetaY
-        % Distance from the Calcaneous to the 5th MetaTarsal
-        CalcToMetaX
-        CalcToMetaY
         % Distance from the Calcaneous to the Toes
         CalcToToeX
         CalcToToeY
-        
-        FootPositionX  % Prob won't be used
-        FootPositionY  % Prob won't be used
         
         FootAngleZ
         KneeAngleZ
@@ -77,6 +74,9 @@ classdef GaitLegPosition
             x3 = (x3proj*cos(hipAngleZRads)) - (y3proj*sin(hipAngleZRads));
             y3 = (y3proj*cos(hipAngleZRads)) + (x3proj*sin(hipAngleZRads));
             
+            obj.KneeJointX = x3;
+            obj.KneeJointY = y3;
+            
             % Thigh COM
             obj.ThighComXPoint = (thighXComProj*cos(hipAngleZRads)) - (thingYComProj*sin(hipAngleZRads));
             obj.ThighComYPoint = (thingYComProj*cos(hipAngleZRads)) + (thighXComProj*sin(hipAngleZRads));
@@ -104,18 +104,40 @@ classdef GaitLegPosition
             obj.ShankComXPoint = x3 + ((shankXproj - x3)*cos(adjustedKneeAngleZRads)) - ((shankYproj-y3)*sin(adjustedKneeAngleZRads));    % Could use COM Map
             obj.ShankComYPoint = y3 + ((shankXproj-x3)*sin(adjustedKneeAngleZRads)) + ((shankYproj-y3)*cos(adjustedKneeAngleZRads));  % Could use COM Map
             
+            % Find the position of the calcaneous relative to the ankle
+            dCalcToAnkle = footHeightDim/(sin(model.TalocalcanealAngleRad));
+            calcXProj1 = x2;
+            calcYProj1 = y2 - dCalcToAnkle;
             
-            %%% Changes of the actual toe!!!!
-            %calcXProj = x2-
-            %calcX = x2 + (())
+            % Rotate into anatomical position
+            rotationAngle = deg2rad(-49);
+            calcXProj2 = x2 + ((calcXProj1-x2)*cos(rotationAngle)) - ((calcYProj1-y2)*sin(rotationAngle));
+            calcYProj2 = y2 + ((calcXProj1-x2)*sin(rotationAngle)) +((calcYProj1-y2)*cos(rotationAngle));
             
-            % Find the toe position
-            x1 = x2 + footLengthDim*cos(footAngleZRads);
-            y1 = y2 + footLengthDim*sin(footAngleZRads);
+            % Rotate to make proper position with the foot
+            calcX = x2 + ((calcXProj2-x2)*cos(footAngleZRads)) - ((calcYProj2-y2)*sin(footAngleZRads));
+            calcY = y2 + ((calcXProj2-x2)*sin(footAngleZRads)) +((calcYProj2-y2)*cos(footAngleZRads));
             
-            % Find the COM position of the foot
-            obj.FootComXPoint = x2 + footLengthDim*model.comPercentageMap(pFootCOMx)*cos(footAngleZRads);  % Could use COM Map
-            obj.FootComYPoint = y2 + footLengthDim*model.comPercentageMap(pFootCOMx)*sin(footAngleZRads);  % Could use COM Map
+            % Find 5th Metatarsal Point
+            metaXProj = calcX + (footLengthDim-toeLengthDim);
+            metaYProj = calcY;
+            
+            metaX = calcX + ((metaXProj-calcX)*cos(footAngleZRads)) - ((metaYProj - calcY)*sin(footAngleZRads));
+            metaY = calcY + ((metaXProj-calcX)*sin(footAngleZRads)) + ((metaYProj - calcY)*cos(footAngleZRads));
+            
+            % Find the Toe Position
+            toeXProj = calcX + footLengthDim;
+            toeYProj = calcY;
+            
+            toeX = calcX + ((toeXProj-calcX)*cos(footAngleZRads)) - ((toeYProj - calcY)*sin(footAngleZRads));
+            toeY = calcY + ((toeXProj-calcX)*sin(footAngleZRads)) + ((toeYProj - calcY)*cos(footAngleZRads));
+
+            % Find the COM of the foot
+            footComXProj = calcX + footLengthDim*model.comPercentageMap(pFootCOMx);
+            footComYProj = calcY;
+            
+            obj.FootComXPoint = calcX + ((footComXProj-calcX)*cos(footAngleZRads)) - ((footComYProj - calcY)*sin(footAngleZRads));
+            obj.FootComYPoint = calcY + ((footComXProj-calcX)*sin(footAngleZRads)) + ((footComYProj - calcY)*cos(footAngleZRads));
             
             % Set the vectors of the segments
             obj.ThighPositionX = [x3 x4];
@@ -124,8 +146,17 @@ classdef GaitLegPosition
             obj.ShankPositionX = [x2 x3];
             obj.ShankPositionY = [y2 y3];
             
-            obj.FootPositionX = [x1 x2];
-            obj.FootPositionY = [y1 y2];
+            % Distance from the Ankle to the Calcaneous
+            obj.AnkleToCalcX = [x2 calcX];
+            obj.AnkleToCalcY = [y2 calcY];
+            
+            % Distance from the Ankle to the 5th Metatarsal
+            obj.AnkleToMetaX = [x2 metaX];
+            obj.AnkleToMetaY = [y2 metaY];
+            
+            % Distance from the Calcaneous to the Toes
+            obj.CalcToToeX = [calcX toeX];
+            obj.CalcToToeY = [calcY toeY];
             
             % Set the vectors for the COM
             obj.ThighComXVector = [obj.ThighComXPoint x4];
@@ -134,8 +165,8 @@ classdef GaitLegPosition
             obj.ShankComXVector = [obj.ShankComXPoint x3];
             obj.ShankComYVector = [obj.ShankComYPoint y3];
             
-            obj.FootComXVector = [obj.FootComXPoint x2];
-            obj.FootComYVector = [obj.FootComYPoint y2];
+            obj.FootComXVector = [obj.FootComXPoint calcX];
+            obj.FootComYVector = [obj.FootComYPoint calcY];
         end
     end  
 end
