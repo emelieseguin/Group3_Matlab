@@ -1,4 +1,4 @@
-function FullSimulation(fourBarArray, positionArray)   
+function FullSimulation(plantarFlexionArray, positionArray)   
     global index;
     index = 1;
 
@@ -15,24 +15,24 @@ function FullSimulation(fourBarArray, positionArray)
 
     % Create the axis to draw on - positioning is [left bottom width height]
     ax = uiaxes(fig, 'Position',[50 50 400 400], 'GridLineStyle', 'none');
-    ax.XLim = [-50 70];
-    ax.YLim = [-100 20];
+    ax.XLim = [-1 1];
+    ax.YLim = [-1 1];
     set(ax, 'visible', 'off')    
     
     % Create the 3 UI buttons  
     nextBtn = uibutton(fig,'Position',[440, 30, 100, 22],'Text','Next Position', ...
-        'ButtonPushedFcn', @(nextBtn,event) MoveToNextGaitPositionOnClick(nextBtn,ax, fourBarArray, positionArray));
+        'ButtonPushedFcn', @(nextBtn,event) MoveToNextGaitPositionOnClick(nextBtn,ax, plantarFlexionArray, positionArray));
     previousBtn = uibutton(fig,'Position',[40, 30, 100, 22],'Text','Previous Position', ...
-        'ButtonPushedFcn', @(previousBtn,event) MoveToPreviousGaitPositionOnClick(previousBtn,ax, fourBarArray, positionArray));
+        'ButtonPushedFcn', @(previousBtn,event) MoveToPreviousGaitPositionOnClick(previousBtn,ax, plantarFlexionArray, positionArray));
     
     simBtn = uibutton(fig,'Position',[460, 150, 75, 20],'Text','Run Sim', ...
-        'ButtonPushedFcn', @(previousBtn,event) RunFullGaitSimOnClick(previousBtn,ax, fourBarArray, positionArray));
+        'ButtonPushedFcn', @(previousBtn,event) RunFullGaitSimOnClick(previousBtn,ax, plantarFlexionArray, positionArray));
     
     DrawCurrentLegPosition(ax, positionArray);
-    DrawCurrentFourBarPosition(ax, fourBarArray);
+    DrawCurrentFourBarPosition(ax, plantarFlexionArray);
 end
 
-function MoveToNextGaitPositionOnClick(nextBtn, ax, fourBarArray, positionArray)
+function MoveToNextGaitPositionOnClick(nextBtn, ax, plantarFlexionArray, positionArray)
         global index;
         RemoveCurrentLegDrawing(); 
         RemoveCurrentFourBarDrawing();
@@ -44,10 +44,10 @@ function MoveToNextGaitPositionOnClick(nextBtn, ax, fourBarArray, positionArray)
             index = index +1;
         end
         DrawCurrentLegPosition(ax, positionArray);
-        DrawCurrentFourBarPosition(ax, fourBarArray);
+        DrawCurrentFourBarPosition(ax, plantarFlexionArray);
 end
 
-function MoveToPreviousGaitPositionOnClick(previousBtn, ax, fourBarArray, positionArray)
+function MoveToPreviousGaitPositionOnClick(previousBtn, ax, plantarFlexionArray, positionArray)
         global index;
         RemoveCurrentLegDrawing();
         RemoveCurrentFourBarDrawing();
@@ -59,10 +59,10 @@ function MoveToPreviousGaitPositionOnClick(previousBtn, ax, fourBarArray, positi
             index = index -1;
         end
         DrawCurrentLegPosition(ax, positionArray);   
-        DrawCurrentFourBarPosition(ax, fourBarArray);
+        DrawCurrentFourBarPosition(ax, plantarFlexionArray);
 end
 
-function RunFullGaitSimOnClick(simBtn, ax, fourBarArray, positionArray)
+function RunFullGaitSimOnClick(simBtn, ax, plantarFlexionArray, positionArray)
     global index;
     RemoveCurrentLegDrawing();
     RemoveCurrentFourBarDrawing();
@@ -74,7 +74,7 @@ function RunFullGaitSimOnClick(simBtn, ax, fourBarArray, positionArray)
     
     for num = 1:(length(positionArray))
        DrawCurrentLegPosition(ax, positionArray);
-       DrawCurrentFourBarPosition(ax, fourBarArray);
+       DrawCurrentFourBarPosition(ax, plantarFlexionArray);
        pause(.02);
        RemoveCurrentLegDrawing();
        RemoveCurrentFourBarDrawing();
@@ -83,7 +83,7 @@ function RunFullGaitSimOnClick(simBtn, ax, fourBarArray, positionArray)
     
     index = previousIndex;
     DrawCurrentLegPosition(ax, positionArray);
-    DrawCurrentFourBarPosition(ax, fourBarArray);
+    DrawCurrentFourBarPosition(ax, plantarFlexionArray);
 end
 
 function RemoveCurrentLegDrawing()
@@ -129,14 +129,14 @@ function RemoveCurrentFourBarDrawing()
     clearpoints(Link4Line);
 end
 
-function DrawCurrentFourBarPosition(ax, fourBarArray)
+function DrawCurrentFourBarPosition(ax, plantarFlexionArray)
     global index Link1Line Link2Line Link3Line Link4Line;
     %global intersectPoint;
     % Draw the lines for the 4 linkages
-    Link1Line = animatedline(fourBarArray(index).Link1X, fourBarArray(index).Link1Y,'Parent', ax,'Color','y','LineWidth',3);
-    Link2Line = animatedline(fourBarArray(index).Link2X, fourBarArray(index).Link2Y,'Parent', ax,'Color','r','LineWidth',3);
-    Link3Line = animatedline(fourBarArray(index).Link3X, fourBarArray(index).Link3Y,'Parent', ax,'Color','g','LineWidth',3);
-    Link4Line = animatedline(fourBarArray(index).Link4X, fourBarArray(index).Link4Y,'Parent', ax,'Color','b','LineWidth',3);
+    Link1Line = animatedline(plantarFlexionArray(index).Link1X, plantarFlexionArray(index).Link1Y,'Parent', ax,'Color','g','LineWidth',3);
+    Link2Line = animatedline(plantarFlexionArray(index).Link2X, plantarFlexionArray(index).Link2Y,'Parent', ax,'Color','g','LineWidth',3);
+    %Link3Line = animatedline(plantarFlexionArray(index).Link3X, plantarFlexionArray(index).Link3Y,'Parent', ax,'Color','g','LineWidth',3);
+    %Link4Line = animatedline(plantarFlexionArray(index).Link4X, plantarFlexionArray(index).Link4Y,'Parent', ax,'Color','b','LineWidth',3);
     
     % Add label to the GUI
     %intersectPoint.Text = ['Intersection (X,Y): (' , num2str(round(fourBarArray(index).IntersectPointX)), ...

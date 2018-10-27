@@ -19,12 +19,15 @@ function Main()
     % Build the position and 4Bar array from the patientAngle data
     positionArray = [];
     fourBarArray = [];
+    plantarFlexionArray = [];
+    springLengthArray = [];
     for item = 1:(length(patient29Angles.LFootAngleZ))
         
         % Get the angles from the object
         foot = patient29Angles.LFootAngleZ(item);
         knee = patient29Angles.LKneeAngleZ(item);
         hip = patient29Angles.LHipAngleZ(item);
+        ankle = patient29Angles.LAnkleAngleZ(item);
         
         % Create the position of the leg, add it to the array
         position = GaitLegPosition(model, foot, knee, hip);
@@ -33,6 +36,11 @@ function Main()
         linkagePosition = FourBarLinkagePosition(personHeight, position.KneeJointX, position.KneeJointY, ...
             model.dimensionMap(rightShankLength), hip, knee);
         fourBarArray = [fourBarArray linkagePosition];
+        
+        plantarPosition = PlantarFlexionSpringPosition(personHeight, position.AnkleJointX, position.AnkleJointY, ...
+            ankle, foot, position.ShankComXPoint, position.ShankComYPoint);
+        plantarFlexionArray = [plantarFlexionArray plantarPosition];
+        springLengthArray = [springLengthArray plantarPosition.Length];
     end   
     
     % Calc the linear and angular accelerations 
@@ -44,6 +52,9 @@ function Main()
     angularAccel = AngularAcceleration(positionArray, timeForGaitCycle);
     normCopData = NormalizeCopData(patient29CopData_Left, ...
         patient29_HeelStrike, patient29_ToeOff, patient29FootLengthInMm);
+   
+    % Plot the shank spring
+    PlotShankSpringLength(springLengthArray);
     
     % Plot the Linear Velocity and Acceleration
         %linearAccel.PlotVelocityInterpolationCurves();
@@ -55,9 +66,9 @@ function Main()
         
     % Run the gait simulation
     %FourBarLinkageSim(fourBarArray);
-    GaitSimulation(positionArray);
-    %FullSimulation(fourBarArray, positionArray);
-    
+    %GaitSimulation(positionArray);
+    PlantarFlexionSpringSim(plantarFlexionArray);
+    FullSimulation(plantarFlexionArray, positionArray);
     
     dynamics = InverseDynamics(model, positionArray, linearAccel, ...
         angularAccel, patient29Forces, normCopData);
@@ -65,6 +76,14 @@ end
 
 %PlotPatientGaitAngles(patient29Angles);
 %PlotPatientGaitForces(patient29Forces);
+
+function PlotShankSpringLength(springLengthArray)
+    figure 
+    
+    plot(1:length(springLengthArray), springLengthArray);
+
+end
+
 
 function PlotPatientGaitAngles(patientAngles)
     figure
