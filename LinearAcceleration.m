@@ -30,11 +30,11 @@ classdef LinearAcceleration
     end 
     
     methods
-        function obj = LinearAcceleration(positionArray, cadence)
+        function obj = LinearAcceleration(positionArray, timePerCycle)
             
             % Calculate the time between positions - Should be cadence/101
             
-            obj.captureRate = cadence / length(positionArray);
+            obj.captureRate = timePerCycle / length(positionArray);
             
             % Iterate through the array to get all the velocities
             for index = 1:(length(positionArray)-1)
@@ -62,7 +62,10 @@ classdef LinearAcceleration
         function velocity = GetLinearVelocity(~, value, nextValue, captureRate)
             
             % Relative Distance is the distance between the 2 vectors
-            relativeDistance = abs(value - nextValue);
+            relativeDistance = nextValue - value;
+            
+            % Before it was abs(value - nextValue)  ---- Not sure why it
+            % was, but it was
             
             % Get velocity by dividing by the time between captures
             velocity = relativeDistance / captureRate;

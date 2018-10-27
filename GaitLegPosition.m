@@ -6,8 +6,11 @@ classdef GaitLegPosition
         ShankPositionX
         ShankPositionY
         
+        % Joints in space
         KneeJointX
         KneeJointY
+        AnkleJointX
+        AnkleJointY
         
         % Distance from the Ankle to the Calcaneous
         AnkleToCalcX
@@ -43,7 +46,7 @@ classdef GaitLegPosition
     methods
         function obj = GaitLegPosition(model, footAngleZ, kneeAngleZ, hipAngleZ)
             % Center of mass variables to be accessed from the map
-            global pFootCOMx pShankCOM pThighCOM;
+            global pFootCOMx pFootCOMy pShankCOM pThighCOM;
             global leftShankLength thighLength footLength footHeight toeLength;
             
             % Get the Dimensions of body segments
@@ -100,6 +103,9 @@ classdef GaitLegPosition
             x2 = x3 + ((x2proj - x3)*cos(adjustedKneeAngleZRads)) - ((y2proj-y3)*sin(adjustedKneeAngleZRads));
             y2 = y3 + ((x2proj-x3)*sin(adjustedKneeAngleZRads)) + ((y2proj-y3)*cos(adjustedKneeAngleZRads));
             
+            obj.AnkleJointX = x2;
+            obj.AnkleJointY = y2;
+            
             % Find the com position of the shank
             obj.ShankComXPoint = x3 + ((shankXproj - x3)*cos(adjustedKneeAngleZRads)) - ((shankYproj-y3)*sin(adjustedKneeAngleZRads));    % Could use COM Map
             obj.ShankComYPoint = y3 + ((shankXproj-x3)*sin(adjustedKneeAngleZRads)) + ((shankYproj-y3)*cos(adjustedKneeAngleZRads));  % Could use COM Map
@@ -132,9 +138,9 @@ classdef GaitLegPosition
             toeX = calcX + ((toeXProj-calcX)*cos(footAngleZRads)) - ((toeYProj - calcY)*sin(footAngleZRads));
             toeY = calcY + ((toeXProj-calcX)*sin(footAngleZRads)) + ((toeYProj - calcY)*cos(footAngleZRads));
 
-            % Find the COM of the foot
+            % Find the COM of the foot in X
             footComXProj = calcX + footLengthDim*model.comPercentageMap(pFootCOMx);
-            footComYProj = calcY;
+            footComYProj = calcY + footHeightDim*model.comPercentageMap(pFootCOMy);
             
             obj.FootComXPoint = calcX + ((footComXProj-calcX)*cos(footAngleZRads)) - ((footComYProj - calcY)*sin(footAngleZRads));
             obj.FootComYPoint = calcY + ((footComXProj-calcX)*sin(footAngleZRads)) + ((footComYProj - calcY)*cos(footAngleZRads));

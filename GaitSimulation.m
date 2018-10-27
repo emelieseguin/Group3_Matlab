@@ -15,8 +15,8 @@ function GaitSimulation(positionArray)
 
     % Create the axis to draw on - positioning is [left bottom width height]
     ax = uiaxes(fig, 'Position',[50 50 400 400], 'GridLineStyle', 'none');
-    ax.XLim = [-50 70];
-    ax.YLim = [-100 20];
+    ax.XLim = [-1 1];
+    ax.YLim = [-1 1];
     set(ax, 'visible', 'off')    
     
     % Create the 3 UI buttons  
