@@ -1,4 +1,4 @@
-function FullSimulation(plantarFlexionArray, positionArray)   
+function FullSimulationPart2(plantarFlexionArray, positionArray, dorsiFlexionArray)   
     global index;
     index = 1;
 
@@ -21,21 +21,23 @@ function FullSimulation(plantarFlexionArray, positionArray)
     
     % Create the 3 UI buttons  
     nextBtn = uibutton(fig,'Position',[440, 30, 100, 22],'Text','Next Position', ...
-        'ButtonPushedFcn', @(nextBtn,event) MoveToNextGaitPositionOnClick(nextBtn,ax, plantarFlexionArray, positionArray));
+        'ButtonPushedFcn', @(nextBtn,event) MoveToNextGaitPositionOnClick(nextBtn,ax, plantarFlexionArray, positionArray, dorsiFlexionArray));
     previousBtn = uibutton(fig,'Position',[40, 30, 100, 22],'Text','Previous Position', ...
-        'ButtonPushedFcn', @(previousBtn,event) MoveToPreviousGaitPositionOnClick(previousBtn,ax, plantarFlexionArray, positionArray));
+        'ButtonPushedFcn', @(previousBtn,event) MoveToPreviousGaitPositionOnClick(previousBtn,ax, plantarFlexionArray, positionArray, dorsiFlexionArray));
     
     simBtn = uibutton(fig,'Position',[460, 150, 75, 20],'Text','Run Sim', ...
-        'ButtonPushedFcn', @(previousBtn,event) RunFullGaitSimOnClick(previousBtn,ax, plantarFlexionArray, positionArray));
+        'ButtonPushedFcn', @(previousBtn,event) RunFullGaitSimOnClick(previousBtn,ax, plantarFlexionArray, positionArray, dorsiFlexionArray));
     
     DrawCurrentLegPosition(ax, positionArray);
-    DrawCurrentFourBarPosition(ax, plantarFlexionArray);
+    DrawCurrentPlantarFlexionSpring(ax, plantarFlexionArray);
+    DrawCurrentDorsiFlexionPosition(ax, dorsiFlexionArray);
 end
 
-function MoveToNextGaitPositionOnClick(nextBtn, ax, plantarFlexionArray, positionArray)
+function MoveToNextGaitPositionOnClick(nextBtn, ax, plantarFlexionArray, positionArray, dorsiFlexionArray)
         global index;
         RemoveCurrentLegDrawing(); 
-        RemoveCurrentFourBarDrawing();
+        RemoveCurrentPlantarFlexionSpring();
+        RemoveCurrentDorsiFlexionDrawing();
         
         % If it is the last postion, loop to the first position of the array
         if(index == length(positionArray))
@@ -44,13 +46,15 @@ function MoveToNextGaitPositionOnClick(nextBtn, ax, plantarFlexionArray, positio
             index = index +1;
         end
         DrawCurrentLegPosition(ax, positionArray);
-        DrawCurrentFourBarPosition(ax, plantarFlexionArray);
+        DrawCurrentPlantarFlexionSpring(ax, plantarFlexionArray);
+        DrawCurrentDorsiFlexionPosition(ax, dorsiFlexionArray);
 end
 
-function MoveToPreviousGaitPositionOnClick(previousBtn, ax, plantarFlexionArray, positionArray)
+function MoveToPreviousGaitPositionOnClick(previousBtn, ax, plantarFlexionArray, positionArray, dorsiFlexionArray)
         global index;
         RemoveCurrentLegDrawing();
-        RemoveCurrentFourBarDrawing();
+        RemoveCurrentPlantarFlexionSpring();
+        RemoveCurrentDorsiFlexionDrawing();
         
         % If it is the first postion, loop to the end of the array
         if(index == 1)
@@ -59,13 +63,15 @@ function MoveToPreviousGaitPositionOnClick(previousBtn, ax, plantarFlexionArray,
             index = index -1;
         end
         DrawCurrentLegPosition(ax, positionArray);   
-        DrawCurrentFourBarPosition(ax, plantarFlexionArray);
+        DrawCurrentPlantarFlexionSpring(ax, plantarFlexionArray);
+        DrawCurrentDorsiFlexionPosition(ax, dorsiFlexionArray);
 end
 
-function RunFullGaitSimOnClick(simBtn, ax, plantarFlexionArray, positionArray)
+function RunFullGaitSimOnClick(simBtn, ax, plantarFlexionArray, positionArray, dorsiFlexionArray)
     global index;
     RemoveCurrentLegDrawing();
-    RemoveCurrentFourBarDrawing();
+    RemoveCurrentPlantarFlexionSpring();
+    RemoveCurrentDorsiFlexionDrawing();
     
     % Store Index so that it can be set back to the previous frame after
     % the loop
@@ -74,16 +80,19 @@ function RunFullGaitSimOnClick(simBtn, ax, plantarFlexionArray, positionArray)
     
     for num = 1:(length(positionArray))
        DrawCurrentLegPosition(ax, positionArray);
-       DrawCurrentFourBarPosition(ax, plantarFlexionArray);
+       DrawCurrentPlantarFlexionSpring(ax, plantarFlexionArray);
+       DrawCurrentDorsiFlexionPosition(ax, dorsiFlexionArray);
        pause(.02);
        RemoveCurrentLegDrawing();
-       RemoveCurrentFourBarDrawing();
+       RemoveCurrentPlantarFlexionSpring();
+       RemoveCurrentDorsiFlexionDrawing();
        index = index + 1;
     end
     
     index = previousIndex;
     DrawCurrentLegPosition(ax, positionArray);
-    DrawCurrentFourBarPosition(ax, plantarFlexionArray);
+    DrawCurrentPlantarFlexionSpring(ax, plantarFlexionArray)
+    DrawCurrentDorsiFlexionPosition(ax, dorsiFlexionArray);
 end
 
 function RemoveCurrentLegDrawing()
@@ -121,24 +130,34 @@ function DrawCurrentLegPosition(ax, positionArray)
     footLabel.Text = ['Foot Angle: ' , num2str(round(positionArray(index).FootAngleZ)), char(176)];  
 end
 
-function RemoveCurrentFourBarDrawing()
-    global Link1Line Link2Line Link3Line Link4Line;
+function RemoveCurrentPlantarFlexionSpring()
+    global plantarFlexionSpringSmallLine plantarFlexionSpringTallLine;
+    clearpoints(plantarFlexionSpringSmallLine);
+    clearpoints(plantarFlexionSpringTallLine);
+end
+
+function DrawCurrentPlantarFlexionSpring(ax, plantarFlexionArray)
+    global index plantarFlexionSpringSmallLine plantarFlexionSpringTallLine;
+    % Draw the 2 lines for the plantaFlexionSpring
+    plantarFlexionSpringSmallLine = animatedline(plantarFlexionArray(index).Link1X, plantarFlexionArray(index).Link1Y,'Parent', ax,'Color','black','LineWidth',1);
+    plantarFlexionSpringTallLine = animatedline(plantarFlexionArray(index).Link2X, plantarFlexionArray(index).Link2Y,'Parent', ax,'Color','black','LineWidth',1);    
+end
+
+function RemoveCurrentDorsiFlexionDrawing()
+    global Link1Line Link2Line Link3Line Link4Line Link5Line;
     clearpoints(Link1Line);
     clearpoints(Link2Line);
     clearpoints(Link3Line); 
     clearpoints(Link4Line);
+    clearpoints(Link5Line)
 end
 
-function DrawCurrentFourBarPosition(ax, plantarFlexionArray)
-    global index Link1Line Link2Line Link3Line Link4Line;
-    %global intersectPoint;
-    % Draw the lines for the 4 linkages
-    Link1Line = animatedline(plantarFlexionArray(index).Link1X, plantarFlexionArray(index).Link1Y,'Parent', ax,'Color','g','LineWidth',3);
-    Link2Line = animatedline(plantarFlexionArray(index).Link2X, plantarFlexionArray(index).Link2Y,'Parent', ax,'Color','g','LineWidth',3);
-    %Link3Line = animatedline(plantarFlexionArray(index).Link3X, plantarFlexionArray(index).Link3Y,'Parent', ax,'Color','g','LineWidth',3);
-    %Link4Line = animatedline(plantarFlexionArray(index).Link4X, plantarFlexionArray(index).Link4Y,'Parent', ax,'Color','b','LineWidth',3);
+function DrawCurrentDorsiFlexionPosition(ax, dorsiFlexionArray)
+    global index Link1Line Link2Line Link3Line Link4Line Link5Line;
+    Link1Line = animatedline(dorsiFlexionArray(index).Link1X, dorsiFlexionArray(index).Link1Y,'Parent', ax,'Color','black','LineWidth',1);
+    Link2Line = animatedline(dorsiFlexionArray(index).Link2X, dorsiFlexionArray(index).Link2Y,'Parent', ax,'Color','r','LineWidth',1);
+    Link3Line = animatedline(dorsiFlexionArray(index).Link3X, dorsiFlexionArray(index).Link3Y,'Parent', ax,'Color','black','LineWidth',1);
+    Link4Line = animatedline(dorsiFlexionArray(index).Link4X, dorsiFlexionArray(index).Link4Y,'Parent', ax,'Color','black','LineWidth',1);
+    Link5Line = animatedline(dorsiFlexionArray(index).Link5X, dorsiFlexionArray(index).Link5Y,'Parent', ax,'Color','black','LineWidth',1);
     
-    % Add label to the GUI
-    %intersectPoint.Text = ['Intersection (X,Y): (' , num2str(round(fourBarArray(index).IntersectPointX)), ...
-    %    ',', num2str(round(fourBarArray(index).IntersectPointY)), ')'] ;
 end

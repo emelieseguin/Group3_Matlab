@@ -133,6 +133,9 @@ classdef AngularAcceleration
 
             fplot(bottom, obj.angularAccelFoot, [0, 99], 'b-', 'LineWidth', 2);
             title(bottom,'Foot Angular Acceleration');
+            xlabel('% Gait Cycle') 
+            ylabel('Degrees/s^2') 
+            axis(bottom, [0 100 -100 100]);
         end
     end
 end

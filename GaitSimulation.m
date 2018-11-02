@@ -87,7 +87,7 @@ function RemoveCurrentDrawing()
     
     clearpoints(ThighComPoint); 
     clearpoints(ShankComPoint); 
-    clearpoints(FootComPoint); 
+    %clearpoints(FootComPoint); 
 end
 
 function DrawCurrentPosition(ax, positionArray)
@@ -103,7 +103,7 @@ function DrawCurrentPosition(ax, positionArray)
     % Draw lines for the Com Pieces
     ThighComPoint = animatedline(positionArray(index).ThighComXVector, positionArray(index).ThighComYVector,'Parent', ax,'Color','b','LineWidth',3);
     ShankComPoint = animatedline(positionArray(index).ShankComXVector, positionArray(index).ShankComYVector,'Parent', ax,'Color','b','LineWidth',3);
-    FootComPoint = animatedline(positionArray(index).FootComXVector, positionArray(index).FootComYVector,'Parent', ax,'Color','b','LineWidth',3);
+    %FootComPoint = animatedline(positionArray(index).FootComXVector, positionArray(index).FootComYVector,'Parent', ax,'Color','b','LineWidth',3);
     
     % Add label to the GUI
     % char(176) is degree

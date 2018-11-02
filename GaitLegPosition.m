@@ -40,6 +40,9 @@ classdef GaitLegPosition
         ShankComYPoint
         FootComXPoint
         FootComYPoint
+        
+        ToeX
+        ToeY
     end
     
     % CCW in the sagital plane is positive
@@ -138,6 +141,9 @@ classdef GaitLegPosition
             toeX = calcX + ((toeXProj-calcX)*cos(footAngleZRads)) - ((toeYProj - calcY)*sin(footAngleZRads));
             toeY = calcY + ((toeXProj-calcX)*sin(footAngleZRads)) + ((toeYProj - calcY)*cos(footAngleZRads));
 
+            obj.ToeX = toeX;
+            obj.ToeY = toeY;
+            
             % Find the COM of the foot in X
             footComXProj = calcX + footLengthDim*model.comPercentageMap(pFootCOMx);
             footComYProj = calcY + footHeightDim*model.comPercentageMap(pFootCOMy);
