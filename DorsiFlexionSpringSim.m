@@ -93,8 +93,8 @@ function DrawCurrentPosition(ax, dorsiFlexionArray)
     % Draw the lines for the 4 linkages
     Link1Line = animatedline(dorsiFlexionArray(barIndex).Link1X, dorsiFlexionArray(barIndex).Link1Y,'Parent', ax,'Color','b','LineWidth',1);
     Link2Line = animatedline(dorsiFlexionArray(barIndex).Link2X, dorsiFlexionArray(barIndex).Link2Y,'Parent', ax,'Color','r','LineWidth',1);
-    Link3Line = animatedline(dorsiFlexionArray(barIndex).Link3X, dorsiFlexionArray(barIndex).Link3Y,'Parent', ax,'Color','b','LineWidth',1);
-    Link4Line = animatedline(dorsiFlexionArray(barIndex).Link4X, dorsiFlexionArray(barIndex).Link4Y,'Parent', ax,'Color','r','LineWidth',1);
+    %Link3Line = animatedline(dorsiFlexionArray(barIndex).Link3X, dorsiFlexionArray(barIndex).Link3Y,'Parent', ax,'Color','b','LineWidth',1);
+    %Link4Line = animatedline(dorsiFlexionArray(barIndex).Link4X, dorsiFlexionArray(barIndex).Link4Y,'Parent', ax,'Color','r','LineWidth',1);
     Link5Line = animatedline(dorsiFlexionArray(barIndex).Link5X, dorsiFlexionArray(barIndex).Link5Y,'Parent', ax,'Color','b','LineWidth',1);
     
     springAndCableLength.Text = ['Length: ' , num2str(dorsiFlexionArray(barIndex).Length)];
