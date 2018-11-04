@@ -1,20 +1,22 @@
 function DorsiSpringCalcs()
-%Design variables - might relate to height later
-    D = Meters2Inches(0.006); % Mean diameter of coil
-    d = Meters2Inches(0.0008); % Diameter of wire
+%Patient Height
+H = 1.78; %m
+%Design variables
+    D = Meters2Inches(0.007/1.78*H); % Mean diameter of coil
+    d = Meters2Inches(0.0012/1.78*H); % Diameter of wire
     E = Pa2Psi(200000000000); % Young's Modulus  - Steel
     G = Pa2Psi(79300000000); % Shear Modulus  - Steel 
-    R1 = Meters2Inches(0.01); % 
-    R2 = Meters2Inches(0.01); % 
-    Fi = Newton2Lbf(5.29); %Initial tension force in spring
-    Nb = 13; % Number of body turns
+    R1 = Meters2Inches(0.005/1.78*H); % 
+    R2 = Meters2Inches(0.005/1.78*H); % 
+    Fi = Newton2Lbf(5.29/1.78*H); %Initial tension force in spring
+    Nb = 15; % Number of body turns
     A = 140000; % Area from Shigley table 10-4
     m = 0.19; % Constant from Shigley table 10-4
-    CableLength = 1.160; %[m]
+    LtotO = Meters2Inches(1.160/1.78*H); %
 
     %Bring in y value [m]
-    MaxSpringLength = 1.1659; %got this value from other calculations
-    y = Meters2Inches(MaxSpringLength-CableLength);
+    Lmax = Meters2Inches(1.1659/1.78*H); %got this value from other calculations
+    y = Lmax-LtotO;
     
     %Calculate number of active turns
     Na = Nb+(G/E);
@@ -26,6 +28,8 @@ function DorsiSpringCalcs()
     Lo = (2*c-1+Nb)*d;
     %Calculate new spring length
     L = Lo + y;
+    %Calculate cable length
+    CL = LtotO-(Lo+4*R1);
     %Calculate Bergstrasser factor
     Kb = (4*c+2)/(4*c-3);
     %Calculate maximum force applied
@@ -55,23 +59,17 @@ function DorsiSpringCalcs()
     %CASE 1 ANALYSIS - Coil fatigue failure
 
         %Get modified endurance limit
-            Sse = (Ssa)/(1-((Ssm/Ssu).^2));
+        Sse = (Ssa)/(1-((Ssm/Ssu).^2));
     nCase1 = (1/2)*((Ssu/TauM).^2)*(TauA/Sse)*(-1+((1+(((2*TauM*Sse)/(Ssu*TauA)).^2)).^(1/2)));
    
-    %Get torsional stress caused by initial tension
-    TauI = 8*Kb*Fi*D/(pi*(d.^3));
-    
-    %Get preferred range of TauI
-    TauITop = 33500/(exp(0.015*c))+1000*(4-((c-3)/6.5));
-    TauITBot = 33500/(exp(0.015*c))-1000*(4-((c-3)/6.5));   
-    
-    %Check if TauIBot<TauI<TauITop - otherwise reject
-    
-    
-    %CASE 2 ANALYSIS - Coil yielding failure   
-     r = TauA/(TauM-TauI);
-     Ssay = (r/(r+1))*(Ssy-TauI);
-     nCase2 = Ssay/TauA;
+
+    %CASE 2 ANALYSIS - Coil yielding failure  
+        %Get torsional stress caused by initial tension
+         TauI = 8*Kb*Fi*D/(pi*(d.^3));
+
+         r = TauA/(TauM-TauI);
+         Ssay = (r/(r+1))*(Ssy-TauI);
+         nCase2 = Ssay/TauA;
     
     %CASE 3 ANALYSIS - End-hook bending fatigue failure (at location A)
     c1 = 2*R1/d;
@@ -99,6 +97,10 @@ function DorsiSpringCalcs()
     Lo = Inches2Meters(Lo);
     L = Inches2Meters(L);
     y = Inches2Meters(y);
+    k = PoundFperInch2NewtonperMeter(k);
+    Lmax = Inches2Meters(Lmax);
+    LtotO = Inches2Meters(LtotO);
+    CL = Inches2Meters(CL);
     Fmax = Lbf2Newton(Fmax);
     Fmin = Lbf2Newton(Fmin);
     Fa = Lbf2Newton(Fa);
@@ -146,4 +148,7 @@ function NewtonM = PoundFInch2NewtonM(PoundF)
 end
 function PoundFInch = NewtonM2PoundFInch(NewtonM)
     PoundFInch = NewtonM*8.850746;
+end
+function NewtonperMeter = PoundFperInch2NewtonperMeter(PoundFperInch)
+    NewtonperMeter = PoundFperInch*175.127;
 end
