@@ -1,12 +1,14 @@
 function HipTorsionSpring(patientHipAngles) 
-%Design variables - might relate to height later 
-    d = Meters2Inches(0.003); % Diameter of wire[m]     
-    D = Meters2Inches(0.035); % Mean diameter of coil[m]  
+%Patient Height
+    H = 1.78; %m
+%Design variables 
+    d = Meters2Inches(0.003/1.78*H); % Diameter of wire[m]     
+    D = Meters2Inches(0.035/1.78*H); % Mean diameter of coil[m]  
     % MUST HAVE D>(Dp4+Delta+d) 
     E = Pa2Psi(103400000000); % Young's Modulus [Pa] - Steel 
-    Delta = Meters2Inches(0.0005); % Diametral clearance [m] 
-    Lwork = Meters2Inches(0.04); % Length of working leg [m] 
-    Lsupp = Meters2Inches(0.01); % Length of supporting leg [m] 
+    Delta = Meters2Inches(0.0005/1.78*H); % Diametral clearance [m] 
+    Lwork = Meters2Inches(0.04/1.78*H); % Length of working leg [m] 
+    Lsupp = Meters2Inches(0.01/1.78*H); % Length of supporting leg [m] 
     Nb = 18; %Number of body turns
     A = 145000; % Area from Shigley table 10-4
     m = 0; % Constant from Shigley table 10-4
