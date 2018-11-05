@@ -4,14 +4,9 @@ classdef GaitLegPosition
         ThighPositionX
         ThighPositionY
         ShankPositionX
-        ShankPositionY
+        ShankPositionY        
         
-        % Joints in space
-        KneeJointX
-        KneeJointY
-        AnkleJointX
-        AnkleJointY
-        
+        % Distances Used for inverse Dynamics
         % Distance from the Ankle to the Calcaneous
         AnkleToCalcX
         AnkleToCalcY
@@ -22,6 +17,7 @@ classdef GaitLegPosition
         CalcToToeX
         CalcToToeY
         
+        % Angles to be displayed in the gui
         FootAngleZ
         KneeAngleZ
         HipAngleZ
@@ -41,6 +37,16 @@ classdef GaitLegPosition
         FootComXPoint
         FootComYPoint
         
+        % Lower body joints in space
+        HipJointX
+        HipJointY
+        KneeJointX
+        KneeJointY
+        AnkleJointX
+        AnkleJointY
+        % Positions of the Foot in space
+        HeelX
+        HeelY
         ToeX
         ToeY
     end
@@ -66,120 +72,134 @@ classdef GaitLegPosition
             
             % Convert angles to radians
             footAngleZRads = deg2rad(footAngleZ);
-            kneeAngleZRads = deg2rad(kneeAngleZ);
+            % Change the knee to have flexsion +'ve in the CCW direction
+            kneeAngleZRads = deg2rad((-1)*kneeAngleZ);
             hipAngleZRads = deg2rad(hipAngleZ);
             
-            x4 = 0;
-            y4 = 0;
-            x3proj = x4;
-            y3proj = y4 - thighLengthDim;
-            thighXComProj = x4;
-            thingYComProj = y4 - (model.comPercentageMap(pThighCOM)*thighLengthDim); % Use the actual, COM proportion
+            %% Position of the Hip Segment %%
+            obj.HipJointX = 0;
+            obj.HipJointY = 0;
             
-            % Knee Point
-            x3 = (x3proj*cos(hipAngleZRads)) - (y3proj*sin(hipAngleZRads));
-            y3 = (y3proj*cos(hipAngleZRads)) + (x3proj*sin(hipAngleZRads));
+            % Create projected points to rotate
+            x3proj = obj.HipJointX;
+            y3proj = obj.HipJointY - thighLengthDim;
+            thighXComProj = obj.HipJointX;
+            thingYComProj = obj.HipJointY - (model.comPercentageMap(pThighCOM)*thighLengthDim);
             
-            obj.KneeJointX = x3;
-            obj.KneeJointY = y3;
+            % Find the Knee and Thigh COM Points in space
+            [obj.KneeJointX, obj.KneeJointY] = obj.RotatePointsAroundPoint(x3proj, y3proj, ...
+                hipAngleZRads, obj.HipJointX, obj.HipJointY);
+            [obj.ThighComXPoint, obj.ThighComYPoint] = obj.RotatePointsAroundPoint(thighXComProj, thingYComProj, ...
+                hipAngleZRads, obj.HipJointX, obj.HipJointY);
             
-            % Thigh COM
-            obj.ThighComXPoint = (thighXComProj*cos(hipAngleZRads)) - (thingYComProj*sin(hipAngleZRads));
-            obj.ThighComYPoint = (thingYComProj*cos(hipAngleZRads)) + (thighXComProj*sin(hipAngleZRads));
+            %% Position of the Ankle Segment %%
+            x2proj = obj.HipJointX;
+            y2proj = obj.HipJointY - thighLengthDim - shankLengthDim;
+            shankXproj = obj.HipJointX;
+            shankYproj = obj.HipJointY - thighLengthDim - (model.comPercentageMap(pShankCOM)*shankLengthDim);
             
-            % Get the projected ankle and shankCom coordinates
-            x2proj = x3 + (shankLengthDim*abs(sin(hipAngleZRads)));
-            shankXproj = x3 + (shankLengthDim*model.comPercentageMap(pShankCOM)*abs(sin(hipAngleZRads)));   % Could use COM Map
+            % Rotate to find Ankle point (hip rotation, then knee rotation)
+            [x2proj, y2proj] = obj.RotatePointsAroundPoint(x2proj, y2proj, ...
+                hipAngleZRads, obj.HipJointX, obj.HipJointY);
+            [obj.AnkleJointX, obj.AnkleJointY] = obj.RotatePointsAroundPoint(x2proj, y2proj, ...
+                kneeAngleZRads, obj.KneeJointX, obj.KneeJointY);
             
-            % If the hip is in extension, then subtract from x3
-            if(hipAngleZ < 0)
-                x2proj = x3 - (shankLengthDim*abs(sin(hipAngleZRads)));
-                shankXproj = x3 - (shankLengthDim*model.comPercentageMap(pShankCOM)*abs(sin(hipAngleZRads))); % Could use COM Map
-            end
-            y2proj = y3 - (shankLengthDim*abs(cos(hipAngleZRads)));
-            shankYproj = y3 - (shankLengthDim*model.comPercentageMap(pShankCOM)*abs(cos(hipAngleZRads))); % Could use COM Map
-            
-            % Change the knee to have flexsion +'ve in the CCW direction
-            adjustedKneeAngleZRads = kneeAngleZRads * -1;
-            
-            % Find the ankle joint
-            x2 = x3 + ((x2proj - x3)*cos(adjustedKneeAngleZRads)) - ((y2proj-y3)*sin(adjustedKneeAngleZRads));
-            y2 = y3 + ((x2proj-x3)*sin(adjustedKneeAngleZRads)) + ((y2proj-y3)*cos(adjustedKneeAngleZRads));
-            
-            obj.AnkleJointX = x2;
-            obj.AnkleJointY = y2;
-            
-            % Find the com position of the shank
-            obj.ShankComXPoint = x3 + ((shankXproj - x3)*cos(adjustedKneeAngleZRads)) - ((shankYproj-y3)*sin(adjustedKneeAngleZRads));    % Could use COM Map
-            obj.ShankComYPoint = y3 + ((shankXproj-x3)*sin(adjustedKneeAngleZRads)) + ((shankYproj-y3)*cos(adjustedKneeAngleZRads));  % Could use COM Map
-            
+            % Rotate to find shank COM point (hip rotation, then knee rotation)
+            [shankXproj, shankYproj] = obj.RotatePointsAroundPoint(shankXproj, shankYproj, ...
+                hipAngleZRads, obj.HipJointX, obj.HipJointY);
+            [obj.ShankComXPoint, obj.ShankComYPoint] = obj.RotatePointsAroundPoint(shankXproj, shankYproj, ...
+                kneeAngleZRads, obj.KneeJointX, obj.KneeJointY);
+
+            %% Position of the Foot Segment %%
             % Find the position of the calcaneous relative to the ankle
             dCalcToAnkle = footHeightDim/(sin(model.TalocalcanealAngleRad));
-            calcXProj1 = x2;
-            calcYProj1 = y2 - dCalcToAnkle;
+            calcXProj1 = obj.AnkleJointX;
+            calcYProj1 = obj.AnkleJointY - dCalcToAnkle;
             
-            % Rotate into anatomical position
+            % Rotatation angle, for anatomical position
             rotationAngle = deg2rad(-49);
-            calcXProj2 = x2 + ((calcXProj1-x2)*cos(rotationAngle)) - ((calcYProj1-y2)*sin(rotationAngle));
-            calcYProj2 = y2 + ((calcXProj1-x2)*sin(rotationAngle)) +((calcYProj1-y2)*cos(rotationAngle));
             
-            % Rotate to make proper position with the foot
-            calcX = x2 + ((calcXProj2-x2)*cos(footAngleZRads)) - ((calcYProj2-y2)*sin(footAngleZRads));
-            calcY = y2 + ((calcXProj2-x2)*sin(footAngleZRads)) +((calcYProj2-y2)*cos(footAngleZRads));
-            
-            % Find 5th Metatarsal Point
-            metaXProj = calcX + (footLengthDim-toeLengthDim);
-            metaYProj = calcY;
-            
-            metaX = calcX + ((metaXProj-calcX)*cos(footAngleZRads)) - ((metaYProj - calcY)*sin(footAngleZRads));
-            metaY = calcY + ((metaXProj-calcX)*sin(footAngleZRads)) + ((metaYProj - calcY)*cos(footAngleZRads));
-            
-            % Find the Toe Position
-            toeXProj = calcX + footLengthDim;
-            toeYProj = calcY;
-            
-            toeX = calcX + ((toeXProj-calcX)*cos(footAngleZRads)) - ((toeYProj - calcY)*sin(footAngleZRads));
-            toeY = calcY + ((toeXProj-calcX)*sin(footAngleZRads)) + ((toeYProj - calcY)*cos(footAngleZRads));
+            % Find the Position of the Heel - (rotate to anatomical position, rotate with foot angle)
+            [calcXProj2, calcYProj2] = obj.RotatePointsAroundPoint(calcXProj1, calcYProj1, ...
+                rotationAngle, obj.AnkleJointX, obj.AnkleJointY);
+            [obj.HeelX, obj.HeelY] = obj.RotatePointsAroundPoint(calcXProj2, calcYProj2, ...
+                footAngleZRads, obj.AnkleJointX, obj.AnkleJointY);
 
-            obj.ToeX = toeX;
-            obj.ToeY = toeY;
+            % Find 5th Metatarsal Point
+            metaXProj = obj.HeelX  + (footLengthDim-toeLengthDim);
+            metaYProj = obj.HeelY ;
+            
+            [metaX, metaY] = obj.RotatePointsAroundPoint(metaXProj, metaYProj, ...
+                footAngleZRads, obj.HeelX, obj.HeelY);
+
+            % Find the Toe Position
+            toeXProj = obj.HeelX + footLengthDim;
+            toeYProj = obj.HeelY;
+            
+            [obj.ToeX, obj.ToeY] = obj.RotatePointsAroundPoint(toeXProj, toeYProj, ...
+                footAngleZRads, obj.HeelX, obj.HeelY);
             
             % Find the COM of the foot in X
-            footComXProj = calcX + footLengthDim*model.comPercentageMap(pFootCOMx);
-            footComYProj = calcY + footHeightDim*model.comPercentageMap(pFootCOMy);
+            footComXProj = obj.HeelX + footLengthDim*model.comPercentageMap(pFootCOMx);
+            footComYProj = obj.HeelY + footHeightDim*model.comPercentageMap(pFootCOMy);
             
-            obj.FootComXPoint = calcX + ((footComXProj-calcX)*cos(footAngleZRads)) - ((footComYProj - calcY)*sin(footAngleZRads));
-            obj.FootComYPoint = calcY + ((footComXProj-calcX)*sin(footAngleZRads)) + ((footComYProj - calcY)*cos(footAngleZRads));
-            
+            [obj.FootComXPoint, obj.FootComYPoint] = obj.RotatePointsAroundPoint(footComXProj, footComYProj, ...
+                footAngleZRads, obj.HeelX, obj.HeelY);
+            %% Create Vectors %%
             % Set the vectors of the segments
-            obj.ThighPositionX = [x3 x4];
-            obj.ThighPositionY = [y3 y4];
+            obj.ThighPositionX = [obj.KneeJointX obj.HipJointX];
+            obj.ThighPositionY = [obj.KneeJointY obj.HipJointY];
             
-            obj.ShankPositionX = [x2 x3];
-            obj.ShankPositionY = [y2 y3];
+            obj.ShankPositionX = [obj.AnkleJointX obj.KneeJointX];
+            obj.ShankPositionY = [obj.AnkleJointY obj.KneeJointY];
             
             % Distance from the Ankle to the Calcaneous
-            obj.AnkleToCalcX = [x2 calcX];
-            obj.AnkleToCalcY = [y2 calcY];
+            obj.AnkleToCalcX = [obj.AnkleJointX obj.HeelX];
+            obj.AnkleToCalcY = [obj.AnkleJointY obj.HeelY];
             
             % Distance from the Ankle to the 5th Metatarsal
-            obj.AnkleToMetaX = [x2 metaX];
-            obj.AnkleToMetaY = [y2 metaY];
+            obj.AnkleToMetaX = [obj.AnkleJointX metaX];
+            obj.AnkleToMetaY = [obj.AnkleJointY metaY];
             
             % Distance from the Calcaneous to the Toes
-            obj.CalcToToeX = [calcX toeX];
-            obj.CalcToToeY = [calcY toeY];
+            obj.CalcToToeX = [obj.HeelX obj.ToeX];
+            obj.CalcToToeY = [obj.HeelY obj.ToeY];
             
             % Set the vectors for the COM
-            obj.ThighComXVector = [obj.ThighComXPoint x4];
-            obj.ThighComYVector = [obj.ThighComYPoint y4];
+            obj.ThighComXVector = [obj.ThighComXPoint obj.HipJointX];
+            obj.ThighComYVector = [obj.ThighComYPoint obj.HipJointY];
             
-            obj.ShankComXVector = [obj.ShankComXPoint x3];
-            obj.ShankComYVector = [obj.ShankComYPoint y3];
+            obj.ShankComXVector = [obj.ShankComXPoint obj.KneeJointX];
+            obj.ShankComYVector = [obj.ShankComYPoint obj.KneeJointY];
             
-            obj.FootComXVector = [obj.FootComXPoint calcX];
-            obj.FootComYVector = [obj.FootComYPoint calcY];
+            obj.FootComXVector = [obj.FootComXPoint obj.HeelX];
+            obj.FootComYVector = [obj.FootComYPoint obj.HeelY];
+            
+            %% Tests to Run %%
+            % Checks that can be ran to ensure the thing and shank stay the
+            % same dimensions
+            % obj.CheckLengthConsistent('Shank', obj.ShankPositionX , obj.ShankPositionY);
+            % obj.CheckLengthConsistent('Thigh', obj.ThighPositionX , obj.ThighPositionY);
         end
-    end  
+         
+    end
+    
+    methods 
+        function [xRotated, yRotated] = RotatePointsAroundPoint(~, initialX, initialY, angleInRads_CCW, ...
+                pointToRotateAroundX, pointToRotateAroundY)
+            % Rotate X co-ordinate
+            xRotated = pointToRotateAroundX + [(initialX-pointToRotateAroundX)*cos(angleInRads_CCW)- (initialY-pointToRotateAroundY)*sin(angleInRads_CCW)];
+            % Rotate Y co-ordinate
+            yRotated = pointToRotateAroundY + [(initialX-pointToRotateAroundX)*sin(angleInRads_CCW)+ (initialY-pointToRotateAroundY)*cos(angleInRads_CCW)];
+        end
+        
+        function CheckLengthConsistent(~, variableName, LineX, LineY)
+            length = sum(sqrt(diff(LineX).^2+diff(LineY).^2));
+            disp([variableName, num2str(length)])
+        end
+    end
+    
 end
+
+
             
