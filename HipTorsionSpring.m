@@ -1,6 +1,6 @@
 function HipTorsionSpring(patientHipAngles) 
 %Patient Height
-H = 1.78; %m
+    H = 1.78; %m
 %Design variables 
     d = Meters2Inches(0.003/1.78*H); % Diameter of wire[m]     
     D = Meters2Inches(0.035/1.78*H); % Mean diameter of coil[m]  
