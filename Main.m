@@ -49,7 +49,7 @@ function Main()
         intersectPointYArray(item) = linkagePosition.IntersectPointY;
     
         plantarPosition = PlantarFlexionSpringPosition(personHeight, position.AnkleJointX, position.AnkleJointY, ...
-            ankle, foot, position.ShankComXPoint, position.ShankComYPoint);
+            ankle, foot, position.ShankComXPoint, position.ShankComYPoint, knee, hip);
         plantarFlexionArray = [plantarFlexionArray plantarPosition];
         springLengthArray = [springLengthArray plantarPosition.Length];
         
@@ -81,7 +81,7 @@ function Main()
         
     % Plot the plantarflexion and dorsiflexion spring
     %PlotShankSpringLength(springLengthArray);
-    PlotDorsiSpringLength(dorsiSpringLengthArray);
+    %PlotDorsiSpringLength(dorsiSpringLengthArray);
     % Plot the Intersection of the 4 bar linkage with respect to the knee
     % joint position
     %Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
@@ -95,9 +95,9 @@ function Main()
     %FourBarLinkageSim(fourBarArray);
     %GaitSimulation(positionArray);
     %FullSimulation(fourBarArray, positionArray);
-    %PlantarFlexionSpringSim(plantarFlexionArray);
+    PlantarFlexionSpringSim(plantarFlexionArray);
     %DorsiFlexionSpringSim(dorsiFlexionArray);
-    FullSimulationPart2(plantarFlexionArray, positionArray, dorsiFlexionArray);
+    %FullSimulationPart2(plantarFlexionArray, positionArray, dorsiFlexionArray);
     
     inverseDynamics = InverseDynamics(model, positionArray, linearAccel, ...
         angularAccel, patient29Forces, normCopData);

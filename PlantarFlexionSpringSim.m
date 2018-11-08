@@ -84,7 +84,7 @@ end
     % Draw the lines for the 4 linkages
     Link1Line = animatedline(plantarFlexionArray(barIndex).Link1X, plantarFlexionArray(barIndex).Link1Y,'Parent', ax,'Color','b','LineWidth',1);
     Link2Line = animatedline(plantarFlexionArray(barIndex).Link2X, plantarFlexionArray(barIndex).Link2Y,'Parent', ax,'Color','r','LineWidth',1);
-    %Link3Line = animatedline(plantarFlexionArray(barIndex).Link3X, plantarFlexionArray(barIndex).Link3Y,'Parent', ax,'Color','y','LineWidth',1);
+    Link3Line = animatedline(plantarFlexionArray(barIndex).Link3X, plantarFlexionArray(barIndex).Link3Y,'Parent', ax,'Color','r','LineWidth',1);
     Link4Line = animatedline(plantarFlexionArray(barIndex).Link4X, plantarFlexionArray(barIndex).Link4Y,'Parent', ax,'Color','g','LineWidth',1);
     
     springAndCableLength.Text = ['Length: ' , num2str(plantarFlexionArray(barIndex).Length)];
