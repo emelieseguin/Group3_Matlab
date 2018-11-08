@@ -96,7 +96,7 @@ function RemoveCurrentLegDrawing()
     
     clearpoints(ThighComPoint); 
     clearpoints(ShankComPoint); 
-    clearpoints(FootComPoint); 
+    %clearpoints(FootComPoint); 
 end
 
 function DrawCurrentLegPosition(ax, positionArray)
