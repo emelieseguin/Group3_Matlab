@@ -10,12 +10,12 @@ function Main()
     patient29AnglesCsvFileName = 'Patient29_Normal_Walking_Angles.csv';
     patient29ForcesCsvFileName = 'Patient29_Normal_Walking_Forces.csv';
     patient29CopData_Left = 'Patient29_ForcePlateData_LeftFoot.csv';
-    patient29FootLengthInMm = 295;  % Need to actually find the patientFootLength for correct Moments
+    patient29FootLengthInMm = 295;  % Approximated foot length
     
     % Create objects to store the gait information (angles, forces) of patient 29
     patient29Angles = GaitDataAngles(patient29AnglesCsvFileName);
     patient29Forces = GaitDataForces(patient29ForcesCsvFileName);
-    
+        
     % Build the position and 4Bar array from the patientAngle data
     positionArray = [];
     fourBarArray = [];
@@ -37,22 +37,23 @@ function Main()
         
         % Create the position of the leg, add it to the array
         position = GaitLegPosition(model, foot, knee, hip);
+        
         positionArray = [positionArray position];
         kneePointXArray(item) = position.KneeJointX;
         kneePointYArray(item) = position.KneeJointY;
-        
+         
         linkagePosition = FourBarLinkagePosition(personHeight, position.KneeJointX, position.KneeJointY, ...
             model.dimensionMap(rightShankLength), hip, knee);
         fourBarArray = [fourBarArray linkagePosition];
-
+ 
         intersectPointXArray(item) = linkagePosition.IntersectPointX;
         intersectPointYArray(item) = linkagePosition.IntersectPointY;
-    
+     
         plantarPosition = PlantarFlexionSpringPosition(personHeight, position.AnkleJointX, position.AnkleJointY, ...
-            ankle, foot, position.ShankComXPoint, position.ShankComYPoint);
+             ankle, foot, position.ShankComXPoint, position.ShankComYPoint);
         plantarFlexionArray = [plantarFlexionArray plantarPosition];
         springLengthArray = [springLengthArray plantarPosition.Length];
-        
+         
         dorsiPosition = DorsiFlexionSpringPosition(personHeight, position.KneeJointX, position.KneeJointY, ...
             position.AnkleJointX, position.AnkleJointY, position.ThighComXPoint, position.ThighComYPoint, ... 
             position.FootComXPoint, position.FootComYPoint, position.ShankComXPoint, position.ShankComYPoint, ... 
@@ -62,10 +63,9 @@ function Main()
     end   
     
     % Calc the linear and angular accelerations 
-    % 1.3 is a dummy time for the gait cycle
     patient29_HeelStrike = 0;
     patient29_ToeOff = patient29Forces.ToeOffPercentage;
-    timeForGaitCycle = 1; %0.708;
+    timeForGaitCycle = 1.48478;
     linearAccel = LinearAcceleration(positionArray, timeForGaitCycle);
     angularAccel = AngularAcceleration(positionArray, timeForGaitCycle);
     normCopData = NormalizeCopData(patient29CopData_Left, ...
@@ -74,14 +74,16 @@ function Main()
     % Plot the Linear Velocity and Acceleration
         %linearAccel.PlotVelocityInterpolationCurves();
         %linearAccel.PlotAccelerationCurves();
+        %linearAccel.PlotAvgAccelerationCurves();
         
     % Plot the Angular Velocity and Accelerations
         %angularAccel.PlotVelocityInterpolationCurves();
         %angularAccel.PlotAccelerationCurves();
+        %angularAccel.PlotAvgAccelerationCurves();
         
     % Plot the plantarflexion and dorsiflexion spring
     %PlotShankSpringLength(springLengthArray);
-    PlotDorsiSpringLength(dorsiSpringLengthArray);
+    %PlotDorsiSpringLength(dorsiSpringLengthArray);
     % Plot the Intersection of the 4 bar linkage with respect to the knee
     % joint position
     %Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
@@ -100,7 +102,7 @@ function Main()
     FullSimulationPart2(plantarFlexionArray, positionArray, dorsiFlexionArray);
     
     inverseDynamics = InverseDynamics(model, positionArray, linearAccel, ...
-        angularAccel, patient29Forces, normCopData);
+        angularAccel, patient29Forces, normCopData, timeForGaitCycle);
     inverseDynamics.PlotMomentGraphs();
 end
 

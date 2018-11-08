@@ -14,38 +14,45 @@ classdef InverseDynamics
     end
     methods
         function obj = InverseDynamics(anthropometricModel, positionArray, linearAccel, ...
-            angularAccel, patientForces, normCopData)
+            angularAccel, patientForces, normCopData, timeForGaitCycle)
             global footSegmentWeight legSegmentWeight thighSegmentWeight;
             global footLength leftShankLength thighLength;
             
             ExamplePatientWeight = 80; % Weight in Kg
-            Patient29Weight = 65.35; % Weight in Kg
+            xScaleTime = linspace(0, timeForGaitCycle, (length(positionArray)));
             
             obj.FAnkleX_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
             obj.FAnkleY_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
             obj.MAnkleZ_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
             
             % For all frames with ground reaction force
-            for i=1:length(normCopData.NormalizedCopArray_FromHeel)
+            for i=1:length(positionArray)
             
                 % Do the Inverse Dynamics of the Foot
                 % Get Ground Reaction Forces
-                Frx = (patientForces.LGRFX(i)/Patient29Weight)*ExamplePatientWeight;
-                Fry = (patientForces.LGRFY(i)/Patient29Weight)*ExamplePatientWeight;
+                Frx = (patientForces.LGRFX(i))*ExamplePatientWeight;
+                Fry = (patientForces.LGRFY(i))*ExamplePatientWeight;
+                
+                % Only 65 COP positions given, so if not <65 it is 0
+                if(i <= 65)
+                    FootLength = anthropometricModel.dimensionMap(footLength);
+                    CopPositionX = normCopData.NormalizedCopArray_FromHeel(i)*FootLength;
+                else 
+                    CopPositionX = 0;
+                end
                 
                 Mfoot = anthropometricModel.weightMap(footSegmentWeight);
                 
-                AFootX = subs(linearAccel.linearAccelFootX, i);
+                AFootX = subs(linearAccel.linearAccelFootX, xScaleTime(i));
                 AFootX = double(AFootX);
-                AFootY = subs(linearAccel.linearAccelFootY, i); 
+                AFootY = subs(linearAccel.linearAccelFootY, xScaleTime(i));
                 AFootY = double(AFootY);
                 
-                A_AngularFoot = subs(angularAccel.angularAccelFoot, i);
+                A_AngularFoot = subs(angularAccel.angularAccelFoot, xScaleTime(i));
                 A_AngularFoot = double(A_AngularFoot);
                 
-                FootLength = anthropometricModel.dimensionMap(footLength);
                 MomentInert_Foot = ((0.690*FootLength).^2)*Mfoot;
-                CopPositionX = normCopData.NormalizedCopArray_FromHeel(i)*FootLength;
+                
                 ComXFoot = positionArray(i).FootComXPoint;
                 ComYFoot = positionArray(i).FootComYPoint;
                 AnklePos_X = positionArray(i).AnkleJointX;
@@ -72,20 +79,20 @@ classdef InverseDynamics
             obj.MKneeZ_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
             
             % For all frames with ground reaction force
-            for i=1:length(normCopData.NormalizedCopArray_FromHeel)
+            for i=1:length(positionArray)
             
                 % Do the Inverse Dynamics of the Shank
-                FAnkleX = obj.FAnkleX_Array(i);
-                FAnkleY = obj.FAnkleY_Array(i);
-                MomentAnkleZ = obj.MAnkleZ_Array(i);
+                FAnkleX = (-1)*obj.FAnkleX_Array(i);
+                FAnkleY = (-1)*obj.FAnkleY_Array(i);
+                MomentAnkleZ = (-1)*obj.MAnkleZ_Array(i);
                 MShank = anthropometricModel.weightMap(legSegmentWeight);
                 
-                AShankX = subs(linearAccel.linearAccelShankX, i);
+                AShankX = subs(linearAccel.linearAccelShankX, xScaleTime(i));
                 AShankX = double(AShankX);
-                AShankY = subs(linearAccel.linearAccelShankY, i); 
+                AShankY = subs(linearAccel.linearAccelShankY, xScaleTime(i)); 
                 AShankY = double(AShankY);
-                
-                A_AngularShank = subs(angularAccel.angularAccelShank, i);
+               
+                A_AngularShank = subs(angularAccel.angularAccelShank, xScaleTime(i));
                 A_AngularShank = double(A_AngularShank);
                 
                 ShankLength = anthropometricModel.dimensionMap(leftShankLength);
@@ -103,8 +110,8 @@ classdef InverseDynamics
                 
                 % Summation of Moments
                 MKneeZ = MomentInert_Shank*A_AngularShank + FKneeX*(KneePos_Y-ComYShank) ...
-                + FKneeY*(ComXShank-KneePos_X) - FAnkleX*(ComYShank-AnklePos_Y) ...
-                - FAnkleY*(AnklePos_X-ComXShank) - MomentAnkleZ;
+                - FKneeY*(KneePos_X-ComXShank) - FAnkleX*(ComYShank-AnklePos_Y) ...
+                + FAnkleY*(ComXShank-AnklePos_X) - MomentAnkleZ;
             
                 % Store the results in arrays
                 obj.FKneeX_Array(i)=FKneeX;
@@ -118,20 +125,20 @@ classdef InverseDynamics
             obj.MHipZ_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
             
             % For all frames with ground reaction force
-            for i=1:length(normCopData.NormalizedCopArray_FromHeel)
+            for i=1:length(positionArray)
             
                 % Do the Inverse Dynamics of the Shank
-                FKneeX = obj.FKneeX_Array(i);
-                FKneeY = obj.FKneeY_Array(i);
-                MomentKneeZ = obj.MKneeZ_Array(i);
+                FKneeX = (-1)*obj.FKneeX_Array(i);
+                FKneeY = (-1)*obj.FKneeY_Array(i);
+                MomentKneeZ = (-1)*obj.MKneeZ_Array(i);
                 MThigh = anthropometricModel.weightMap(thighSegmentWeight);
                 
-                AThighX = subs(linearAccel.linearAccelThighX, i);
+                AThighX = subs(linearAccel.linearAccelThighX, xScaleTime(i));
                 AThighX = double(AThighX);
-                AThighY = subs(linearAccel.linearAccelThighY, i); 
-                AThighY = double(AShankY);
+                AThighY = subs(linearAccel.linearAccelThighY, xScaleTime(i)); 
+                AThighY = double(AThighY);
                 
-                A_AngularThigh = subs(angularAccel.angularAccelThigh, i);
+                A_AngularThigh = subs(angularAccel.angularAccelThigh, xScaleTime(i));
                 A_AngularThigh = double(A_AngularThigh);
                 
                 ThighLength = anthropometricModel.dimensionMap(thighLength);
@@ -157,9 +164,9 @@ classdef InverseDynamics
                 obj.FHipY_Array(i)= FHipY;
                 obj.MHipZ_Array(i) = MHipZ;
             end
-            
         end
         
+        % All graphs plotted with CW as positive
         function PlotMomentGraphs(obj)
             figure
             % Plot the Hip moment graph
