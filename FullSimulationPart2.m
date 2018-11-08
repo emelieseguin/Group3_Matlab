@@ -131,33 +131,30 @@ function DrawCurrentLegPosition(ax, positionArray)
 end
 
 function RemoveCurrentPlantarFlexionSpring()
-    global plantarFlexionSpringSmallLine plantarFlexionSpringTallLine;
+    global plantarFlexionSpringSmallLine plantarFlexionSpringTallLine shankConnectionLine;
     clearpoints(plantarFlexionSpringSmallLine);
     clearpoints(plantarFlexionSpringTallLine);
+    clearpoints(shankConnectionLine);
 end
 
 function DrawCurrentPlantarFlexionSpring(ax, plantarFlexionArray)
-    global index plantarFlexionSpringSmallLine plantarFlexionSpringTallLine;
+    global index plantarFlexionSpringSmallLine plantarFlexionSpringTallLine shankConnectionLine;
     % Draw the 2 lines for the plantaFlexionSpring
     plantarFlexionSpringSmallLine = animatedline(plantarFlexionArray(index).Link1X, plantarFlexionArray(index).Link1Y,'Parent', ax,'Color','black','LineWidth',1);
-    plantarFlexionSpringTallLine = animatedline(plantarFlexionArray(index).Link2X, plantarFlexionArray(index).Link2Y,'Parent', ax,'Color','black','LineWidth',1);    
+    plantarFlexionSpringTallLine = animatedline(plantarFlexionArray(index).Link2X, plantarFlexionArray(index).Link2Y,'Parent', ax,'Color','r','LineWidth',1); 
+    shankConnectionLine = animatedline(plantarFlexionArray(index).Link3X, plantarFlexionArray(index).Link3Y,'Parent', ax,'Color','black','LineWidth',1);
 end
 
 function RemoveCurrentDorsiFlexionDrawing()
-    global Link1Line Link2Line Link3Line Link4Line Link5Line;
+    global Link1Line Link2Line Link3Line;
     clearpoints(Link1Line);
     clearpoints(Link2Line);
     clearpoints(Link3Line); 
-    clearpoints(Link4Line);
-    clearpoints(Link5Line)
 end
 
 function DrawCurrentDorsiFlexionPosition(ax, dorsiFlexionArray)
-    global index Link1Line Link2Line Link3Line Link4Line Link5Line;
+    global index Link1Line Link2Line Link3Line;
     Link1Line = animatedline(dorsiFlexionArray(index).Link1X, dorsiFlexionArray(index).Link1Y,'Parent', ax,'Color','black','LineWidth',1);
     Link2Line = animatedline(dorsiFlexionArray(index).Link2X, dorsiFlexionArray(index).Link2Y,'Parent', ax,'Color','r','LineWidth',1);
     Link3Line = animatedline(dorsiFlexionArray(index).Link3X, dorsiFlexionArray(index).Link3Y,'Parent', ax,'Color','black','LineWidth',1);
-    Link4Line = animatedline(dorsiFlexionArray(index).Link4X, dorsiFlexionArray(index).Link4Y,'Parent', ax,'Color','black','LineWidth',1);
-    Link5Line = animatedline(dorsiFlexionArray(index).Link5X, dorsiFlexionArray(index).Link5Y,'Parent', ax,'Color','black','LineWidth',1);
-    
 end
