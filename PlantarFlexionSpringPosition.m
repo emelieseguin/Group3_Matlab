@@ -17,16 +17,16 @@ classdef PlantarFlexionSpringPosition
                 ankleAngleZ, footAngleZ, kneeJointXPos, kneeJointYPos, kneeAngleZ, hipAngleZ)
             
             % Above will need to be changed in order to receive the radius
-            % of the calf
+            % of the calf, and take away ankleAngleZ from the variables
+            % received
             
-            % Ankle Joint Location and Set Values at 90 degrees
+            %% Setting up variables to be used
             length = (0.246*personHeight); % currently at 100% up the shank
-            distance = 0.2*length;
-            rCalf = 0.05*length; % will be deleted when function receives calf radius
-        
-            % Convert foot angle to radians
+            distance = 0.4*length;
+            rCalf = 0.4*distance; % will be deleted when function receives calf radius
             footAngleZRads = deg2rad(footAngleZ);
             
+            %% Determining the coordinates of the 4 points
             % x1Prime and y1Prime is the position of the ankle joint
             x1Prime = ankleJointXPos; %the next anklejointX location
             y1Prime = ankleJointYPos; %the next anklejointY location
@@ -50,15 +50,11 @@ classdef PlantarFlexionSpringPosition
             x3Prime = kneeJointXPos - rCalf*cos(theta);
             y3Prime = kneeJointYPos + rCalf*sin(theta);
             
-            % Calculates the length between upper and lower spring attachment points
+            %% Calculating the overall length of the system
             length = sqrt(((x3Prime-x2Prime)^2)+ ((y3Prime-y2Prime)^2));
             obj.Length = length;
             
-            % Below equation just ensures there's a 90 degree angle between
-            % the kneeCOM and the spring attachmentsite
-            angle = (atan((y3Prime-y4Prime)/(x3Prime-x4Prime)) - atan((y1Prime-y4Prime)/(x1Prime-x4Prime))) * (180/pi);
-            
-            % Create link vectors
+            %% Create link vectors
             obj.Link1X = [x1Prime x2Prime];
             obj.Link1Y = [y1Prime y2Prime];
             obj.Link2X = [x2Prime x3Prime];
