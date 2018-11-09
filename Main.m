@@ -1,5 +1,5 @@
 function Main()
-    global rightShankLength;
+    global thighLength rightShankLength;
     % Names of body parts
     SetAnthropometricNames(); % Run this to initialize all global naming variables
     
@@ -42,6 +42,8 @@ function Main()
         kneePointXArray(item) = position.KneeJointX;
         kneePointYArray(item) = position.KneeJointY;
          
+        %linkagePosition = FourBarLinkagePositionNew(personHeight, position.KneeJointX, position.KneeJointY, ...
+        %    model.dimensionMap(thighLength), model.dimensionMap(rightShankLength), hip, knee);
         linkagePosition = FourBarLinkagePosition(personHeight, position.KneeJointX, position.KneeJointY, ...
             model.dimensionMap(rightShankLength), hip, knee);
         fourBarArray = [fourBarArray linkagePosition];
@@ -86,8 +88,8 @@ function Main()
     %PlotDorsiSpringLength(dorsiSpringLengthArray);
     % Plot the Intersection of the 4 bar linkage with respect to the knee
     % joint position
-    %Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
-    %intersectPointXArray, intersectPointYArray);
+    Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
+    intersectPointXArray, intersectPointYArray);
     
     %HipTorsionSpring(patient29Angles.LHipAngleZ);
     %PlantarSpringCalcs(springLengthArray);
@@ -96,14 +98,14 @@ function Main()
     % Run the gait simulation
     %FourBarLinkageSim(fourBarArray);
     %GaitSimulation(positionArray);
-    %FullSimulation(fourBarArray, positionArray);
+    FullSimulation(fourBarArray, positionArray);
     %PlantarFlexionSpringSim(plantarFlexionArray);
     %DorsiFlexionSpringSim(dorsiFlexionArray);
-    FullSimulationPart2(plantarFlexionArray, positionArray, dorsiFlexionArray);
+    %FullSimulationPart2(plantarFlexionArray, positionArray, dorsiFlexionArray);
     
-    inverseDynamics = InverseDynamics(model, positionArray, linearAccel, ...
-        angularAccel, patient29Forces, normCopData, timeForGaitCycle);
-    inverseDynamics.PlotMomentGraphs();
+    %inverseDynamics = InverseDynamics(model, positionArray, linearAccel, ...
+    %    angularAccel, patient29Forces, normCopData, timeForGaitCycle);
+    %inverseDynamics.PlotMomentGraphs();
 end
 
 %PlotPatientGaitAngles(patient29Angles);

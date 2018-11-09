@@ -133,10 +133,10 @@ function DrawCurrentFourBarPosition(ax, fourBarArray)
     global index Link1Line Link2Line Link3Line Link4Line;
     %global intersectPoint;
     % Draw the lines for the 4 linkages
-    Link1Line = animatedline(fourBarArray(index).Link1X, fourBarArray(index).Link1Y,'Parent', ax,'Color','b','LineWidth',2);
-    Link2Line = animatedline(fourBarArray(index).Link2X, fourBarArray(index).Link2Y,'Parent', ax,'Color','g','LineWidth',2);
-    Link3Line = animatedline(fourBarArray(index).Link3X, fourBarArray(index).Link3Y,'Parent', ax,'Color','b','LineWidth',2);
-    Link4Line = animatedline(fourBarArray(index).Link4X, fourBarArray(index).Link4Y,'Parent', ax,'Color','g','LineWidth',2);
+    Link1Line = animatedline(fourBarArray(index).Link1X, fourBarArray(index).Link1Y,'Parent', ax,'Color','b','LineWidth',1.25);
+    Link2Line = animatedline(fourBarArray(index).Link2X, fourBarArray(index).Link2Y,'Parent', ax,'Color','g','LineWidth',1.25);
+    Link3Line = animatedline(fourBarArray(index).Link3X, fourBarArray(index).Link3Y,'Parent', ax,'Color','b','LineWidth',1.25);
+    Link4Line = animatedline(fourBarArray(index).Link4X, fourBarArray(index).Link4Y,'Parent', ax,'Color','g','LineWidth',1.25);
     
     % Add label to the GUI
     %intersectPoint.Text = ['Intersection (X,Y): (' , num2str(round(fourBarArray(index).IntersectPointX)), ...

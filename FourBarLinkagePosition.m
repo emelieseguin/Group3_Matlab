@@ -21,10 +21,10 @@ classdef FourBarLinkagePosition
     methods
         function obj = FourBarLinkagePosition(personHeight, kneeJointXPos, kneeJointYPos, ...
             shankLength, hipAngleZ, kneeAngleZ)
-            
-            % Declare global variables 
+            %% Initialize variables used for calculations
             obj.IntersectPointX = 0;
             obj.IntersectPointY = 0;
+            
             % Convert angles to radians
             kneeAngleZRads = deg2rad(kneeAngleZ);
             hipAngleZRads = deg2rad(hipAngleZ);
@@ -49,6 +49,7 @@ classdef FourBarLinkagePosition
                 Theta4Rads = deg2rad(Theta4);
             Theta5Rads = 90 - Theta4Rads + kneeAngleRelative;
     
+            %% Find the position of the thigh bar link
             % Hip Position
             x4 = 0;
             y4 = 0;
@@ -59,22 +60,6 @@ classdef FourBarLinkagePosition
             
             xR1 = (xR1Proj*cos(hipAngleZRads)) - (yR1Proj*sin(hipAngleZRads));
             yR1 = (yR1Proj*cos(hipAngleZRads)) + (xR1Proj*sin(hipAngleZRads));
-            
-            % Create point R2 in space
-            xR2proj = kneeJointXPos + (Lbot4BarFromKnee*abs(sin(hipAngleZRads)));
-
-            % If the hip is in extension, then subtract from x3
-            if(hipAngleZ < 0)
-                xR2proj = kneeJointXPos - (Lbot4BarFromKnee*abs(sin(hipAngleZRads)));
-            end
-            y2proj = kneeJointYPos - (Lbot4BarFromKnee*abs(cos(hipAngleZRads)));
-            
-            % Change the knee to have flexsion +'ve in the CCW direction
-            adjustedKneeAngleZRads = kneeAngleZRads * -1;
-            
-            % Find the ankle joint
-            xR2 = kneeJointXPos + ((xR2proj - kneeJointXPos)*cos(adjustedKneeAngleZRads)) - ((y2proj-kneeJointYPos)*sin(adjustedKneeAngleZRads));
-            yR2 = kneeJointYPos + ((xR2proj-kneeJointXPos)*sin(adjustedKneeAngleZRads)) + ((y2proj-kneeJointYPos)*cos(adjustedKneeAngleZRads));
             
             %Create point D in space
                 %if hipAngleZ <= theta2
@@ -103,6 +88,24 @@ classdef FourBarLinkagePosition
             xC = xR1 + (xCProj-xR1)*cos(deg2rad(180)) - (yCProj-yR1)*sin(deg2rad(180));
             yC = yR1 + (xCProj-xR1)*sin(deg2rad(180)) + (yCProj-yR1)*cos(deg2rad(180));
              
+            
+            %% Find the position of the shank bar link
+            % Create point R2 in space
+            xR2proj = kneeJointXPos + (Lbot4BarFromKnee*abs(sin(hipAngleZRads)));
+
+            % If the hip is in extension, then subtract from x3
+            if(hipAngleZ < 0)
+                xR2proj = kneeJointXPos - (Lbot4BarFromKnee*abs(sin(hipAngleZRads)));
+            end
+            y2proj = kneeJointYPos - (Lbot4BarFromKnee*abs(cos(hipAngleZRads)));
+            
+            % Change the knee to have flexsion +'ve in the CCW direction
+            adjustedKneeAngleZRads = kneeAngleZRads * -1;
+            
+            % Find the ankle joint
+            xR2 = kneeJointXPos + ((xR2proj - kneeJointXPos)*cos(adjustedKneeAngleZRads)) - ((y2proj-kneeJointYPos)*sin(adjustedKneeAngleZRads));
+            yR2 = kneeJointYPos + ((xR2proj-kneeJointXPos)*sin(adjustedKneeAngleZRads)) + ((y2proj-kneeJointYPos)*cos(adjustedKneeAngleZRads));
+            
             %Create point B in space
               yB = yR2 - (1/3)*L1*cos(Theta5Rads);
                   %if Theta5Rads >= 0 
@@ -124,6 +127,7 @@ classdef FourBarLinkagePosition
             xA = xR2 + (xAProj-xR2)*cos(deg2rad(180)) - (yAProj-yR2)*sin(deg2rad(180));
             yA = yR2 + (xAProj-xR2)*sin(deg2rad(180)) + (yAProj-yR2)*cos(deg2rad(180));
             
+            %% Create the link vectors, attaching proper points to define links
             % Create link vectors
             obj.Link1X = [xA xB];
             obj.Link1Y = [yA yB];
@@ -143,8 +147,10 @@ classdef FourBarLinkagePosition
             obj.Link3Line = [xC xD;yC yD];
             obj.Link4Line = [xD xA;yD yA];
             
-            %distLink3 = sum(sqrt(diff(obj.Link3X).^2+diff(obj.Link3Y).^2));
-            %distLink4 = sum(sqrt(diff(obj.Link4X).^2+diff(obj.Link4Y).^2));
+            distLink3 = sum(sqrt(diff(obj.Link3X).^2+diff(obj.Link3Y).^2));
+            distLink4 = sum(sqrt(diff(obj.Link4X).^2+diff(obj.Link4Y).^2));
+            
+            disp(distLink3);
             
             % Link 2 and link 4 are the ones that overlap, find
             % intersection
@@ -153,6 +159,23 @@ classdef FourBarLinkagePosition
                 obj.IntersectPointX = inter(1);
                 obj.IntersectPointY = inter(2);
             end
+            
+            %% Tests to run to verify constant lengths
+        end
+    end
+    
+    methods 
+        function [xRotated, yRotated] = RotatePointsAroundPoint(~, initialX, initialY, angleInRads_CCW, ...
+                pointToRotateAroundX, pointToRotateAroundY)
+            % Rotate X co-ordinate
+            xRotated = pointToRotateAroundX + [(initialX-pointToRotateAroundX)*cos(angleInRads_CCW)- (initialY-pointToRotateAroundY)*sin(angleInRads_CCW)];
+            % Rotate Y co-ordinate
+            yRotated = pointToRotateAroundY + [(initialX-pointToRotateAroundX)*sin(angleInRads_CCW)+ (initialY-pointToRotateAroundY)*cos(angleInRads_CCW)];
+        end
+        
+        function CheckLengthConsistent(~, variableName, LineX, LineY)
+            length = sum(sqrt(diff(LineX).^2+diff(LineY).^2));
+            disp([variableName, num2str(length)])
         end
     end
 end
