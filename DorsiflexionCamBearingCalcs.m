@@ -1,9 +1,7 @@
-function DorsiflexionCamBearingCalcs(fRadial, fThrust, gaitCycleTime)
-%if gaitCycleTime is a const, don't need to receive it in function
-%gaitCycleTime = ??;
-
+function DorsiflexionCamBearingCalcs(fRadial, fThrust)
 %% Setting up the initial variables
-gaitPercentage = 0.2; %don't actually know this value yet
+gaitPercentage = 0.125; %found this from spring length graphs
+gaitCycleTime = 1.48478;
 thighAngularVelocity = (pi/2)/(gaitPercentage*gaitCycleTime);
 shaftRPM = thighAngularVelocity * 9.5493; %converting rads/sec to rpm
 Ka = 1.5; %Light impact application, picked value at top of range for safety
