@@ -1,4 +1,4 @@
-classdef FourBarLinkagePositionNew
+classdef FourBarLinkageMathDefined
     properties
         Link1X
         Link1Y
@@ -19,8 +19,8 @@ classdef FourBarLinkagePositionNew
     end
     
     methods
-        function obj = FourBarLinkagePositionNew(personHeight, kneeJointXPos, kneeJointYPos, ...
-            thighLength, shankLength, hipAngleZ, kneeAngleZ)
+        function obj = FourBarLinkageMathDefined(personHeight, kneeJointXPos, kneeJointYPos, ...
+            thighLength, shankLength, hipAngleZ, kneeAngleZ, qAngle)
             %% Initialize variables used for calculations
             obj.IntersectPointX = 0;
             obj.IntersectPointY = 0;
@@ -118,20 +118,60 @@ classdef FourBarLinkagePositionNew
                 (-1)*Theta4Rads, xR2, yR2);
             [xA, yA] = obj.RotatePointsAroundPoint(xA, yA, ...
                 deg2rad(180), xR2, yR2);
+            
+            %% Create the linkages in space using math - dynamics
+            L1 = 44.5/1000;
+            L2 = 51.6/1000;
+            L3 = 40.9/1000;
+            L4 = 47.2/1000;
+            femoralPitch = -27.5;
+            tibialPitch = 19.5;
+            qAngleRads = deg2rad(qAngle);
+            
+            [phi1, phi2] = obj.FindProperFourBarAngles(L1, L2, L3, L4, deg2rad(qAngle), tibialPitch, ...
+                xB, yB);            
+            
+            % Get the stupid angle things
+            
                        
             %% Create the link vectors, attaching proper points to define links
             % Create link vectors
-            obj.Link1X = [xA xB];
-            obj.Link1Y = [yA yB];
+            %obj.Link1X = [xA xB]; % Bottom Link - on shank
+            %obj.Link1Y = [yA yB];
             
+            link2XDisp = L2*cos(qAngleRads);
+            link2YDisp = L2*sin(qAngleRads);
+            
+            link3XDisp = L3*cos(phi1);
+            link3YDisp = L3*sin(phi1);
+            
+            link4XDisp = L4*cos(phi2);
+            link4YDisp = L4*sin(phi2);
+            
+            link1XDisp = L1*cos(deg2rad(360-tibialPitch));
+            link1YDisp = L1*sin(deg2rad(360-tibialPitch));
+            
+            xC = (xB+link2XDisp);
+            yC = (yB+link2YDisp);
             obj.Link2X = [xB xC];
             obj.Link2Y = [yB yC];
             
+            %obj.Link2X = [xB xC];
+            %obj.Link2Y = [yB yC];
+            
+            xD = (xC+link3XDisp);
+            yD = (yC+link3YDisp);
             obj.Link3X = [xC xD];
             obj.Link3Y = [yC yD];
             
+            % Wrong phi right now, so until this fixed just connect it
+            xA = xD+link4XDisp;   % - should bring back to 0
+            yA = yD+link4YDisp; 
             obj.Link4X = [xD xA];
             obj.Link4Y = [yD yA];
+            
+            obj.Link1X = [xA xB]; % Bottom Link - on shank
+            obj.Link1Y = [yA yB];
             
             % Create the link lines
             obj.Link1Line = [xA xB;yA yB];
@@ -152,9 +192,9 @@ classdef FourBarLinkagePositionNew
             
             %% Tests to run to verify constant lengths
             % Test to make sure the links are always the same length
-            %obj.CheckLengthConsistent('Link1 ', obj.Link1X, obj.Link1Y);-g
+            obj.CheckLengthConsistent('Link1 ', obj.Link1X, obj.Link1Y);
             %obj.CheckLengthConsistent('Link2 ', obj.Link2X, obj.Link2Y);
-            %obj.CheckLengthConsistent('Link3 ', obj.Link3X, obj.Link3Y);-g
+            %obj.CheckLengthConsistent('Link3 ', obj.Link3X, obj.Link3Y);
             %obj.CheckLengthConsistent('Link4 ', obj.Link4X, obj.Link4Y);
             
             
@@ -173,11 +213,84 @@ classdef FourBarLinkagePositionNew
             xRotated = pointToRotateAroundX + [(initialX-pointToRotateAroundX)*cos(angleInRads_CCW)- (initialY-pointToRotateAroundY)*sin(angleInRads_CCW)];
             % Rotate Y co-ordinate
             yRotated = pointToRotateAroundY + [(initialX-pointToRotateAroundX)*sin(angleInRads_CCW)+ (initialY-pointToRotateAroundY)*cos(angleInRads_CCW)];
-        end
-        
+        end        
         function CheckLengthConsistent(~, variableName, LineX, LineY)
             length = sum(sqrt(diff(LineX).^2+diff(LineY).^2));
             disp([variableName, num2str(length)])
+        end
+        %% Not needed for now, this would allow for proper angles on the 4 bar
+        function [phi1, phi2] = FindProperFourBarAngles(~, L1, L2, L3, L4, qAngleRads, tibialPitch, ...
+                xB, yB)
+                phi1 = 0; phi2 = 0;
+                % Create an inline function to define the 4Bar equations
+                function F = root2d(phi)
+                    F(1) = L2*cos(qAngleRads) + L3*cos(phi(1)) + L4*cos(phi(2)) + L1*cos(deg2rad(-tibialPitch));
+                    F(2) = L2*sin(qAngleRads) + L3*sin(phi(1)) + L4*sin(phi(2)) + L1*sin(deg2rad(-tibialPitch));
+                end
+                
+                options = optimset('Display','off');
+                
+            for i=1:360
+                fun = @root2d;
+                
+                % 330 defines proper angles the majority of the time
+                iterationConditions = 330;
+                % First check 330 - 359 for the proper linkage position
+                if(i < 30)
+                    iterationConditions = iterationConditions + i;
+                % Next check 330 - 0 for the proper linkage position
+                else
+                    iterationConditions = iterationConditions - i;
+                end
+                
+                theta0 = [deg2rad(iterationConditions),deg2rad(iterationConditions)];
+                phi = fsolve(fun, theta0, options);
+
+                % Draw the linkages, so that the lines in space are defined
+                link2XDisp = L2*cos(qAngleRads);
+                link2YDisp = L2*sin(qAngleRads);
+
+                link3XDisp = L3*cos(phi(1));
+                link3YDisp = L3*sin(phi(1));
+
+                link4XDisp = L4*cos(phi(2));
+                link4YDisp = L4*sin(phi(2));
+
+                %link1XDisp = L1*cos(deg2rad(360-tibialPitch));
+                %link1YDisp = L1*sin(deg2rad(360-tibialPitch));
+
+                xC = (xB+link2XDisp);
+                yC = (yB+link2YDisp);
+                
+                xD = (xC+link3XDisp);
+                yD = (yC+link3YDisp);
+                xA = xD+link4XDisp;   % - should bring back to 0
+                yA = yD+link4YDisp; 
+                
+                Link2= [xB xC;yB yC];
+                Link4 = [xD xA;yD yA];
+                
+                % Link 2 and link 4 are the ones that overlap, find intersection
+                inter = LineIntersection(Link2, Link4);
+                if(~isempty(inter)) % probably need to validate it is greater but do this after
+                    phi1 = phi(1);
+                    phi2 = phi(2);
+                    break;
+                end 
+            end
+            
+            % Find an issue if there is one - take this out later, just a
+            % check for not %%%%
+            if(phi1==0 && phi2==0)
+                disp('No solution found')
+            end
+            
+            % Test check to make sure the values approximately equal 0
+            valEqn1 = L2*cos(qAngleRads) + L3*cos(phi1) + L4*cos(phi2) + L1*cos(deg2rad(360-tibialPitch));
+            valEqn2 = L2*sin(qAngleRads) + L3*sin(phi1) + L4*sin(phi2) + L1*sin(deg2rad(360-tibialPitch));
+            
+            % Check if it is above the point
+            % Check if it intersects - needs to intersect the whole time
         end
     end
 end

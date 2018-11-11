@@ -20,7 +20,7 @@ classdef FourBarLinkagePosition
     
     methods
         function obj = FourBarLinkagePosition(personHeight, kneeJointXPos, kneeJointYPos, ...
-            shankLength, hipAngleZ, kneeAngleZ)
+            shankLength, hipAngleZ, kneeAngleZ, counterPos)
             %% Initialize variables used for calculations
             obj.IntersectPointX = 0;
             obj.IntersectPointY = 0;
@@ -147,10 +147,10 @@ classdef FourBarLinkagePosition
             obj.Link3Line = [xC xD;yC yD];
             obj.Link4Line = [xD xA;yD yA];
             
-            distLink3 = sum(sqrt(diff(obj.Link3X).^2+diff(obj.Link3Y).^2));
+            distLink2 = sum(sqrt(diff(obj.Link2X).^2+diff(obj.Link2Y).^2));
             distLink4 = sum(sqrt(diff(obj.Link4X).^2+diff(obj.Link4Y).^2));
             
-            disp(distLink3);
+            disp(distLink2);
             
             % Link 2 and link 4 are the ones that overlap, find
             % intersection

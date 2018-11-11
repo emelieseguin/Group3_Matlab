@@ -42,10 +42,10 @@ function Main()
         kneePointXArray(item) = position.KneeJointX;
         kneePointYArray(item) = position.KneeJointY;
          
-        %linkagePosition = FourBarLinkagePositionNew(personHeight, position.KneeJointX, position.KneeJointY, ...
-        %    model.dimensionMap(thighLength), model.dimensionMap(rightShankLength), hip, knee);
-        linkagePosition = FourBarLinkagePosition(personHeight, position.KneeJointX, position.KneeJointY, ...
-            model.dimensionMap(rightShankLength), hip, knee);
+        linkagePosition = FourBarLinkageMathDefined_FromGait(personHeight, position.KneeJointX, position.KneeJointY, ...
+            model.dimensionMap(thighLength), model.dimensionMap(rightShankLength), hip, knee);
+        %linkagePosition = FourBarLinkagePosition(personHeight, position.KneeJointX, position.KneeJointY, ...
+        %    model.dimensionMap(rightShankLength), hip, knee, item);
         fourBarArray = [fourBarArray linkagePosition];
  
         intersectPointXArray(item) = linkagePosition.IntersectPointX;
@@ -62,16 +62,25 @@ function Main()
             hip, knee, ankle, foot, position.ToeX, position.ToeY);
         dorsiFlexionArray = [dorsiFlexionArray dorsiPosition];
         dorsiSpringLengthArray = [dorsiSpringLengthArray dorsiPosition.Length];
-    end   
+    end
+    
+    fourBarTest = [];
+    qAngle =  90; %127.71; %- proper one;
+    while(qAngle < (180-19.5))
+        test = FourBarLinkageMathDefined(personHeight, position.KneeJointX, position.KneeJointY, ...
+            model.dimensionMap(thighLength), model.dimensionMap(rightShankLength), hip, knee, qAngle);
+        fourBarTest = [fourBarTest test];
+        qAngle = qAngle + 1;
+    end
     
     % Calc the linear and angular accelerations 
-    patient29_HeelStrike = 0;
-    patient29_ToeOff = patient29Forces.ToeOffPercentage;
-    timeForGaitCycle = 1.48478;
-    linearAccel = LinearAcceleration(positionArray, timeForGaitCycle);
-    angularAccel = AngularAcceleration(positionArray, timeForGaitCycle);
-    normCopData = NormalizeCopData(patient29CopData_Left, ...
-        patient29_HeelStrike, patient29_ToeOff, patient29FootLengthInMm);
+    %patient29_HeelStrike = 0;
+    %patient29_ToeOff = patient29Forces.ToeOffPercentage;
+    %timeForGaitCycle = 1.48478;
+    %linearAccel = LinearAcceleration(positionArray, timeForGaitCycle);
+    %angularAccel = AngularAcceleration(positionArray, timeForGaitCycle);
+    %normCopData = NormalizeCopData(patient29CopData_Left, ...
+    %    patient29_HeelStrike, patient29_ToeOff, patient29FootLengthInMm);
     
     % Plot the Linear Velocity and Acceleration
         %linearAccel.PlotVelocityInterpolationCurves();
@@ -90,7 +99,7 @@ function Main()
     % joint position
     Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
     intersectPointXArray, intersectPointYArray);
-    
+
     %HipTorsionSpring(patient29Angles.LHipAngleZ);
     %PlantarSpringCalcs(springLengthArray);
     %DorsiSpringCalcs();
@@ -166,6 +175,32 @@ function Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
     bottom = subplot(2,1,2);
     plot(bottom, 1:length(kneePointYArray), kneePointYArray, 'LineWidth',2);
     hold on
+    grid on
+    plot(bottom, 1:length(intersectPointYArray), intersectPointYArray, 'LineWidth',2);
+    title('Position of the Knee and Linkage Intersection');
+    xlabel('Gait Cycle (%)') 
+    ylabel('Y Coordinates (m)') 
+    set(bottom, 'LineWidth',1)
+    
+    legend(bottom, 'Knee Center','Linkage Intersection')
+    axis(bottom, [0 100 -0.45 -0.3])
+end
+
+function Plot4BarLinkageOverRangeOfMotion(intersectPointXArray, intersectPointYArray)
+
+    figure
+    top = subplot(2,1,1);
+    grid on
+    plot(top, 1:length(intersectPointXArray), intersectPointXArray, 'LineWidth',2);
+    title('Position of the Knee and Linkage Intersection');
+    ylabel('X Coordinates (m)')
+    xlabel('Gait Cycle (%)') 
+    set(top, 'LineWidth',1)
+    legend(top, 'Knee Center','Linkage Intersection')
+    
+    axis(top, [0 100 -0.2 0.3])
+    
+    bottom = subplot(2,1,2);
     grid on
     plot(bottom, 1:length(intersectPointYArray), intersectPointYArray, 'LineWidth',2);
     title('Position of the Knee and Linkage Intersection');
