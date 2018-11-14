@@ -1,0 +1,88 @@
+function ShoulderCalcs ()
+%Values to read in
+    HInput = 1.78; %m
+    Mmax = -1.053062; %lbf in 
+        %Mmax = -0.11898; %Nm
+    Tmax = 20.188551; %lbf in
+        %Tmax = 2.281; %Nm
+
+%Known variables
+    HOriginal = 1.78*39.37; %in    
+    H = HInput*39.37; %in
+    dReal = 0.0*39.37/HOriginal*H; %2cm/178cm*H, converted to inches - This is the actual small shaft diameter
+    Sut = 47000; %Psi
+        %Sut = 324000000; %Mpa - Aluminum
+    Sy = 24500; %Psi
+        %Sy = 169000000; %Mpa - Aluminum
+    a = 2670; %Psi
+        %a = 4.51; %Mpa
+    b = -0.265; 
+    kT1 = 1.7; 
+    kTS1 = 1.5; 
+    n = 2.1; %Design safety factor
+    kb1 = 0.9; 
+    D = 1.11023622/HOriginal*H; %in - Diameter of shaft where torsional spring sits
+        %D = 0.0282/HOriginal*H; %m
+        %Might have to read in from torsional spring code?
+
+
+%First set of calculations
+    %First iteration of fatigue stress-concentration factor
+    kF1 = kT1;
+    %First iteration of fatigue shear stress-concentration factor
+    kFS1 = kTS1;
+    % Marin surface modification factor
+    ka = a*(Sut.^b);
+    %Endurance limit of rotating beam specimen
+    SePrime = 0.5*Sut;
+    %First iteration of endurance limit of actual machine element subjected to loading
+    Se1 = ka*kb1*SePrime;
+    % Alternating and midrange bending moments
+    Ma = Mmax/2;
+    Mm = Ma;
+    %Alternating and midrange torques
+    Ta = Tmax/2;
+    Tm = Ta;
+    %Diameter of critical location - from Goodman criterion
+    eqnPart1 = (4*((kF1*Ma).^2)+3*((kFS1*Ta).^2)).^(1/2);
+    eqnPart2 = (4*((kF1*Mm).^2)+3*((kFS1*Tm).^2)).^(1/2);
+    d = (16*n/pi)*(((1/Se1)*(eqnPart1)+(1/Sut)*(eqnPart2)).^(1/3));
+
+    %Check D/d ratio
+    if(1.02 <= D/d && D/d <= 1.5)
+      disp(['D/d = ', num2str(D/d), ' -> within boundaries.']);
+    else
+      disp(['D/d = ', num2str(D/d), ' -> not within boundaries.']);
+    end
+
+    %Radius of curvature
+    r = d*0.1;
+    
+%Second set of calculations
+    %Known variables
+         q = 0.68;
+         qS = 0.82; 
+         kT = 1.7;
+         kTS = 1.2;
+
+    %Second iteration of fatigue stress-concentration factor
+        kF = 1+q*(kT-1);
+    %Second iteration of fatigue shear stress-concentration factor
+        kFS = 1+qS*(kTS-1);
+    %Second iteration of size factor
+        kb = (d/7.62).^(-0.017);
+    %Second iteration of endurance limit of actual machine element subjected to loading
+        Se = ka*kb*SePrime;
+    %Von Mises stresses
+        sigmaAPrime = (((32*kF*Ma/pi/(d.^3)).^2)+3*((16*kFS*Ta/pi/(d.^3)).^2)).^(1/2);
+        sigmaMPrime = (((32*kF*Mm/pi/(d.^3)).^2)+3*((16*kFS*Tm/pi/(d.^3)).^2)).^(1/2);
+    %Safety factor - using Goodman criterion
+        nF = (sigmaAPrime/Se+sigmaMPrime/Sut).^(-1);
+        disp(['nF = ',num2str(nF)]);
+    %Check minimum d is less than design d
+    if(d <= dReal)
+      disp('Design is valid.');
+    else
+      disp('Design is not valid. Required diameter is larger than actual diameter.');
+    end    
+end
