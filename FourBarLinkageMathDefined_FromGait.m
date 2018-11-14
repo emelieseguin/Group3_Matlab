@@ -16,11 +16,13 @@ classdef FourBarLinkageMathDefined_FromGait
         
         IntersectPointX
         IntersectPointY
+        TopBarLinkageDistanceChange
+        BottomBarLinkageDistanceChange
     end
     
     methods
         function obj = FourBarLinkageMathDefined_FromGait(personHeight, kneeJointXPos, kneeJointYPos, ...
-            thighLength, shankLength, hipAngleZ, kneeAngleZ)
+            thighLength, shankLength, hipAngleZ, kneeAngleZ, thighLine, shankLine)
             %% Initialize variables used for calculations
             obj.IntersectPointX = 0;
             obj.IntersectPointY = 0;
@@ -132,7 +134,7 @@ classdef FourBarLinkageMathDefined_FromGait
             Link3AngleFromHorz = hipAngleZRads - deg2rad(femoralPitch);
             Link1AngleFromHorz = -kneeAngleRelative - deg2rad(tibialPitch);
             Link3AngleFromHorzDeg = rad2deg(hipAngleZRads) - (femoralPitch);
-            Link1AngleFromHorzDeg = -rad2deg(kneeAngleRelative) - deg2rad(tibialPitch);
+            Link1AngleFromHorzDeg = -rad2deg(kneeAngleRelative) - (tibialPitch);
             
             [theta1, theta2] = obj.FindProperFourBarAngles(L1, L2, L3, L4, ...
                 xB, yB, Link1AngleFromHorz, Link3AngleFromHorz);            
@@ -140,7 +142,6 @@ classdef FourBarLinkageMathDefined_FromGait
             % Get the stupid angle things
             theta1Deg = rad2deg(theta1);
             theta2deg = rad2deg(theta2);
-            
                        
             %% Create the link vectors, attaching proper points to define links
             % Create link vectors
@@ -174,9 +175,8 @@ classdef FourBarLinkageMathDefined_FromGait
             yD = (yC+link3YDisp);
             obj.Link3X = [xC xD];
             obj.Link3Y = [yC yD];
-            
-            % Wrong phi right now, so until this fixed just connect it
-            xA = xD+link4XDisp;   % - should bring back to 0
+
+            xA = xD+link4XDisp;   
             yA = yD+link4YDisp; 
             obj.Link4X = [xD xA];
             obj.Link4Y = [yD yA];
@@ -192,9 +192,6 @@ classdef FourBarLinkageMathDefined_FromGait
             obj.Link3Line = [xC xD;yC yD];
             obj.Link4Line = [xD xA;yD yA];
             
-            %distLink3 = sum(sqrt(diff(obj.Link3X).^2+diff(obj.Link3Y).^2));
-            %distLink4 = sum(sqrt(diff(obj.Link4X).^2+diff(obj.Link4Y).^2));
-            
             % Link 2 and link 4 are the ones that overlap, find
             % intersection
             inter = LineIntersection(obj.Link2Line, obj.Link4Line);
@@ -203,9 +200,27 @@ classdef FourBarLinkageMathDefined_FromGait
                 obj.IntersectPointY = inter(2);
             end
             
+            %% See how much the linkages translate with respect to the middle of the leg
+            % Top Linkage
+            topIntersection = LineIntersection(thighLine, obj.Link3Line);
+            obj.CheckLengthConsistent('Middle of Thigh to Point D: ', [topIntersection(1), xD], ...
+                [topIntersection(2) yD]);
+            disp(['X Dif: ', num2str(abs(topIntersection(1)- xD))]);
+            disp(['Y Dif: ', num2str(abs(topIntersection(2)- yD))]);
+            disp('');
+            obj.TopBarLinkageDistanceChange = sum(sqrt(diff([topIntersection(1), xD]).^2+diff([topIntersection(2) yD]).^2));
+            
+            bottomIntersection = LineIntersection(shankLine, obj.Link1Line);
+            obj.BottomBarLinkageDistanceChange = sum(sqrt(diff([bottomIntersection(1), xB]).^2+diff([bottomIntersection(2) yB]).^2));
+            
+            %obj.CheckLengthConsistent('Middle of Shank to Point B: ', [bottomIntersection(1), xB], ...
+            %     [bottomIntersection(2) yB]);
+            
+            % Bottom Linkage
+            
             %% Tests to run to verify constant lengths
             % Test to make sure the links are always the same length
-            obj.CheckLengthConsistent('Link1 ', obj.Link1X, obj.Link1Y);
+            %obj.CheckLengthConsistent('Link1 ', obj.Link1X, obj.Link1Y);
             %obj.CheckLengthConsistent('Link2 ', obj.Link2X, obj.Link2Y);
             %obj.CheckLengthConsistent('Link3 ', obj.Link3X, obj.Link3Y);
             %obj.CheckLengthConsistent('Link4 ', obj.Link4X, obj.Link4Y);
@@ -231,7 +246,7 @@ classdef FourBarLinkageMathDefined_FromGait
             length = sum(sqrt(diff(LineX).^2+diff(LineY).^2));
             disp([variableName, num2str(length)])
         end
-        %% Not needed for now, this would allow for proper angles on the 4 bar
+        %% Find proper angles for the 4 bar
         function [theta1, theta2] = FindProperFourBarAngles(~, L1, L2, L3, L4, ...
                 xB, yB, Link1AngleFromHorz, Link3AngleFromHorz)
                 
@@ -289,7 +304,7 @@ classdef FourBarLinkageMathDefined_FromGait
                 
                 % Link 2 and link 4 are the ones that overlap, find intersection
                 inter = LineIntersection(Link2, Link4);
-                if(~isempty(inter) && (yD > yB)) % probably need to validate it is greater but do this after
+                if(~isempty(inter) && (yD > yB)) % Check that it intersects and that it is above
                     theta1 = theta(1);
                     theta2 = theta(2);
                     break;
@@ -305,9 +320,6 @@ classdef FourBarLinkageMathDefined_FromGait
             % Test check to make sure the values approximately equal 0
             valEqn1 = L2*cos(theta(1)) + L3*cos(Link3AngleFromHorz) + L4*cos(theta(2)) + L1*cos(deg2rad(Link1AngleFromHorz));
             valEqn2 = L2*sin(theta(1)) + L3*sin(Link3AngleFromHorz) + L4*sin(theta(2)) + L1*sin(deg2rad(Link1AngleFromHorz));
-            
-            % Check if it is above the point
-            % Check if it intersects - needs to intersect the whole time
         end
     end
 end

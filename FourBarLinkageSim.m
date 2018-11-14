@@ -14,8 +14,8 @@ function FourBarLinkageSim(fourBarArray)
     % Create the axis to draw on - positioning is [left bottom width height]
     ax = uiaxes(fig, 'Position',[50 50 400 400], 'GridLineStyle', 'none');
     % Sim of gait angle defined
-    ax.XLim = [-0.2 0.2];
-    ax.YLim = [-0.2 0.2];
+    ax.XLim = [-0.25 1];
+    ax.YLim = [-1 0.25];
     
     % - perfect range of motion for math defined
     %ax.XLim = [0.15 0.32];
