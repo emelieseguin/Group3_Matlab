@@ -1,26 +1,34 @@
-function HipTorsionSpring(patientHipAngles) 
-%Patient Height
-    H = 1.78; %m
+function DorsiTorsionSpring() 
+%Variables to be brought in from other code
+    %Patient Height
+        H = 1.78; %m
+    %Mass of cable
+        mCable = 0.005713; %[kg]
+    %Required vertical displacement of cam-cable attachment point to pick up slack
+        S = 0.01197*H; %[m]
+    %Rotation of cam
+        camRotation = pi/2; %[rad]
 %Design variables 
-    d = Meters2Inches(0.003/1.78*H); % Diameter of wire[m]     
-    D = Meters2Inches(0.035/1.78*H); % Mean diameter of coil[m]  
-    % MUST HAVE D>(Dp4+Delta+d) 
-    E = Pa2Psi(103400000000); % Young's Modulus [Pa] 
-    Delta = Meters2Inches(0.0005/1.78*H); % Diametral clearance [m] 
-    Lwork = Meters2Inches(0.04/1.78*H); % Length of working leg [m] 
-    Lsupp = Meters2Inches(0.01/1.78*H); % Length of supporting leg [m] 
-    Nb = 18; %Number of body turns
+    d = Meters2Inches(0.0005/1.78*H); % Diameter of wire[m]     
+    D = Meters2Inches(0.004/1.78*H); % Mean diameter of coil[m]  
+    % MUST HAVE D>(Dp+Delta+d) 
+    E = Pa2Psi(103400000000); % Young's Modulus [Pa]
+    Delta = Meters2Inches(0.00005/1.78*H); % Diametral clearance [m] 
+    Lwork = Meters2Inches(0.0105/1.78*H); % Length of working leg [m] 
+    Lsupp = Meters2Inches(0.0105/1.78*H); % Length of supporting leg [m] 
+    Nb = 2; %Number of body turns
     A = 145000; % Area from Shigley table 10-4
     m = 0; % Constant from Shigley table 10-4
         
+    %Calculate weight of cable
+        wCable = mCable*9.81; %[N]
+    %Required torque on cam to lift the string:
+        T = wCable*S/camRotation; %[Nm]
+        Mmax = NewtonM2PoundFInch(T); %[lbf in]
     %Calculate spring index 
         c = D/d;        
     %Calculate factor for inner surface stress concentration     
         Ki = ((4*(c.^2))-c-1)/(4*c*(c-1));             
-    %Maximum extension angle - multiply by -1 to get a positive value 
-        maxExtension = (min(patientHipAngles))*(-1); 
-    %Maximum moment
-        Mmax = (3*pi/64)*((maxExtension*(d.^4)*E)/(3*pi*D*Nb+Lwork+Lsupp));       
     %Deflection of body coils
         ThetaCPrime = Mmax*((10.8*D*Nb)/((d.^4)*E));
     %New mean diameter of coil
@@ -77,8 +85,8 @@ end
 function Psi = Pa2Psi(Pa)
     Psi = Pa/6894.757;
 end
-function NewtonM = PoundFInch2NewtonM(PoundF)
-    NewtonM = PoundF/8.850746;
+function NewtonM = PoundFInch2NewtonM(PoundFInch)
+    NewtonM = PoundFInch/8.850746;
 end
 function PoundFInch = NewtonM2PoundFInch(NewtonM)
     PoundFInch = NewtonM*8.850746;
