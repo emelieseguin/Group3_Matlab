@@ -29,6 +29,8 @@ function Main()
     dorsiSpringLengthArray = [];
     distanceChangeOfTopLink = zeros(1,101);
     distanceChangeOfBottomLink = zeros(1,101);
+    topLinkXMovement = zeros(1,101);
+    topLinkYMovement = zeros(1,101);
     for item = 1:(length(patient29Angles.LFootAngleZ))
         
         % Get the angles from the object
@@ -60,6 +62,8 @@ function Main()
         
         distanceChangeOfTopLink(item) = linkagePosition.TopBarLinkageDistanceChange;
         distanceChangeOfBottomLink(item) = linkagePosition.BottomBarLinkageDistanceChange;
+        topLinkXMovement(item) = linkagePosition.TopBarMovementX;
+        topLinkYMovement(item) = linkagePosition.TopBarMovementY;
          
         dorsiPosition = DorsiFlexionSpringPosition(personHeight, position.KneeJointX, position.KneeJointY, ...
             position.AnkleJointX, position.AnkleJointY, position.ThighComXPoint, position.ThighComYPoint, ... 
@@ -103,20 +107,21 @@ function Main()
     %PlotDorsiSpringLength(dorsiSpringLengthArray);
     % Plot the Intersection of the 4 bar linkage with respect to the knee
     % joint position
-    %Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
-    %intersectPointXArray, intersectPointYArray);
+    Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
+    intersectPointXArray, intersectPointYArray);
 
     % Build the shear force bending moment diagrams with the correct forces
     % Currently returns the right components.. However the gui shows the forces in kN which is wrong...
     % Scale for the bending moment is also wrong, should be .12 not 1.2
-    [ShearF, BendM] = ShearForceBendingMoment('Prob 200',[0.153,0.005,0.148],{'CF',-1.8161,0.005},{'CF',-0.0139,0.0165},{'CF',-0.0237,0.023},{'CF',0.8626905882,0.023},{'CF',-0.5863,0.0525},{'CF',-1.4834,0.0759},{'CF',4.895709412,0.0825},{'CF',-0.0189,0.0915},{'CF',-1.8161,0.148});
-    disp(['Max Shear Force: ', num2str(max(ShearF)), 'N,   Min Shear Force: ',  num2str(min(ShearF)), 'N']);
-    disp(['Max Bending Moment Force: ', num2str(max(BendM)), 'N*m,   Min Bending Moment Force: ',  num2str(min(BendM)), 'N*m']);
+    %[ShearF, BendM] = ShearForceBendingMoment('Prob 200',[0.153,0.005,0.148],{'CF',-1.8161,0.005},{'CF',-0.0139,0.0165},{'CF',-0.0237,0.023},{'CF',0.8626905882,0.023},{'CF',-0.5863,0.0525},{'CF',-1.4834,0.0759},{'CF',4.895709412,0.0825},{'CF',-0.0189,0.0915},{'CF',-1.8161,0.148});
+    %disp(['Max Shear Force: ', num2str(max(ShearF)), 'N,   Min Shear Force: ',  num2str(min(ShearF)), 'N']);
+    %disp(['Max Bending Moment Force: ', num2str(max(BendM)), 'N*m,   Min Bending Moment Force: ',  num2str(min(BendM)), 'N*m']);
 
     %HipTorsionSpring(patient29Angles.LHipAngleZ);
     %PlantarSpringCalcs(springLengthArray);
     %DorsiSpringCalcs();
-    PlotTopBarLinkageChangeDistance(distanceChangeOfTopLink, distanceChangeOfBottomLink);
+    PlotTopBarLinkageChangeDistance(distanceChangeOfTopLink, distanceChangeOfBottomLink, ...
+        topLinkXMovement, topLinkYMovement);
     
     % Run the gait simulation
     %FourBarLinkageSim(fourBarArray);
@@ -134,10 +139,11 @@ end
 %PlotPatientGaitAngles(patient29Angles);
 %PlotPatientGaitForces(patient29Forces);
 
-function PlotTopBarLinkageChangeDistance(topLinkageDistanceChangeArray, bottomLinkageDistanceChangeArray)
+function PlotTopBarLinkageChangeDistance(topLinkageDistanceChangeArray, bottomLinkageDistanceChangeArray, ...
+topLinkXMovement, topLinkYMovement)
     figure
     % Plot the translation distance change of the top link
-    top = subplot(1,1,1);
+    top = subplot(2,1,1);
     plot(top, 1:length(topLinkageDistanceChangeArray), topLinkageDistanceChangeArray, 'LineWidth',2);
     hold on
     plot(top, 1:length(bottomLinkageDistanceChangeArray), bottomLinkageDistanceChangeArray, 'LineWidth',2);
@@ -147,7 +153,21 @@ function PlotTopBarLinkageChangeDistance(topLinkageDistanceChangeArray, bottomLi
     xlabel('Gait Cycle (%)') 
     set(top, 'LineWidth',1)
     legend(top, 'Thigh Linkage', 'Bottom Linkage')
-    axis(top, [0 length(topLinkageDistanceChangeArray)  (max(topLinkageDistanceChangeArray)+1) (min(springLengthArray)-1)])
+    axis(top, [0 length(topLinkageDistanceChangeArray) (min(bottomLinkageDistanceChangeArray)-0.005) (max(topLinkageDistanceChangeArray)+0.005)])
+    
+    
+    bottom = subplot(2,1,2);
+    plot(bottom, 1:length(topLinkXMovement), topLinkXMovement, 'LineWidth',2);
+    hold on
+    plot(bottom, 1:length(topLinkYMovement), topLinkYMovement, 'LineWidth',2);
+    grid on
+    title('Distance from Thigh to Pin');
+    ylabel('Length (m)')
+    xlabel('Gait Cycle (%)') 
+    set(bottom, 'LineWidth',1)
+    legend(bottom, 'Thigh X Mov.', 'Thigh Y Mov.')
+    axis(bottom, [0 length(topLinkXMovement) (min(topLinkXMovement)-0.005) (max(topLinkYMovement)+0.005)])
+    
     
 end
 

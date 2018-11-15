@@ -18,6 +18,10 @@ classdef FourBarLinkageMathDefined_FromGait
         IntersectPointY
         TopBarLinkageDistanceChange
         BottomBarLinkageDistanceChange
+        
+        % Top Bar Displacement
+        TopBarMovementX
+        TopBarMovementY
     end
     
     methods
@@ -43,7 +47,7 @@ classdef FourBarLinkageMathDefined_FromGait
             Lbot4BarFromKnee = shankLength - Lbotbar;
             
             % Try an equal distance above and below knee joint - 4 cm
-            distanceMeters = 0.01;
+            distanceMeters = 0.0090;
             Lbot4BarFromKnee = distanceMeters;
             LToThighBar = thighLength- distanceMeters;
             
@@ -71,7 +75,7 @@ classdef FourBarLinkageMathDefined_FromGait
                 hipAngleZRads, 0, 0);
 
             % Give length of thigh bar from center to C,D
-            xDProj = xR1+((1/2)*L3);
+            xDProj = xR1+((1/3)*L3);
             yDProj = yR1;
             
             % Find point D in space rotate by - hip, theta2
@@ -96,7 +100,8 @@ classdef FourBarLinkageMathDefined_FromGait
                 kneeAngleZRads, kneeJointXPos, kneeJointYPos);
             
             % Give length of shank bar from center to B
-            xBProj = xR2+((1/3)*L1);
+            %L1 = 0.025; 
+            xBProj = xR2+((1/4)*L1);
             yBProj = yR2;
             
             % Find point B in space rotate by - theta4, hip, knee
@@ -209,6 +214,8 @@ classdef FourBarLinkageMathDefined_FromGait
             disp(['Y Dif: ', num2str(abs(topIntersection(2)- yD))]);
             disp('');
             obj.TopBarLinkageDistanceChange = sum(sqrt(diff([topIntersection(1), xD]).^2+diff([topIntersection(2) yD]).^2));
+            obj.TopBarMovementX = topIntersection(1) - xD;
+            obj.TopBarMovementY = topIntersection(2) - yD;
             
             bottomIntersection = LineIntersection(shankLine, obj.Link1Line);
             obj.BottomBarLinkageDistanceChange = sum(sqrt(diff([bottomIntersection(1), xB]).^2+diff([bottomIntersection(2) yB]).^2));
