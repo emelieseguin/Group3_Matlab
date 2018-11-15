@@ -52,6 +52,7 @@ function Main()
     angularAccel = AngularAcceleration(positionArray, timeForGaitCycle);
     normCopData = NormalizeCopData(patient29CopData_Left, ...
         patient29_HeelStrike, patient29_ToeOff, patient29FootLengthInMm);
+    
     % Plot the shank spring
     PlotShankSpringLength(springLengthArray);
     
