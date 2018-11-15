@@ -1,5 +1,5 @@
 function Main()
-    global rightShankLength;
+    global thighLength rightShankLength;
     % Names of body parts
     SetAnthropometricNames(); % Run this to initialize all global naming variables
     
@@ -10,12 +10,12 @@ function Main()
     patient29AnglesCsvFileName = 'Patient29_Normal_Walking_Angles.csv';
     patient29ForcesCsvFileName = 'Patient29_Normal_Walking_Forces.csv';
     patient29CopData_Left = 'Patient29_ForcePlateData_LeftFoot.csv';
-    patient29FootLengthInMm = 295;  % Need to actually find the patientFootLength for correct Moments
+    patient29FootLengthInMm = 295;  % Approximated foot length
     
     % Create objects to store the gait information (angles, forces) of patient 29
     patient29Angles = GaitDataAngles(patient29AnglesCsvFileName);
     patient29Forces = GaitDataForces(patient29ForcesCsvFileName);
-    
+        
     % Build the position and 4Bar array from the patientAngle data
     positionArray = [];
     fourBarArray = [];
@@ -27,6 +27,10 @@ function Main()
     springLengthArray = [];
     dorsiFlexionArray = [];
     dorsiSpringLengthArray = [];
+    distanceChangeOfTopLink = zeros(1,101);
+    distanceChangeOfBottomLink = zeros(1,101);
+    topLinkXMovement = zeros(1,101);
+    topLinkYMovement = zeros(1,101);
     for item = 1:(length(patient29Angles.LFootAngleZ))
         
         % Get the angles from the object
@@ -37,75 +41,135 @@ function Main()
         
         % Create the position of the leg, add it to the array
         position = GaitLegPosition(model, foot, knee, hip);
+        
         positionArray = [positionArray position];
         kneePointXArray(item) = position.KneeJointX;
         kneePointYArray(item) = position.KneeJointY;
-        
-        linkagePosition = FourBarLinkagePosition(personHeight, position.KneeJointX, position.KneeJointY, ...
-            model.dimensionMap(rightShankLength), hip, knee);
+         
+        linkagePosition = FourBarLinkageMathDefined_FromGait(personHeight, position.KneeJointX, position.KneeJointY, ...
+            model.dimensionMap(thighLength), model.dimensionMap(rightShankLength), hip, knee, position.ThighLine, position.ShankLine);
+        %linkagePosition = FourBarLinkagePosition(personHeight, position.KneeJointX, position.KneeJointY, ...
+        %    model.dimensionMap(rightShankLength), hip, knee, item);
         fourBarArray = [fourBarArray linkagePosition];
-
+ 
         intersectPointXArray(item) = linkagePosition.IntersectPointX;
         intersectPointYArray(item) = linkagePosition.IntersectPointY;
-    
+     
         plantarPosition = PlantarFlexionSpringPosition(personHeight, position.AnkleJointX, position.AnkleJointY, ...
-            ankle, foot, position.ShankComXPoint, position.ShankComYPoint);
+             ankle, foot, position.ShankComXPoint, position.ShankComYPoint);
         plantarFlexionArray = [plantarFlexionArray plantarPosition];
         springLengthArray = [springLengthArray plantarPosition.Length];
         
+        distanceChangeOfTopLink(item) = linkagePosition.TopBarLinkageDistanceChange;
+        distanceChangeOfBottomLink(item) = linkagePosition.BottomBarLinkageDistanceChange;
+        topLinkXMovement(item) = linkagePosition.TopBarMovementX;
+        topLinkYMovement(item) = linkagePosition.TopBarMovementY;
+         
         dorsiPosition = DorsiFlexionSpringPosition(personHeight, position.KneeJointX, position.KneeJointY, ...
             position.AnkleJointX, position.AnkleJointY, position.ThighComXPoint, position.ThighComYPoint, ... 
             position.FootComXPoint, position.FootComYPoint, position.ShankComXPoint, position.ShankComYPoint, ... 
             hip, knee, ankle, foot, position.ToeX, position.ToeY);
         dorsiFlexionArray = [dorsiFlexionArray dorsiPosition];
         dorsiSpringLengthArray = [dorsiSpringLengthArray dorsiPosition.Length];
-    end   
+    end
+    
+    % Test for the range of motion of the 4 bar
+    %fourBarTest = [];
+    %qAngle =  90; %127.71; %- proper one;
+    %while(qAngle < (180-19.5))
+    %    test = FourBarLinkageMathDefined(personHeight, position.KneeJointX, position.KneeJointY, ...
+    %        model.dimensionMap(thighLength), model.dimensionMap(rightShankLength), hip, knee, qAngle);
+    %    fourBarTest = [fourBarTest test];
+    %    qAngle = qAngle + 1;
+    %end
     
     % Calc the linear and angular accelerations 
-    % 1.3 is a dummy time for the gait cycle
-    patient29_HeelStrike = 0;
-    patient29_ToeOff = patient29Forces.ToeOffPercentage;
-    timeForGaitCycle = 1; %0.708;
-    linearAccel = LinearAcceleration(positionArray, timeForGaitCycle);
-    angularAccel = AngularAcceleration(positionArray, timeForGaitCycle);
-    normCopData = NormalizeCopData(patient29CopData_Left, ...
-        patient29_HeelStrike, patient29_ToeOff, patient29FootLengthInMm);
+    %patient29_HeelStrike = 0;
+    %patient29_ToeOff = patient29Forces.ToeOffPercentage;
+    %timeForGaitCycle = 1.48478;
+    %linearAccel = LinearAcceleration(positionArray, timeForGaitCycle);
+    %angularAccel = AngularAcceleration(positionArray, timeForGaitCycle);
+    %normCopData = NormalizeCopData(patient29CopData_Left, ...
+    %    patient29_HeelStrike, patient29_ToeOff, patient29FootLengthInMm);
     
     % Plot the Linear Velocity and Acceleration
         %linearAccel.PlotVelocityInterpolationCurves();
         %linearAccel.PlotAccelerationCurves();
+        %linearAccel.PlotAvgAccelerationCurves();
         
     % Plot the Angular Velocity and Accelerations
         %angularAccel.PlotVelocityInterpolationCurves();
         %angularAccel.PlotAccelerationCurves();
+        %angularAccel.PlotAvgAccelerationCurves();
         
     % Plot the plantarflexion and dorsiflexion spring
     %PlotShankSpringLength(springLengthArray);
-    PlotDorsiSpringLength(dorsiSpringLengthArray);
+    %PlotDorsiSpringLength(dorsiSpringLengthArray);
     % Plot the Intersection of the 4 bar linkage with respect to the knee
     % joint position
-    %Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
-    %intersectPointXArray, intersectPointYArray);
-    
+    Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
+    intersectPointXArray, intersectPointYArray);
+
+    % Build the shear force bending moment diagrams with the correct forces
+    % Currently returns the right components.. However the gui shows the forces in kN which is wrong...
+    % Scale for the bending moment is also wrong, should be .12 not 1.2
+    %[ShearF, BendM] = ShearForceBendingMoment('Prob 200',[0.153,0.005,0.148],{'CF',-1.8161,0.005},{'CF',-0.0139,0.0165},{'CF',-0.0237,0.023},{'CF',0.8626905882,0.023},{'CF',-0.5863,0.0525},{'CF',-1.4834,0.0759},{'CF',4.895709412,0.0825},{'CF',-0.0189,0.0915},{'CF',-1.8161,0.148});
+    %disp(['Max Shear Force: ', num2str(max(ShearF)), 'N,   Min Shear Force: ',  num2str(min(ShearF)), 'N']);
+    %disp(['Max Bending Moment Force: ', num2str(max(BendM)), 'N*m,   Min Bending Moment Force: ',  num2str(min(BendM)), 'N*m']);
+
     %HipTorsionSpring(patient29Angles.LHipAngleZ);
     %PlantarSpringCalcs(springLengthArray);
     %DorsiSpringCalcs();
+    PlotTopBarLinkageChangeDistance(distanceChangeOfTopLink, distanceChangeOfBottomLink, ...
+        topLinkXMovement, topLinkYMovement);
     
     % Run the gait simulation
     %FourBarLinkageSim(fourBarArray);
     %GaitSimulation(positionArray);
-    %FullSimulation(fourBarArray, positionArray);
+    FullSimulation(fourBarArray, positionArray);
     %PlantarFlexionSpringSim(plantarFlexionArray);
     %DorsiFlexionSpringSim(dorsiFlexionArray);
-    FullSimulationPart2(plantarFlexionArray, positionArray, dorsiFlexionArray);
+    %FullSimulationPart2(plantarFlexionArray, positionArray, dorsiFlexionArray);
     
-    inverseDynamics = InverseDynamics(model, positionArray, linearAccel, ...
-        angularAccel, patient29Forces, normCopData);
-    inverseDynamics.PlotMomentGraphs();
+    %inverseDynamics = InverseDynamics(model, positionArray, linearAccel, ...
+    %    angularAccel, patient29Forces, normCopData, timeForGaitCycle);
+    %inverseDynamics.PlotMomentGraphs();
 end
 
 %PlotPatientGaitAngles(patient29Angles);
 %PlotPatientGaitForces(patient29Forces);
+
+function PlotTopBarLinkageChangeDistance(topLinkageDistanceChangeArray, bottomLinkageDistanceChangeArray, ...
+topLinkXMovement, topLinkYMovement)
+    figure
+    % Plot the translation distance change of the top link
+    top = subplot(2,1,1);
+    plot(top, 1:length(topLinkageDistanceChangeArray), topLinkageDistanceChangeArray, 'LineWidth',2);
+    hold on
+    plot(top, 1:length(bottomLinkageDistanceChangeArray), bottomLinkageDistanceChangeArray, 'LineWidth',2);
+    grid on
+    title('Distance from Center of Limb to Pin');
+    ylabel('Length (m)')
+    xlabel('Gait Cycle (%)') 
+    set(top, 'LineWidth',1)
+    legend(top, 'Thigh Linkage', 'Bottom Linkage')
+    axis(top, [0 length(topLinkageDistanceChangeArray) (min(bottomLinkageDistanceChangeArray)-0.005) (max(topLinkageDistanceChangeArray)+0.005)])
+    
+    
+    bottom = subplot(2,1,2);
+    plot(bottom, 1:length(topLinkXMovement), topLinkXMovement, 'LineWidth',2);
+    hold on
+    plot(bottom, 1:length(topLinkYMovement), topLinkYMovement, 'LineWidth',2);
+    grid on
+    title('Distance from Thigh to Pin');
+    ylabel('Length (m)')
+    xlabel('Gait Cycle (%)') 
+    set(bottom, 'LineWidth',1)
+    legend(bottom, 'Thigh X Mov.', 'Thigh Y Mov.')
+    axis(bottom, [0 length(topLinkXMovement) (min(topLinkXMovement)-0.005) (max(topLinkYMovement)+0.005)])
+    
+    
+end
 
 function PlotShankSpringLength(springLengthArray)
     %figure 
@@ -173,6 +237,32 @@ function Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
     axis(bottom, [0 100 -0.45 -0.3])
 end
 
+function Plot4BarLinkageOverRangeOfMotion(intersectPointXArray, intersectPointYArray)
+
+    figure
+    top = subplot(2,1,1);
+    grid on
+    plot(top, 1:length(intersectPointXArray), intersectPointXArray, 'LineWidth',2);
+    title('Position of the Knee and Linkage Intersection');
+    ylabel('X Coordinates (m)')
+    xlabel('Gait Cycle (%)') 
+    set(top, 'LineWidth',1)
+    legend(top, 'Knee Center','Linkage Intersection')
+    
+    axis(top, [0 100 -0.2 0.3])
+    
+    bottom = subplot(2,1,2);
+    grid on
+    plot(bottom, 1:length(intersectPointYArray), intersectPointYArray, 'LineWidth',2);
+    title('Position of the Knee and Linkage Intersection');
+    xlabel('Gait Cycle (%)') 
+    ylabel('Y Coordinates (m)') 
+    set(bottom, 'LineWidth',1)
+    
+    legend(bottom, 'Knee Center','Linkage Intersection')
+    axis(bottom, [0 100 -0.45 -0.3])
+end
+
 function PlotPatientGaitAngles(patientAngles)
     figure
     % Graph number 1
@@ -215,4 +305,3 @@ function PlotPatientGaitForces(patientForces)
     title(topModel,'Ground Reaction Force Z');
     grid(topModel,'on');
 end
-

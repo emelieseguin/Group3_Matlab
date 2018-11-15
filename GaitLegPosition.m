@@ -49,6 +49,10 @@ classdef GaitLegPosition
         HeelY
         ToeX
         ToeY
+        
+        % Lines for the Thigh and Shank
+        ThighLine
+        ShankLine
     end
     
     % CCW in the sagital plane is positive
@@ -175,6 +179,9 @@ classdef GaitLegPosition
             obj.FootComXVector = [obj.FootComXPoint obj.HeelX];
             obj.FootComYVector = [obj.FootComYPoint obj.HeelY];
             
+            % Create lines for the thigh and shank
+            obj.ThighLine = [obj.HipJointX obj.KneeJointX;obj.HipJointY obj.KneeJointY];
+            obj.ShankLine = [obj.KneeJointX obj.AnkleJointX;obj.KneeJointY obj.AnkleJointY];
             %% Tests to Run %%
             % Checks that can be ran to ensure the thing and shank stay the
             % same dimensions

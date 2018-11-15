@@ -21,9 +21,9 @@ classdef GaitDataForces
             obj.LGRFY = csvArray(:, 24);
             obj.LGRFZ = csvArray(:, 25);
             
-            obj.LGRFX = 50.0*obj.LGRFX;
-            obj.LGRFY = 50.0*obj.LGRFY;
-            obj.LGRFZ = 50.0*obj.LGRFZ;
+            obj.LGRFX = obj.LGRFX;
+            obj.LGRFY = obj.LGRFY;
+            obj.LGRFZ = obj.LGRFZ;
             
             % Find when toe off is in the data
             obj.ToeOffPercentage = find(obj.LGRFX==0, 1, 'first');
