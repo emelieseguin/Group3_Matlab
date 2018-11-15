@@ -52,19 +52,9 @@ function Main()
     angularAccel = AngularAcceleration(positionArray, timeForGaitCycle);
     normCopData = NormalizeCopData(patient29CopData_Left, ...
         patient29_HeelStrike, patient29_ToeOff, patient29FootLengthInMm);
-   
-    % Calculates shaft dimensions based on anthropometric model
-    Shaft_Length_Anthropometric();
-    
-    %Calculates forces on shaft based on antrhopmoetric model and Em's
-    %spring forces
-    Forces_On_Shaft();
-    
-    %Calculates mass of each component based on anthropometric model
-    Exoskeleton_Mass_Anthropometric();
     
     % Plot the shank spring
-    %PlotShankSpringLength(springLengthArray);
+    PlotShankSpringLength(springLengthArray);
     
     % Plot the Linear Velocity and Acceleration
         %linearAccel.PlotVelocityInterpolationCurves();
