@@ -1,3 +1,4 @@
+
 classdef Exoskeleton_Mass_Anthropometric
     properties
         %densityAl
@@ -11,6 +12,7 @@ classdef Exoskeleton_Mass_Anthropometric
         MDOFjoint
         MdiscCase
         Mdisc
+        Mshaft
         MdiscConnecter
         MthighStrapCaseSupport
         MthighStrapCase
@@ -25,6 +27,7 @@ classdef Exoskeleton_Mass_Anthropometric
         MuniJoint
         MbotBarPulley
         MbotBar
+        mBelow2DOFJoint
     end
      methods
         function obj = Exoskeleton_Mass_Anthropometric()
@@ -53,7 +56,7 @@ classdef Exoskeleton_Mass_Anthropometric
                 Hbearing1 = 0.012; % height of bearing
                 hLid1 = (1/178)*H; % lid height which covers bearing and case in cm
                 Rcase1 = Rbearing1Out+(0.5/178)*H; % radius of case which covers bearing
-                Rbearing1In = 0.02; % radius of inside of bearing
+                Rbearing1In = 0.01; % radius of inside of bearing
                 Lshaft1 = Hbearing1 + hLid1 + (2/178)*H; % length of shaft in bearing
                 Vbearing1Case = pi*(Rcase1.^2 - Rbearing1Out.^2)*hLid1 + pi*Rcase1.^2*hLid1; % volume of just case around bearing
                 Vshaft1 = pi*(Rbearing1In.^2)*Lshaft1; % volume of hip shaft 1
@@ -100,7 +103,7 @@ classdef Exoskeleton_Mass_Anthropometric
                 obj.MdiscCase = VdiscCase * densityHDPE; % mass of the case surrounding the discs
                 obj.Mdisc = Vdisc * densityAl; % mass of 1 of the discs
                 obj.MdiscConnecter = VdiscConnecter * densityAl; % the mass of the piece that connects from the 2DOF joint to the lateral disc
-                Mshaft = Vshaft * densityAl; % mass of the shaft which supports both hip discs
+                obj.Mshaft = Vshaft * densityAl; % mass of the shaft which supports both hip discs
 
                 % The dimensions for the thigh strap which connects the upper leg to the device
                 LthighStrapCaseSupport = (2/178)*H; % dimension of the strap case suppot in z direction...strap case support is the piece extending from the fram and connecting to the strap case
@@ -187,6 +190,9 @@ classdef Exoskeleton_Mass_Anthropometric
                 obj.MbotBar = VbotBar * densityAl; % the mass of the bot bar which connects the universal ankle joint to link 1 of the 4 bar knee
 
                 % the dimensions of the ankle bar and foot bar
+                
+                %total mass of everything below the 2 DOF hip joint
+                obj.mBelow2DOFJoint = 0.5*obj.MDOFjoint + obj.MdiscConnecter + 2*obj.Mdisc + obj.Mshaft + obj.MdiscCase + obj.MthighStrapCaseSupport + obj.MthighStrapCase + obj.MthighStrapPadding + obj.McalfStrapCaseSupport + obj.McalfStrapCase + obj.McalfStrapPadding + obj.MtopBarPulley + obj.MtopBar + obj.MdorsiSpringCase + obj.mLinks + obj.MuniJoint + obj.MbotBarPulley + obj.MbotBar; % total mass of the leg which is being held up by the 2 DOF pin joint
         end
 
      end
