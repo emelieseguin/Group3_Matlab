@@ -2,8 +2,9 @@ function DorsiflexionCamBearingCalcs(fRadial, fThrust)
 %% Setting up the initial variables
 gaitPercentage = 0.125; %found this from spring length graphs
 gaitCycleTime = 1.48478;
-thighAngularVelocity = (pi/2)/(gaitPercentage*gaitCycleTime);
-shaftRPM = thighAngularVelocity * 9.5493; %converting rads/sec to rpm
+camAngularVelocity = (pi/2)/(gaitPercentage*gaitCycleTime);
+
+shaftRPM = camAngularVelocity * 9.5493; %converting rads/sec to rpm
 Ka = 1.5; %Light impact application, picked value at top of range for safety
 designLife = 40000; %Inbetween 8-hour service every working day (30000 hours) and continuous 24-hour service (50000 hours)
 life = shaftRPM*designLife*60;

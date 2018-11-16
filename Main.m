@@ -4,7 +4,7 @@ function Main()
     SetAnthropometricNames(); % Run this to initialize all global naming variables
     
     % Build the anthropomtric model
-    personHeight = 1.78; % in m
+    personHeight = 0.5; % in m
     model = AnthropometricModel(personHeight, 50.0);
 
     patient29AnglesCsvFileName = 'Patient29_Normal_Walking_Angles.csv';
@@ -92,7 +92,7 @@ function Main()
     
     %% Spring Calcs -- note, need mCable to automate, method to find string lengths within the functions 
     % Hip torsional spring
-    maxTorsionFromSpring = HipTorsionSpring(personHeight, patient29Angles.LHipAngleZ);
+    [maxTorsionFromSpring, shaftDiameter] = HipTorsionSpring(personHeight, patient29Angles.LHipAngleZ);
     
     % Extension spring for Platarflexion
     PlantarSpringCalcs(personHeight, plantarSpringLengthArray);
@@ -120,7 +120,7 @@ function Main()
     exoskeletonMasses = Exoskeleton_Mass_Anthropometric(personHeight);
     
     % Calculates shaft dimensions based on anthropometric model
-    shaft = Shaft_Length_Anthropometric(personHeight);
+    shaft = Shaft_Length_Anthropometric(personHeight, shaftDiameter);
     
     % Build the shear force bending moment diagrams with the correct forces
     % Currently returns the right components.. However the gui shows the forces in kN which is wrong...

@@ -37,7 +37,7 @@ classdef Shaft_Length_Anthropometric
         
     end
     methods 
-        function obj = Shaft_Length_Anthropometric(patientHeight)
+        function obj = Shaft_Length_Anthropometric(patientHeight, diameterHipTorsionSpring)
             %Total length of the shaft
             zt = (0.069/1.78)*patientHeight;
             obj.zShaftLength = zt;
@@ -79,11 +79,21 @@ classdef Shaft_Length_Anthropometric
             dp5 = (0.02/1.78)*patientHeight;
             dp6 = (0.017/1.78)*patientHeight;
             dp7 = (0.02/1.78)*patientHeight;
-           
+            
+            distFromZ2_Z1 = z2-z1;
+            distFromZ3_Z2 = z3-z2;
+            distFromZ6_Z3 = z6-z3;
+            %% We need stuff from torsion spring to build this -- from Em
+            distFromZ6_Z9 = z9-z6;
+            distFromZ9_Z11 = z11-z9;
+            distFromZ11_Z12 = z12-z11;
+            distFromZ12_Z13 = z13-z12;
+            
+            %% More calcs
             %Summation of masses and there centers of mass
-            mizi = (obj.DensityAl*pi/4)*(((dp1.^2)*(z2-z1)*(z1+((z2-z1)/2)) + (dp2.^2)*(z3-z2)*(z2+((z3-z2)/2)) + (dp3.^2)*(z5-z3)*(z3+((z5-z3)/2))+ (dp4.^2)*(z9-z6)*(z6+((z9-z6)/2))+(dp5.^2)*(z11-z10)*(z10+((z11-z10)/2))+(dp6.^2)*(z12-z11)*(z11+((z12-z11)/2))+(dp7.^2)*(z13-z12)*(z12+((z13-z12)/2))));
+            mizi = (obj.DensityAl*pi/4)*(((dp1.^2)*(distFromZ2_Z1)*(z1+((distFromZ2_Z1)/2)) + (dp2.^2)*(z3-z2)*(z2+((z3-z2)/2)) + (dp3.^2)*(z5-z3)*(z3+((z5-z3)/2))+ (dp4.^2)*(z9-z6)*(z6+((z9-z6)/2))+(dp5.^2)*(z11-z10)*(z10+((z11-z10)/2))+(dp6.^2)*(z12-z11)*(z11+((z12-z11)/2))+(dp7.^2)*(z13-z12)*(z12+((z13-z12)/2))));
             %total mass of the shaft
-            mtot = (obj.DensityAl*pi/4)*((dp1.^2)*(z2-z1) + (dp2.^2)*(z3-z2) + (dp3.^2)*(z5-z3)+ (dp4.^2)*(z9-z6)+ (dp5.^2)*(z11-z10)+ (dp6.^2)*(z12-z11)+ (dp7.^2)*(z13-z12));
+            mtot = (obj.DensityAl*pi/4)*((dp1.^2)*(distFromZ2_Z1) + (dp2.^2)*(z3-z2) + (dp3.^2)*(z5-z3)+ (dp4.^2)*(z9-z6)+ (dp5.^2)*(z11-z10)+ (dp6.^2)*(z12-z11)+ (dp7.^2)*(z13-z12));
             %volume of the shaft
             vtot = (pi/4) * ((dp1.^2)*(z2-z1) + (dp2.^2)*(z3-z2) + (dp3.^2)*(z5-z3)+ (dp4.^2)*(z9-z6)+ (dp5.^2)*(z11-z10)+ (dp6.^2)*(z12-z11)+ (dp7.^2)*(z13-z12));
             %Center of mass for entire shaft
@@ -183,6 +193,29 @@ classdef Shaft_Length_Anthropometric
             PlantarCamZtot = PlantarCamShaftMiZi/mPlantarCamShaft; % the center of mass of the plantar cam shaft
 
             Fy1 = g * (mPlantarCamShaft + mPlantarCam + mPlantarCamCase + mPlantarCamSpring);
+                        
+            
+            distFromZ6_Z9 = z9-z6;
+            distFromZ9_Z11 = z11-z9;
+            distFromZ11_Z12 = z12-z11;
+            distFromZ12_Z13 = z13-z12;
+            
+            fileID = fopen('hipShaftDimensions.txt','w');
+                fprintf(fileID, '"distFromZ2_Z1"= %f\n', distFromZ2_Z1);
+                fprintf(fileID, '"hipShaftDiam1"= %f\n', dp1);
+                fprintf(fileID, '"distFromZ3_Z2"= %f\n', distFromZ3_Z2);
+                fprintf(fileID, '"hipShaftDiam2"= %f\n', dp2);
+                fprintf(fileID, '"distFromZ6_Z3"= %f\n', distFromZ6_Z3);
+                fprintf(fileID, '"hipShaftDiam3"= %f\n', dp3);
+                fprintf(fileID, '"distFromZ6_Z9"= %f\n', distFromZ6_Z9);
+                fprintf(fileID, '"hipShaftDiam4"= %f\n', dp4);
+                fprintf(fileID, '"distFromZ9_Z11"= %f\n', distFromZ9_Z11);
+                fprintf(fileID, '"hipShaftDiam5"= %f\n', dp5);
+                fprintf(fileID, '"distFromZ11_Z12"= %f\n', distFromZ11_Z12);
+                fprintf(fileID, '"hipShaftDiam6"= %f\n', dp6);
+                fprintf(fileID, '"distFromZ12_Z13"= %f\n', distFromZ12_Z13);
+                fprintf(fileID, '"hipShaftDiam7"= %f\n', dp7);
+            fclose(fileID);
         end
     end
 end

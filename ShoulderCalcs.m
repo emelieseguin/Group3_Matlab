@@ -1,15 +1,15 @@
 function ShoulderCalcs (personHeight, maxShaftMoment, maxTorsionFromSpring)
     %% Keep for not to test read in values
-    personHeight = 1.78; %m
+    %personHeight = 1.78; %m
     maxShaftMoment = UnitConversion.NewtonM2PoundFInch(maxShaftMoment);
-    maxShaftMoment = -1.053062; %lbf in 
+    %maxShaftMoment = -1.053062; %lbf in 
         %Mmax = -0.11898; %Nm
     maxTorsionFromSpring = UnitConversion.NewtonM2PoundFInch(maxTorsionFromSpring);
-    maxTorsionFromSpring = 20.188551; %lbf in
+    %maxTorsionFromSpring = 20.188551; %lbf in
         %Tmax = 2.281; %Nm
 %% Design Variables - Calcs 1
-    HOriginal = 1.78*39.37; %in    
-    H = personHeight*39.37; %in
+    HOriginal = 1.78*39.37; %in    ---- is this supposed to be person height?? , use the UnitCoversion.Meters2Inches not this
+    H = personHeight*39.37; %in --- use UnitCoversion.Meters2Inches
     dReal = 0.0*39.37/HOriginal*H; %2cm/178cm*H, converted to inches - This is the actual small shaft diameter
     Sut = 47000; %Psi
         %Sut = 324000000; %Mpa - Aluminum

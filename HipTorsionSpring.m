@@ -1,4 +1,4 @@
-function maxMomentFromSpring = HipTorsionSpring(patientHeight, patientHipAngles) 
+function [maxMomentFromSpring, shaftDiameter] = HipTorsionSpring(patientHeight, patientHipAngles) 
     %% Design variables 
     d = UnitConversion.Meters2Inches(0.003/1.78*patientHeight); % Diameter of wire[m]     
     D = UnitConversion.Meters2Inches(0.035/1.78*patientHeight); % Mean diameter of coil[m]  
@@ -56,6 +56,7 @@ function maxMomentFromSpring = HipTorsionSpring(patientHeight, patientHipAngles)
     Delta = UnitConversion.Inches2Meters(Delta);
     DPrime = UnitConversion.Inches2Meters(DPrime);
     Dp = UnitConversion.Inches2Meters(Dp);
+    shaftDiameter = Dp;
     maxMomentFromSpring = UnitConversion.PoundFInch2NewtonM(Mmax);
     SigmaA = UnitConversion.Psi2Pa(SigmaA);
     Sut = UnitConversion.Psi2Pa(Sut);
