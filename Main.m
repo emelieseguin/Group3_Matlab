@@ -1,6 +1,6 @@
 function Main()
     global thighLength rightShankLength;
-    % Names of body parts
+    %% Initialize databases to use throughout the code
     SetAnthropometricNames(); % Run this to initialize all global naming variables
     
     % Build the anthropomtric model
@@ -16,7 +16,7 @@ function Main()
     patient29Angles = GaitDataAngles(patient29AnglesCsvFileName);
     patient29Forces = GaitDataForces(patient29ForcesCsvFileName);
         
-    % Build the position and 4Bar array from the patientAngle data
+    %% Create arrays over the gait cycle
     positionArray = [];
     fourBarArray = [];
     kneePointXArray = zeros(1,101);
@@ -24,7 +24,7 @@ function Main()
     intersectPointXArray = zeros(1,101);
     intersectPointYArray = zeros(1,101);
     plantarFlexionArray = [];
-    springLengthArray = [];
+    plantarSpringLengthArray = [];
     dorsiFlexionArray = [];
     dorsiSpringLengthArray = [];
     distanceChangeOfTopLink = zeros(1,101);
@@ -56,23 +56,22 @@ function Main()
         intersectPointYArray(item) = linkagePosition.IntersectPointY;
      
         plantarPosition = PlantarFlexionSpringPosition(personHeight, position.AnkleJointX, position.AnkleJointY, ...
-             ankle, foot, position.ShankComXPoint, position.ShankComYPoint);
+             ankle, foot, position.ShankComXPoint, position.ShankComYPoint, knee, hip);
         plantarFlexionArray = [plantarFlexionArray plantarPosition];
-        springLengthArray = [springLengthArray plantarPosition.Length];
+        plantarSpringLengthArray = [plantarSpringLengthArray plantarPosition.Length];
         
         distanceChangeOfTopLink(item) = linkagePosition.TopBarLinkageDistanceChange;
         distanceChangeOfBottomLink(item) = linkagePosition.BottomBarLinkageDistanceChange;
         topLinkXMovement(item) = linkagePosition.TopBarMovementX;
         topLinkYMovement(item) = linkagePosition.TopBarMovementY;
          
-        dorsiPosition = DorsiFlexionSpringPosition(personHeight, position.KneeJointX, position.KneeJointY, ...
-            position.AnkleJointX, position.AnkleJointY, position.ThighComXPoint, position.ThighComYPoint, ... 
-            position.FootComXPoint, position.FootComYPoint, position.ShankComXPoint, position.ShankComYPoint, ... 
-            hip, knee, ankle, foot, position.ToeX, position.ToeY);
+        dorsiPosition = DorsiFlexionSpringPosition(position, model.dimensionMap,...
+            hip, knee, ankle, foot);
         dorsiFlexionArray = [dorsiFlexionArray dorsiPosition];
         dorsiSpringLengthArray = [dorsiSpringLengthArray dorsiPosition.Length];
     end
     
+    %% Test Stuff - not used currently - shows range of motion for 4Bar
     % Test for the range of motion of the 4 bar
     %fourBarTest = [];
     %qAngle =  90; %127.71; %- proper one;
@@ -83,6 +82,80 @@ function Main()
     %    qAngle = qAngle + 1;
     %end
     
+    %% Plotting Graphs for Spring Length - wrt to height
+    % Plot the plantarflexion and dorsiflexion spring
+    %PlotDorsiSpringLength(dorsiSpringLengthArray);
+    %PlotPlantarSpringLength(plantarSpringLengthArray);
+    
+    % Plot the shank spring
+    % PlotShankSpringLength(springLengthArray);	 
+    
+    %% Spring Calcs -- note, need mCable to automate, method to find string lengths within the functions 
+    % Hip torsional spring
+    maxTorsionFromSpring = HipTorsionSpring(personHeight, patient29Angles.LHipAngleZ);
+    
+    % Extension spring for Platarflexion
+    PlantarSpringCalcs(personHeight, plantarSpringLengthArray);
+    
+    % Torsional spring for the Platarflexion Cam
+    mCable = 0.005713; % -- some sort of mass that is calculated
+    PlantarTorsionSpring(personHeight, mCable, plantarSpringLengthArray);
+    
+    % Extension spring for Dorsiflexion
+    DorsiSpringCalcs(personHeight, dorsiSpringLengthArray);
+    
+    % Torsional spring for the Dorsiflexion Cam
+    mCable = 0.005713; % -- some sort of mass for that
+    DorsiTorsionSpring(personHeight, mCable, dorsiSpringLengthArray);
+    
+    %% Plotting the 4Bar 
+    % Plot the Intersection of the 4 bar linkage with respect to the knee joint position
+    % Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
+    %   intersectPointXArray, intersectPointYArray);
+    % PlotTopBarLinkageChangeDistance(distanceChangeOfTopLink, distanceChangeOfBottomLink, ...
+    %    topLinkXMovement, topLinkYMovement);
+    
+    %% Shaft Analysis Things
+    % Calculates mass of each component based on anthropometric model
+    exoskeletonMasses = Exoskeleton_Mass_Anthropometric(personHeight);
+    
+    % Calculates shaft dimensions based on anthropometric model
+    shaft = Shaft_Length_Anthropometric(personHeight);
+    
+    % Build the shear force bending moment diagrams with the correct forces
+    % Currently returns the right components.. However the gui shows the forces in kN which is wrong...
+    % Scale for the bending moment is also wrong, should be .12 not 1.2
+    [ShearF, BendM] = ShearForceBendingMoment('Prob 200', ...
+                [shaft.zShaftLength,shaft.supportDist1], ...
+                {'CF',shaft.Fg1,shaft.casingDist1}, ...
+                {'CF',shaft.Fg2,shaft.retainingRingDist1}, ...
+                {'CF',shaft.Fy2,shaft.supportDist1},...
+                {'CF',shaft.Fg3,shaft.keyDist},...
+                {'CF',shaft.Fg4,shaft.springDist},...
+                {'CF',shaft.Fg5,shaft.comOfShaftDist},...
+                {'CF',shaft.Fg6,shaft.bearingDist},...
+                {'CF',shaft.Fg7,shaft.exoLegDist},...
+                {'CF',shaft.Fg8,shaft.retainingRingDist2},...
+                {'CF',shaft.Fg9, shaft.casingDist2});
+    %ShearForceBendingMoment('Prob 200',[0.153,0.005,0.148],{'CF',-1.8161,0.005},{'CF',-0.0139,0.0165},{'CF',-0.0237,0.023},{'CF',0.8626905882,0.023},{'CF',-0.5863,0.0525},{'CF',-1.4834,0.0759},{'CF',4.895709412,0.0825},{'CF',-0.0189,0.0915},{'CF',-1.8161,0.148});
+    disp(['Max Shear Force: ', num2str(max(ShearF)), 'N,   Min Shear Force: ',  num2str(min(ShearF)), 'N']);
+    disp(['Max Bending Moment Force: ', num2str(max(BendM)), 'N*m,   Min Bending Moment Force: ',  num2str(min(BendM)), 'N*m']);
+    
+    % Shaft shoulder Analysis
+    ShoulderCalcs(personHeight, GetAbsMaxValueFromArray(BendM), maxTorsionFromSpring);
+    
+    %% Others Calcs - Bolts, Bearings, Whatever else
+    
+    
+    %% Run Simulations - for different components
+    %FourBarLinkageSim(fourBarArray);
+    %GaitSimulation(positionArray);
+    FullSimulation(fourBarArray, positionArray);
+    %PlantarFlexionSpringSim(plantarFlexionArray);
+    %DorsiFlexionSpringSim(dorsiFlexionArray);
+    %FullSimulationPart2(plantarFlexionArray, positionArray, dorsiFlexionArray);
+    
+    %% Inverse Dynamics
     % Calc the linear and angular accelerations 
     %patient29_HeelStrike = 0;
     %patient29_ToeOff = patient29Forces.ToeOffPercentage;
@@ -101,41 +174,23 @@ function Main()
         %angularAccel.PlotVelocityInterpolationCurves();
         %angularAccel.PlotAccelerationCurves();
         %angularAccel.PlotAvgAccelerationCurves();
-        
-    % Plot the plantarflexion and dorsiflexion spring
-    %PlotShankSpringLength(springLengthArray);
-    %PlotDorsiSpringLength(dorsiSpringLengthArray);
-    % Plot the Intersection of the 4 bar linkage with respect to the knee
-    % joint position
-    Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
-    intersectPointXArray, intersectPointYArray);
-
-    % Build the shear force bending moment diagrams with the correct forces
-    % Currently returns the right components.. However the gui shows the forces in kN which is wrong...
-    % Scale for the bending moment is also wrong, should be .12 not 1.2
-    %[ShearF, BendM] = ShearForceBendingMoment('Prob 200',[0.153,0.005,0.148],{'CF',-1.8161,0.005},{'CF',-0.0139,0.0165},{'CF',-0.0237,0.023},{'CF',0.8626905882,0.023},{'CF',-0.5863,0.0525},{'CF',-1.4834,0.0759},{'CF',4.895709412,0.0825},{'CF',-0.0189,0.0915},{'CF',-1.8161,0.148});
-    %disp(['Max Shear Force: ', num2str(max(ShearF)), 'N,   Min Shear Force: ',  num2str(min(ShearF)), 'N']);
-    %disp(['Max Bending Moment Force: ', num2str(max(BendM)), 'N*m,   Min Bending Moment Force: ',  num2str(min(BendM)), 'N*m']);
-
-    %HipTorsionSpring(patient29Angles.LHipAngleZ);
-    %PlantarSpringCalcs(springLengthArray);
-    %DorsiSpringCalcs();
-    PlotTopBarLinkageChangeDistance(distanceChangeOfTopLink, distanceChangeOfBottomLink, ...
-        topLinkXMovement, topLinkYMovement);
-    
-    % Run the gait simulation
-    %FourBarLinkageSim(fourBarArray);
-    %GaitSimulation(positionArray);
-    FullSimulation(fourBarArray, positionArray);
-    %PlantarFlexionSpringSim(plantarFlexionArray);
-    %DorsiFlexionSpringSim(dorsiFlexionArray);
-    %FullSimulationPart2(plantarFlexionArray, positionArray, dorsiFlexionArray);
     
     %inverseDynamics = InverseDynamics(model, positionArray, linearAccel, ...
     %    angularAccel, patient29Forces, normCopData, timeForGaitCycle);
     %inverseDynamics.PlotMomentGraphs();
 end
 
+function maxValue = GetAbsMaxValueFromArray(array)
+    mag1 = abs(max(array));
+    mag2 = abs(min(array));
+    if(mag1 > mag2)
+        maxValue = max(array);
+    else
+        maxValue = min(array);
+    end
+end
+
+%% Various Plots
 %PlotPatientGaitAngles(patient29Angles);
 %PlotPatientGaitForces(patient29Forces);
 
@@ -167,43 +222,40 @@ topLinkXMovement, topLinkYMovement)
     set(bottom, 'LineWidth',1)
     legend(bottom, 'Thigh X Mov.', 'Thigh Y Mov.')
     axis(bottom, [0 length(topLinkXMovement) (min(topLinkXMovement)-0.005) (max(topLinkYMovement)+0.005)])
-    
-    
 end
 
-function PlotShankSpringLength(springLengthArray)
+function PlotPlantarSpringLength(springLengthArray)
     %figure 
     
     %plot(1:length(springLengthArray), springLengthArray);
     
     figure
-            % Plot the plantarflexion cable and spring length graph
-            top = subplot(1,1,1);
-            plot(top, 1:length(springLengthArray), springLengthArray, 'LineWidth',2);
-            hold on
-            grid on
-            title('Plantarflexion Spring and Cable Length vs. Percent Gait Cycle');
-            ylabel('Length (m)')
-            xlabel('Gait Cycle (%)') 
-            set(top, 'LineWidth',1)
-            legend(top, 'Spring and Cable Length')
-            axis(top, [0 length(springLengthArray)  (1)*(max(springLengthArray)+1) (-1)*(min(springLengthArray)-1)])
-
+    % Plot the plantarflexion cable and spring length graph
+    top = subplot(1,1,1);
+    plot(top, 1:length(springLengthArray), springLengthArray, 'LineWidth',2);
+    hold on
+    grid on
+    title('Plantarflexion Spring and Cable Length vs. Percent Gait Cycle');
+    ylabel('Length (m)')
+    xlabel('Gait Cycle (%)') 
+    set(top, 'LineWidth',1)
+    legend(top, 'Spring and Cable Length')
+    axis(top, [0 length(springLengthArray) (min(springLengthArray)-0.01) (max(springLengthArray)+0.01)]);
 end
 
 function PlotDorsiSpringLength(dorsiSpringLengthArray)
     figure
-            % Plot the Hip moment graph
-            top = subplot(1,1,1);
-            plot(top, 1:length(dorsiSpringLengthArray), dorsiSpringLengthArray, 'LineWidth',2);
-            hold on
-            grid on
-            title('Dorsiflexion Spring and Cable Length vs. Percent Gait Cycle');
-            ylabel('Length (m)')
-            xlabel('Gait Cycle (%)') 
-            set(top, 'LineWidth',1)
-            legend(top, 'Spring and Cable Length')
-            axis(top, [0 length(dorsiSpringLengthArray)  (min(dorsiSpringLengthArray)-0.05) (max(dorsiSpringLengthArray)+0.05)])
+    % Plot the Hip moment graph
+    top = subplot(1,1,1);
+    plot(top, 1:length(dorsiSpringLengthArray), dorsiSpringLengthArray, 'LineWidth',2);
+    hold on
+    grid on
+    title('Dorsiflexion Spring and Cable Length vs. Percent Gait Cycle');
+    ylabel('Length (m)')
+    xlabel('Gait Cycle (%)') 
+    set(top, 'LineWidth',1)
+    legend(top, 'Spring and Cable Length')
+    axis(top, [0 length(dorsiSpringLengthArray)  (min(dorsiSpringLengthArray)-0.02) (max(dorsiSpringLengthArray)+0.02)])
 end
 
 function Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...

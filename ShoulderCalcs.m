@@ -1,14 +1,15 @@
-function ShoulderCalcs ()
-%Values to read in
-    HInput = 1.78; %m
-    Mmax = -1.053062; %lbf in 
+function ShoulderCalcs (personHeight, maxShaftMoment, maxTorsionFromSpring)
+    %% Keep for not to test read in values
+    personHeight = 1.78; %m
+    maxShaftMoment = UnitConversion.NewtonM2PoundFInch(maxShaftMoment);
+    maxShaftMoment = -1.053062; %lbf in 
         %Mmax = -0.11898; %Nm
-    Tmax = 20.188551; %lbf in
+    maxTorsionFromSpring = UnitConversion.NewtonM2PoundFInch(maxTorsionFromSpring);
+    maxTorsionFromSpring = 20.188551; %lbf in
         %Tmax = 2.281; %Nm
-
-%Known variables
+%% Design Variables - Calcs 1
     HOriginal = 1.78*39.37; %in    
-    H = HInput*39.37; %in
+    H = personHeight*39.37; %in
     dReal = 0.0*39.37/HOriginal*H; %2cm/178cm*H, converted to inches - This is the actual small shaft diameter
     Sut = 47000; %Psi
         %Sut = 324000000; %Mpa - Aluminum
@@ -25,8 +26,7 @@ function ShoulderCalcs ()
         %D = 0.0282/HOriginal*H; %m
         %Might have to read in from torsional spring code?
 
-
-%First set of calculations
+%% Calculations 1
     %First iteration of fatigue stress-concentration factor
     kF1 = kT1;
     %First iteration of fatigue shear stress-concentration factor
@@ -38,10 +38,10 @@ function ShoulderCalcs ()
     %First iteration of endurance limit of actual machine element subjected to loading
     Se1 = ka*kb1*SePrime;
     % Alternating and midrange bending moments
-    Ma = Mmax/2;
+    Ma = maxShaftMoment/2;
     Mm = Ma;
     %Alternating and midrange torques
-    Ta = Tmax/2;
+    Ta = maxTorsionFromSpring/2;
     Tm = Ta;
     %Diameter of critical location - from Goodman criterion
     eqnPart1 = (4*((kF1*Ma).^2)+3*((kFS1*Ta).^2)).^(1/2);
@@ -58,13 +58,13 @@ function ShoulderCalcs ()
     %Radius of curvature
     r = d*0.1;
     
-%Second set of calculations
-    %Known variables
-         q = 0.68;
-         qS = 0.82; 
-         kT = 1.7;
-         kTS = 1.2;
-
+    
+%% Design Variables - Calcs 2
+     q = 0.68;
+     qS = 0.82; 
+     kT = 1.7;
+     kTS = 1.2;
+%% Calculations 2
     %Second iteration of fatigue stress-concentration factor
         kF = 1+q*(kT-1);
     %Second iteration of fatigue shear stress-concentration factor

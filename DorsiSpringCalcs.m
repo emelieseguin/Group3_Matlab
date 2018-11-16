@@ -1,23 +1,29 @@
-function DorsiSpringCalcs()
-%Patient Height
-H = 1.78; %m
-%Design variables
-    D = Meters2Inches(0.007/1.78*H); % Mean diameter of coil
-    d = Meters2Inches(0.0012/1.78*H); % Diameter of wire
-    E = Pa2Psi(200000000000); % Young's Modulus  - Steel
-    G = Pa2Psi(79300000000); % Shear Modulus  - Steel 
-    R1 = Meters2Inches(0.005/1.78*H); % 
-    R2 = Meters2Inches(0.005/1.78*H); % 
-    Fi = Newton2Lbf(5.29/1.78*H); %Initial tension force in spring
+function DorsiSpringCalcs(personHeight, dorsiSpringLengthArray)
+    %% Design variables
+    D = UnitConversion.Meters2Inches(0.007/1.78*personHeight); % Mean diameter of coil
+    d = UnitConversion.Meters2Inches(0.0012/1.78*personHeight); % Diameter of wire
+    E = UnitConversion.Pa2Psi(200000000000); % Young's Modulus  - Steel
+    G = UnitConversion.Pa2Psi(79300000000); % Shear Modulus  - Steel 
+    R1 = UnitConversion.Meters2Inches(0.005/1.78*personHeight); % 
+    R2 = UnitConversion.Meters2Inches(0.005/1.78*personHeight); % 
+    Fi = UnitConversion.Newton2Lbf(5.29/1.78*personHeight); %Initial tension force in spring
     Nb = 15; % Number of body turns
     A = 140000; % Area from Shigley table 10-4
     m = 0.19; % Constant from Shigley table 10-4
-    LtotO = Meters2Inches(1.160/1.78*H); %
+    
+    %% Length of the dorsiflexion spring - find from array -- use dorsiSpringLengthArray
+    maxLength = max(dorsiSpringLengthArray);
+    minLength = min(dorsiSpringLengthArray);
+    % Position where the second highest peek occurs -- will need to change 
+    % if the placement of pulleys changes
+    neutralLength = dorsiSpringLengthArray(9);
+    
+    LtotO = UnitConversion.Meters2Inches(neutralLength);
 
     %Bring in y value [m]
-    Lmax = Meters2Inches(1.1659/1.78*H); %got this value from other calculations
+    Lmax = UnitConversion.Meters2Inches(maxLength);
     y = Lmax-LtotO;
-    
+    %% Calculations   
     %Calculate number of active turns
     Na = Nb+(G/E);
     %Calculate the linear spring constant
@@ -53,8 +59,8 @@ H = 1.78; %m
     %Calculate ultimate shear strength Ssu
     Ssu = 0.67*Sut;
      
-    Ssa = Pa2Psi(241000000); %[Pa] from Zimmerli data  
-    Ssm = Pa2Psi(379000000); %[Pa] from Zimmerli data
+    Ssa = UnitConversion.Pa2Psi(241000000); %[Pa] from Zimmerli data  
+    Ssm = UnitConversion.Pa2Psi(379000000); %[Pa] from Zimmerli data
     
     %CASE 1 ANALYSIS - Coil fatigue failure
 
@@ -87,66 +93,38 @@ H = 1.78; %m
     nCase4 = (1/2)*((Ssu/TauMB).^2)*(TauAB/Sse)*(-1+((1+(((2*TauMB*Sse)/(Ssu*TauAB)).^2)).^(1/2)));
     
     %convert variables to SI units
-    D = Inches2Meters(D); 
-    d = Inches2Meters(d); 
-    E = Psi2Pa(E); 
-    G = Psi2Pa(G);
-    R1 = Inches2Meters(R1); 
-    R2 = Inches2Meters(R2); 
-    Fi = Lbf2Newton(Fi); 
-    Lo = Inches2Meters(Lo);
-    L = Inches2Meters(L);
-    y = Inches2Meters(y);
-    k = PoundFperInch2NewtonperMeter(k);
-    Lmax = Inches2Meters(Lmax);
-    LtotO = Inches2Meters(LtotO);
-    CL = Inches2Meters(CL);
-    Fmax = Lbf2Newton(Fmax);
-    Fmin = Lbf2Newton(Fmin);
-    Fa = Lbf2Newton(Fa);
-    Fm = Lbf2Newton(Fm);
-    TauA = Psi2Pa(TauA);
-    TauM = Psi2Pa(TauM);  
-    Sut = Psi2Pa(Sut);
-    Ssy = Psi2Pa(Ssy);
-    Sy = Psi2Pa(Sy);
-    Ssu = Psi2Pa(Ssu);
-    Ssa = Psi2Pa(Ssa);
-    Ssm = Psi2Pa(Ssm);
-    Sse = Psi2Pa(Sse);    
-    TauI = Psi2Pa(TauI);
-    Ssay = Psi2Pa(Ssay);
-    SigmaA = Psi2Pa(SigmaA);
-    SigmaM = Psi2Pa(SigmaM);
-    Se = Psi2Pa(Se);
-    TauAB = Psi2Pa(TauAB);
-    TauMB = Psi2Pa(TauMB);
-    
-end
-function meters = Inches2Meters(inches)
-    meters = inches/39.37;
-end
-function inches = Meters2Inches(meters)
-    inches = meters*39.37;
-end
-function Newton = Lbf2Newton(Lbf)
-    Newton = Lbf*4.448222;
-end
-function Lbf = Newton2Lbf(Newton)
-    Lbf = Newton/4.448222;
-end
-function Pa = Psi2Pa(Psi)
-    Pa = Psi*6894.757;
-end
-function Psi = Pa2Psi(Pa)
-    Psi = Pa/6894.757;
-end
-function NewtonM = PoundFInch2NewtonM(PoundF)
-    NewtonM = PoundF/8.850746;
-end
-function PoundFInch = NewtonM2PoundFInch(NewtonM)
-    PoundFInch = NewtonM*8.850746;
-end
-function NewtonperMeter = PoundFperInch2NewtonperMeter(PoundFperInch)
-    NewtonperMeter = PoundFperInch*175.127;
+    D = UnitConversion.Inches2Meters(D); 
+    d = UnitConversion.Inches2Meters(d); 
+    E = UnitConversion.Psi2Pa(E); 
+    G = UnitConversion.Psi2Pa(G);
+    R1 = UnitConversion.Inches2Meters(R1); 
+    R2 = UnitConversion.Inches2Meters(R2); 
+    Fi = UnitConversion.Lbf2Newton(Fi); 
+    Lo = UnitConversion.Inches2Meters(Lo);
+    L = UnitConversion.Inches2Meters(L);
+    y = UnitConversion.Inches2Meters(y);
+    k = UnitConversion.PoundFperInch2NewtonperMeter(k);
+    Lmax = UnitConversion.Inches2Meters(Lmax);
+    LtotO = UnitConversion.Inches2Meters(LtotO);
+    CL = UnitConversion.Inches2Meters(CL);
+    Fmax = UnitConversion.Lbf2Newton(Fmax);
+    Fmin = UnitConversion.Lbf2Newton(Fmin);
+    Fa = UnitConversion.Lbf2Newton(Fa);
+    Fm = UnitConversion.Lbf2Newton(Fm);
+    TauA = UnitConversion.Psi2Pa(TauA);
+    TauM = UnitConversion.Psi2Pa(TauM);  
+    Sut = UnitConversion.Psi2Pa(Sut);
+    Ssy = UnitConversion.Psi2Pa(Ssy);
+    Sy = UnitConversion.Psi2Pa(Sy);
+    Ssu = UnitConversion.Psi2Pa(Ssu);
+    Ssa = UnitConversion.Psi2Pa(Ssa);
+    Ssm = UnitConversion.Psi2Pa(Ssm);
+    Sse = UnitConversion.Psi2Pa(Sse);    
+    TauI = UnitConversion.Psi2Pa(TauI);
+    Ssay = UnitConversion.Psi2Pa(Ssay);
+    SigmaA = UnitConversion.Psi2Pa(SigmaA);
+    SigmaM = UnitConversion.Psi2Pa(SigmaM);
+    Se = UnitConversion.Psi2Pa(Se);
+    TauAB = UnitConversion.Psi2Pa(TauAB);
+    TauMB = UnitConversion.Psi2Pa(TauMB);
 end
