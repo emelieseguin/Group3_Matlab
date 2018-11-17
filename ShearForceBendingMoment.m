@@ -165,8 +165,8 @@ function [ShearF, BendM] = ShearForceBendingMoment( varargin)
             BendM = [BendM; bm + base];
         end
     end
-    SpecialPoints(X, ShearF, BendM);
-    Diagrams(X, ShearF, BendM)
+    %SpecialPoints(X, ShearF, BendM);
+    %Diagrams(X, ShearF, BendM)
 end
 
 

@@ -1,4 +1,5 @@
-function ShoulderCalcs (personHeight, maxShaftMoment, maxTorsionFromSpring)
+function ShoulderCalcs (personHeight, maxShaftMoment, maxTorsionFromSpring, ...
+    shaftDiameter, shaft)
     %% Keep for not to test read in values
     %personHeight = 1.78; %m
     maxShaftMoment = UnitConversion.NewtonM2PoundFInch(maxShaftMoment);
@@ -8,9 +9,7 @@ function ShoulderCalcs (personHeight, maxShaftMoment, maxTorsionFromSpring)
     %maxTorsionFromSpring = 20.188551; %lbf in
         %Tmax = 2.281; %Nm
 %% Design Variables - Calcs 1
-    HOriginal = 1.78*39.37; %in    ---- is this supposed to be person height?? , use the UnitCoversion.Meters2Inches not this
-    H = personHeight*39.37; %in --- use UnitCoversion.Meters2Inches
-    dReal = 0.0*39.37/HOriginal*H; %2cm/178cm*H, converted to inches - This is the actual small shaft diameter
+    dReal = UnitConversion.Meters2Inches(shaft.diameter3); % This is the actual small shaft diameter
     Sut = 47000; %Psi
         %Sut = 324000000; %Mpa - Aluminum
     Sy = 24500; %Psi
@@ -22,9 +21,7 @@ function ShoulderCalcs (personHeight, maxShaftMoment, maxTorsionFromSpring)
     kTS1 = 1.5; 
     n = 2.1; %Design safety factor
     kb1 = 0.9; 
-    D = 1.11023622/HOriginal*H; %in - Diameter of shaft where torsional spring sits
-        %D = 0.0282/HOriginal*H; %m
-        %Might have to read in from torsional spring code?
+    D = UnitConversion.Meters2Inches(shaftDiameter); %in - Diameter of shaft where torsional spring sits
 
 %% Calculations 1
     %First iteration of fatigue stress-concentration factor

@@ -1,12 +1,15 @@
-function [maxMomentFromSpring, shaftDiameter] = HipTorsionSpring(patientHeight, patientHipAngles) 
+function [maxMomentFromSpring, shaftDiameter, wireDiameterSpring, lengthSuppLeg, lengthHipSpring] ...
+    = HipTorsionSpring(patientHeight, patientHipAngles) 
     %% Design variables 
-    d = UnitConversion.Meters2Inches(0.003/1.78*patientHeight); % Diameter of wire[m]     
+    d = UnitConversion.Meters2Inches(0.003/1.78*patientHeight); % Diameter of wire[m]   
+    wireDiameterSpring = UnitConversion.Inches2Meters(d);
     D = UnitConversion.Meters2Inches(0.035/1.78*patientHeight); % Mean diameter of coil[m]  
     % MUST HAVE D>(Dp4+Delta+d) 
     E = UnitConversion.Pa2Psi(103400000000); % Young's Modulus [Pa] 
     Delta = UnitConversion.Meters2Inches(0.0005/1.78*patientHeight); % Diametral clearance [m] 
     Lwork = UnitConversion.Meters2Inches(0.04/1.78*patientHeight); % Length of working leg [m] 
     Lsupp = UnitConversion.Meters2Inches(0.01/1.78*patientHeight); % Length of supporting leg [m] 
+    lengthSuppLeg = UnitConversion.Inches2Meters(Lsupp);
     Nb = 18; %Number of body turns
     A = 145000; % Area from Shigley table 10-4
     m = 0; % Constant from Shigley table 10-4
@@ -52,6 +55,7 @@ function [maxMomentFromSpring, shaftDiameter] = HipTorsionSpring(patientHeight, 
     Lwork = UnitConversion.Inches2Meters(Lwork); 
     Lsupp = UnitConversion.Inches2Meters(Lsupp);    
     L = UnitConversion.Inches2Meters(L);
+    lengthHipSpring = L;
     LPrime = UnitConversion.Inches2Meters(LPrime);
     Delta = UnitConversion.Inches2Meters(Delta);
     DPrime = UnitConversion.Inches2Meters(DPrime);
