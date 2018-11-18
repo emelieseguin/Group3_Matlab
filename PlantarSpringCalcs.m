@@ -1,9 +1,11 @@
-function PlantarSpringCalcs(personHeight, plantarSpringLengthArray)
+function  [weightPlantarExtensionSpring, plantarExtensionCableLength] = ...
+    PlantarSpringCalcs(personHeight, plantarSpringLengthArray)
     %% Design variables
     D = UnitConversion.Meters2Inches(0.0085/1.78*personHeight); % Mean diameter of coil
     d = UnitConversion.Meters2Inches(0.0014/1.78*personHeight); % Diameter of wire
     E = UnitConversion.Pa2Psi(200000000000); % Young's Modulus  - Steel
     G = UnitConversion.Pa2Psi(79300000000); % Shear Modulus  - Steel 
+    density = 7850; %kg/m^3 - Steel
     R1 = UnitConversion.Meters2Inches(0.005/1.78*personHeight); % 
     R2 = UnitConversion.Meters2Inches(0.005/1.78*personHeight); % 
     Fi = UnitConversion.Newton2Lbf(5.29/1.78*personHeight); %Initial tension force in spring
@@ -127,4 +129,11 @@ function PlantarSpringCalcs(personHeight, plantarSpringLengthArray)
     Se = UnitConversion.Psi2Pa(Se);
     TauAB = UnitConversion.Psi2Pa(TauAB);
     TauMB = UnitConversion.Psi2Pa(TauMB);
+    
+    weightDorsiExtensionSpring = GetWeightExtension(theta, d, Nb, R1, density);
+    dorsiExtensionCableLength = CL;
+end
+function weight = GetWeightExtension(theta, d, Nb, R1, density)
+   V = pi*(d.^2)/4*(Nb+2*theta*R1);%Units in meters and rads
+    weight = V*density; %Units in Kg
 end

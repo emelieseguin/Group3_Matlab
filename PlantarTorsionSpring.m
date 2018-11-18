@@ -1,9 +1,8 @@
-function PlantarTorsionSpring(personHeight, mCable, ...
+function [weightPlantarTorsionSpring]= PlantarTorsionSpring(personHeight, mCable, ...
     plantarSpringLengthArray) 
     %% Create a function to find the vertical displacement from the array, from plantarSpringLengthArray    
     %Required vertical displacement of cam-cable attachment point to pick up slack
     S = 0.01197*personHeight; %[m]
-        
     
         
     %% Rest of code
@@ -13,6 +12,7 @@ function PlantarTorsionSpring(personHeight, mCable, ...
     d = UnitConversion.Meters2Inches(0.0005/1.78*personHeight); % Diameter of wire[m]     
     D = UnitConversion.Meters2Inches(0.004/1.78*personHeight); % Mean diameter of coil[m]  
     % MUST HAVE D>(Dp+Delta+d) 
+    density = 8800;%kg/m^3
     E = UnitConversion.Pa2Psi(103400000000); % Young's Modulus [Pa]
     Delta = UnitConversion.Meters2Inches(0.00005/1.78*personHeight); % Diametral clearance [m] 
     Lwork = UnitConversion.Meters2Inches(0.0105/1.78*personHeight); % Length of working leg [m] 
@@ -72,4 +72,11 @@ function PlantarTorsionSpring(personHeight, mCable, ...
     Sr = UnitConversion.Psi2Pa(Sr);      
     Se = UnitConversion.Psi2Pa(Se);
     Sa = UnitConversion.Psi2Pa(Sa);
+    
+    weightPlantarTorsionSpring = GetWeightTorsion(d, Nb, Lwork, Lsupp);
+
+end
+function weight = GetWeightTorsion(d, Nb, Lwork, Lsupp)
+   V = pi*(d.^2)/4*(Nb+Lwork+Lsupp);%Units in meters
+    weight = V*density; %Units in Kg
 end

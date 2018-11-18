@@ -1,10 +1,11 @@
-function [maxMomentFromSpring, shaftDiameter, wireDiameterSpring, lengthSuppLeg, lengthHipSpring] ...
+function [maxMomentFromSpring, shaftDiameter, wireDiameterSpring, lengthSuppLeg, lengthHipSpring, weightHipTorsionSpring] ...
     = HipTorsionSpring(patientHeight, patientHipAngles) 
     %% Design variables 
     d = UnitConversion.Meters2Inches(0.003/1.78*patientHeight); % Diameter of wire[m]   
     wireDiameterSpring = UnitConversion.Inches2Meters(d);
     D = UnitConversion.Meters2Inches(0.035/1.78*patientHeight); % Mean diameter of coil[m]  
     % MUST HAVE D>(Dp4+Delta+d) 
+    density = 8800;%kg/m^3
     E = UnitConversion.Pa2Psi(103400000000); % Young's Modulus [Pa] 
     Delta = UnitConversion.Meters2Inches(0.0005/1.78*patientHeight); % Diametral clearance [m] 
     Lwork = UnitConversion.Meters2Inches(0.04/1.78*patientHeight); % Length of working leg [m] 
@@ -67,4 +68,10 @@ function [maxMomentFromSpring, shaftDiameter, wireDiameterSpring, lengthSuppLeg,
     Sr = UnitConversion.Psi2Pa(Sr);      
     Se = UnitConversion.Psi2Pa(Se);
     Sa = UnitConversion.Psi2Pa(Sa);
+    
+    weightHipTorsionSpring = GetWeightTorsion(d, Nb, Lwork, Lsupp);
+end
+function weight = GetWeightTorsion(d, Nb, Lwork, Lsupp)
+   V = pi*(d.^2)/4*(Nb+Lwork+Lsupp);%Units in meters
+    weight = V*density; %Units in Kg
 end

@@ -27,6 +27,12 @@ classdef UnitConversion
         function NewtonperMeter = PoundFperInch2NewtonperMeter(PoundFperInch)
             NewtonperMeter = PoundFperInch*175.127;
         end
+        function  = KgPerMeter3ToPoundPerInch3(KgPerMeter3)
+            PoundPerInch3 = KgPerMeter3/27679.9;
+        end
+        function  = PoundPerInch3ToKgPerMeter3(PoundPerInch3)
+            KgPerMeter3 = PoundPerInch3*27679.9;
+        end
     end
 end
 
