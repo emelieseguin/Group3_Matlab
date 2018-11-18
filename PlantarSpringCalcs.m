@@ -12,6 +12,7 @@ function  [weightPlantarExtensionSpring, plantarExtensionCableLength] = ...
     Nb = 18; % Number of body turns
     A = 140000; % Area from Shigley table 10-4
     m = 0.19; % Constant from Shigley table 10-4
+    theta = deg2rad(330); %how "curled" in the end hooks are
     
     %% Length of the plantar flexion spring - find from array -- use plantarSpringLengthArray
     maxLength = max(plantarSpringLengthArray);
