@@ -207,7 +207,7 @@ classdef Shaft_Length_Anthropometric
             distFromZ12_Z13 = z13-z12;
             obj.diameter3 = dp3;
             
-            fileID = fopen('hipShaftDimensions.txt','w');
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\hipShaftDimensions.txt','w');
                 fprintf(fileID, '"distFromZ2_Z1"= %f\n', distFromZ2_Z1);
                 fprintf(fileID, '"hipShaftDiam1"= %f\n', dp1);
                 fprintf(fileID, '"distFromZ3_Z2"= %f\n', distFromZ3_Z2);

@@ -189,7 +189,7 @@ function Main()
         
     %% Calculate the Velocity and Acceleration of the 4Bar
     
-    for i=(1:length(fourBarArray-1)) % Only minus one since using average velocity currently
+    for i=(1:(length(fourBarArray)-1)) % Only minus one since using average velocity currently
         xScaleTime = linspace(0, timeForGaitCycle, (length(positionArray)));
         % Thigh angular
         angVelThigh = angularAccel.angularVelocityThigh(i);

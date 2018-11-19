@@ -234,7 +234,7 @@ classdef FourBarLinkageMathDefined_FromGait
             obj.BottomBarLinkageDistanceChange = sum(sqrt(diff([bottomIntersection(1), xB]).^2+diff([bottomIntersection(2) yB]).^2));
             
             %% Print the 4Bar linkage dimensions to a text file
-            fileID = fopen('fourBarLinkageDimensions.txt','w');
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\fourBarLinkageDimensions.txt','w');
              %   fprintf(fileID, '"distFromZ2_Z1"= %f\n', distFromZ2_Z1);
                
             fclose(fileID);
