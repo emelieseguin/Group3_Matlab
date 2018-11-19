@@ -19,6 +19,21 @@ classdef FourBarLinkageMathDefined_FromGait
         TopBarLinkageDistanceChange
         BottomBarLinkageDistanceChange
         
+        % Iteration condition that solved the 4 bar
+        solvedIterationConditions
+        
+        % 4Bar dimensions
+        L1
+        L2
+        L3
+        L4
+        
+        % Solved Angles
+        theta1
+        theta2
+        thetaL3
+        thetaL1
+        
         % Top Bar Displacement
         TopBarMovementX
         TopBarMovementY
@@ -40,21 +55,21 @@ classdef FourBarLinkageMathDefined_FromGait
             kneeAngleRelative = (-1)*kneeAngleZRads - hipAngleZRads;
 
             % Parameterized variables to pin the 4 bar linkage
-            Ltopbartohip = 0.14045*personHeight; % Percentage of height, Can change value - in m (~0.25 for 1.78m)
-            Ltopbar = .061798*personHeight; % Percentage of height, Can change value - in m (~0.11 for 1.78m)
-            Lbotbar = .230337*personHeight; % Percentage of height, Can change value - in m (~0.41 for 1.78m)
+            %Ltopbartohip = 0.14045*personHeight; % Percentage of height, Can change value - in m (~0.25 for 1.78m)
+            %Ltopbar = .061798*personHeight; % Percentage of height, Can change value - in m (~0.11 for 1.78m)
+            %Lbotbar = .230337*personHeight; % Percentage of height, Can change value - in m (~0.41 for 1.78m)
             
-            Lbot4BarFromKnee = shankLength - Lbotbar;
+            %Lbot4BarFromKnee = shankLength - Lbotbar;
             
             % Try an equal distance above and below knee joint - 4 cm
-            distanceMeters = 0.0090;
+            distanceMeters = (0.0090/1.78)*personHeight;
             Lbot4BarFromKnee = distanceMeters;
             LToThighBar = thighLength- distanceMeters;
             
             L1 = 0.025*personHeight; % Percentage of height, Can change value - in m (~0.0445 for 1.78m)
             L3 = 0.02298*personHeight; % Percentage of height, Can change value - in m (~0.0409 for 1.78m)
-            Theta2 = 27.5; %manually change value
-                Theta2Rads = deg2rad(Theta2);
+            %Theta2 = 27.5; %manually change value
+            %    Theta2Rads = deg2rad(Theta2);
             %Theta3 = 90 - Theta2;
             %    Theta3Rads = deg2rad(Theta3);
             Theta4 = 19.5; %manually change value
@@ -63,31 +78,31 @@ classdef FourBarLinkageMathDefined_FromGait
     
             %% Find the position of the thigh bar link
             % Hip Position
-            x4 = 0;
-            y4 = 0;
+            %x4 = 0;
+            %y4 = 0;
             
             % Create point R1 in space
-            xR1Proj = 0;
-            yR1Proj = (-1*(Ltopbar+Ltopbartohip));%(-1)*LToThighBar; %
+            %xR1Proj = 0;
+            %yR1Proj = (-1*(Ltopbar+Ltopbartohip));%(-1)*LToThighBar; %
             
             % Define the middle point of the thigh bar link
-            [xR1, yR1] =  obj.RotatePointsAroundPoint(xR1Proj, yR1Proj, ...
-                hipAngleZRads, 0, 0);
+            %[xR1, yR1] =  obj.RotatePointsAroundPoint(xR1Proj, yR1Proj, ...
+            %    hipAngleZRads, 0, 0);
 
             % Give length of thigh bar from center to C,D
-            xDProj = xR1+((1/3)*L3);
-            yDProj = yR1;
+            %xDProj = xR1+((1/3)*L3);
+            %yDProj = yR1;
             
             % Find point D in space rotate by - hip, theta2
             % Theta2 is a -'ve rotation since it is in the CW direction 
-            [xD, yD] = obj.RotatePointsAroundPoint(xDProj, yDProj, ...
-                hipAngleZRads, xR1, yR1);
-            [xD, yD] = obj.RotatePointsAroundPoint(xD, yD, ...
-                 (-1)*Theta2Rads, xR1, yR1);
+            %[xD, yD] = obj.RotatePointsAroundPoint(xDProj, yDProj, ...
+            %    hipAngleZRads, xR1, yR1);
+            %[xD, yD] = obj.RotatePointsAroundPoint(xD, yD, ...
+            %     (-1)*Theta2Rads, xR1, yR1);
             
             % Find ponit C in space, flip point D by 180 degress
-            [xC, yC] = obj.RotatePointsAroundPoint(xD, yD, ...
-                deg2rad(180), xR1, yR1);
+            %[xC, yC] = obj.RotatePointsAroundPoint(xD, yD, ...
+            %    deg2rad(180), xR1, yR1);
             
             %% Find the position of the shank bar link
             xR2Proj = 0;
@@ -100,7 +115,6 @@ classdef FourBarLinkageMathDefined_FromGait
                 kneeAngleZRads, kneeJointXPos, kneeJointYPos);
             
             % Give length of shank bar from center to B
-            %L1 = 0.025; 
             xBProj = xR2+((1/4)*L1);
             yBProj = yR2;
             
@@ -127,31 +141,31 @@ classdef FourBarLinkageMathDefined_FromGait
                 deg2rad(180), xR2, yR2);
             
             %% Create the linkages in space using math - dynamics
-            L1 = 44.5/1000;
-            L2 = 51.6/1000;
-            L3 = 40.9/1000;
-            L4 = 47.2/1000;
+            L1 = ((44.5/1000)/1.78)*personHeight;
+            obj.L1 = L1;
+            L2 = ((51.6/1000)/1.78)*personHeight;
+            obj.L2 = L2;
+            L3 = ((40.9/1000)/1.78)*personHeight;
+            obj.L3 = L3;
+            L4 = ((47.2/1000)/1.78)*personHeight;
+            obj.L4 = L4;
+            % Constant values
             femoralPitch = 27.5;
             tibialPitch = 19.5;
-            hipAngle = rad2deg(hipAngleZRads);
-            kneRel = rad2deg(kneeAngleRelative);
             
             Link3AngleFromHorz = hipAngleZRads - deg2rad(femoralPitch);
             Link1AngleFromHorz = -kneeAngleRelative - deg2rad(tibialPitch);
-            Link3AngleFromHorzDeg = rad2deg(hipAngleZRads) - (femoralPitch);
-            Link1AngleFromHorzDeg = -rad2deg(kneeAngleRelative) - (tibialPitch);
+            obj.thetaL3 = rad2deg(Link3AngleFromHorz);
+            obj.thetaL1 = rad2deg(Link1AngleFromHorz);
             
-            [theta1, theta2] = obj.FindProperFourBarAngles(L1, L2, L3, L4, ...
+            [theta1, theta2, obj.solvedIterationConditions] = obj.FindProperFourBarAngles(L1, L2, L3, L4, ...
                 xB, yB, Link1AngleFromHorz, Link3AngleFromHorz);            
             
-            % Get the stupid angle things
-            theta1Deg = rad2deg(theta1);
-            theta2deg = rad2deg(theta2);
+            % The angles solved for in degrees
+            obj.theta1 = rad2deg(theta1);
+            obj.theta2 = rad2deg(theta2);
                        
             %% Create the link vectors, attaching proper points to define links
-            % Create link vectors
-            %obj.Link1X = [xA xB]; % Bottom Link - on shank
-            %obj.Link1Y = [yA yB];
             
             link2XDisp = L2*cos(theta1);
             link2YDisp = L2*sin(theta1);
@@ -208,11 +222,10 @@ classdef FourBarLinkageMathDefined_FromGait
             %% See how much the linkages translate with respect to the middle of the leg
             % Top Linkage
             topIntersection = LineIntersection(thighLine, obj.Link3Line);
-            obj.CheckLengthConsistent('Middle of Thigh to Point D: ', [topIntersection(1), xD], ...
-                [topIntersection(2) yD]);
-            disp(['X Dif: ', num2str(abs(topIntersection(1)- xD))]);
-            disp(['Y Dif: ', num2str(abs(topIntersection(2)- yD))]);
-            disp('');
+            
+            %disp(['X Dif: ', num2str(abs(topIntersection(1)- xD))]);
+            %disp(['Y Dif: ', num2str(abs(topIntersection(2)- yD))]);
+            %disp('');
             obj.TopBarLinkageDistanceChange = sum(sqrt(diff([topIntersection(1), xD]).^2+diff([topIntersection(2) yD]).^2));
             obj.TopBarMovementX = topIntersection(1) - xD;
             obj.TopBarMovementY = topIntersection(2) - yD;
@@ -220,10 +233,11 @@ classdef FourBarLinkageMathDefined_FromGait
             bottomIntersection = LineIntersection(shankLine, obj.Link1Line);
             obj.BottomBarLinkageDistanceChange = sum(sqrt(diff([bottomIntersection(1), xB]).^2+diff([bottomIntersection(2) yB]).^2));
             
-            %obj.CheckLengthConsistent('Middle of Shank to Point B: ', [bottomIntersection(1), xB], ...
-            %     [bottomIntersection(2) yB]);
-            
-            % Bottom Linkage
+            %% Print the 4Bar linkage dimensions to a text file
+            fileID = fopen('fourBarLinkageDimensions.txt','w');
+             %   fprintf(fileID, '"distFromZ2_Z1"= %f\n', distFromZ2_Z1);
+               
+            fclose(fileID);
             
             %% Tests to run to verify constant lengths
             % Test to make sure the links are always the same length
@@ -238,6 +252,11 @@ classdef FourBarLinkageMathDefined_FromGait
             %obj.CheckLengthConsistent('Distance from knee joint to Thigh Center ', ...
             %    [xR1 kneeJointXPos], [yR1 kneeJointYPos]);
             
+            % 4 Bar position length check
+            %obj.CheckLengthConsistent('Middle of Shank to Point B: ', [bottomIntersection(1), xB], ...
+            %     [bottomIntersection(2) yB]);
+            %obj.CheckLengthConsistent('Middle of Thigh to Point D: ', [topIntersection(1), xD], ...
+            %    [topIntersection(2) yD]);
         end
     end
     
@@ -254,7 +273,7 @@ classdef FourBarLinkageMathDefined_FromGait
             disp([variableName, num2str(length)])
         end
         %% Find proper angles for the 4 bar
-        function [theta1, theta2] = FindProperFourBarAngles(~, L1, L2, L3, L4, ...
+        function [theta1, theta2, solvedIterationConditions] = FindProperFourBarAngles(~, L1, L2, L3, L4, ...
                 xB, yB, Link1AngleFromHorz, Link3AngleFromHorz)
                 
                 % Define default angles
@@ -294,10 +313,6 @@ classdef FourBarLinkageMathDefined_FromGait
                 link4XDisp = L4*cos(theta(2));
                 link4YDisp = L4*sin(theta(2));
 
-                % - not needed
-                %link1XDisp = L1*cos(deg2rad(360-tibialPitch));
-                %link1YDisp = L1*sin(deg2rad(360-tibialPitch));
-
                 xC = (xB+link2XDisp);
                 yC = (yB+link2YDisp);
                 
@@ -314,6 +329,7 @@ classdef FourBarLinkageMathDefined_FromGait
                 if(~isempty(inter) && (yD > yB)) % Check that it intersects and that it is above
                     theta1 = theta(1);
                     theta2 = theta(2);
+                    solvedIterationConditions = iterationConditions;
                     break;
                 end 
             end

@@ -1,4 +1,4 @@
-function [weightDorsiTorsionSpring] = DorsiTorsionSpring(personHeight, mCable, ...
+function [weightDorsiTorsionSpring] = DorsiTorsionSpring(personHeight, mDorsiPull, ...
     dorsiSpringLengthArray) 
     %% Create a function to find the vertical displacement from the array, from dorsiSpringLengthArray
     %Required vertical displacement of cam-cable attachment point to pick up slack
@@ -20,9 +20,9 @@ function [weightDorsiTorsionSpring] = DorsiTorsionSpring(personHeight, mCable, .
     m = 0; % Constant from Shigley table 10-4
         
     %Calculate weight of cable
-        wCable = mCable*9.81; %[N]
+        wDorsiPull = mDorsiPull*9.81; %[N]
     %Required torque on cam to lift the string:
-        T = wCable*S/camRotation; %[Nm]
+        T = wDorsiPull*S/camRotation; %[Nm]
         Mmax = UnitConversion.NewtonM2PoundFInch(T); %[lbf in]
     %Calculate spring index 
         c = D/d;        
@@ -71,10 +71,10 @@ function [weightDorsiTorsionSpring] = DorsiTorsionSpring(personHeight, mCable, .
     Se = UnitConversion.Psi2Pa(Se);
     Sa = UnitConversion.Psi2Pa(Sa);
     
-    weightDorsiTorsionSpring = GetWeightTorsion(d, Nb, Lwork, Lsupp);
+    weightDorsiTorsionSpring = GetWeightTorsion(d, Nb, Lwork, Lsupp, density);
 
 end
-function weight = GetWeightTorsion(d, Nb, Lwork, Lsupp)
+function weight = GetWeightTorsion(d, Nb, Lwork, Lsupp, density)
    V = pi*(d.^2)/4*(Nb+Lwork+Lsupp);%Units in meters
     weight = V*density; %Units in Kg
 end

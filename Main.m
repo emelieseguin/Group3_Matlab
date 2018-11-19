@@ -4,7 +4,7 @@ function Main()
     SetAnthropometricNames(); % Run this to initialize all global naming variables
     
     % Build the anthropomtric model
-    personHeight = 1.5; % in m
+    personHeight = 1.78; % in m
     model = AnthropometricModel(personHeight, 50.0);
 
     patient29AnglesCsvFileName = 'Patient29_Normal_Walking_Angles.csv';
@@ -95,19 +95,27 @@ function Main()
     [maxTorsionFromSpring, shaftDiameter, wireDiameterSpring, lengthSuppLeg, lengthHipSpring] ...
         = HipTorsionSpring(personHeight, patient29Angles.LHipAngleZ);
     
-    % Extension spring for Platarflexion
+    % Extension spring for Plantarflexion
+    [weightPlantarExtensionSpring, plantarExtensionCableLength] = ...
     PlantarSpringCalcs(personHeight, plantarSpringLengthArray);
     
     % Torsional spring for the Platarflexion Cam
-    mCable = 0.005713; % -- some sort of mass that is calculated
-    PlantarTorsionSpring(personHeight, mCable, plantarSpringLengthArray);
+    diamPlantarCable = 0.005;
+    densityPlantarCable =  7850;
+    mPlantarCable = (pi*(diamPlantarCable.^2)/4)*plantarExtensionCableLength*densityPlantarCable;
+    mPlantarPull = weightPlantarExtensionSpring + mPlantarCable;
+    PlantarTorsionSpring(personHeight, mPlantarPull, plantarSpringLengthArray);
     
     % Extension spring for Dorsiflexion
-    DorsiSpringCalcs(personHeight, dorsiSpringLengthArray);
+    [weightDorsiExtensionSpring, dorsiExtensionCableLength] = ...
+        DorsiSpringCalcs(personHeight, dorsiSpringLengthArray);
     
     % Torsional spring for the Dorsiflexion Cam
-    mCable = 0.005713; % -- some sort of mass for that
-    DorsiTorsionSpring(personHeight, mCable, dorsiSpringLengthArray);
+    diamDorsiCable = 0.005;
+    densityDorsiCable =  7850;
+    mDorsiCable = (pi*(diamDorsiCable.^2)/4)*dorsiExtensionCableLength*densityDorsiCable;
+    mDorsiPull = weightDorsiExtensionSpring + mDorsiCable;
+    DorsiTorsionSpring(personHeight, mDorsiPull, dorsiSpringLengthArray);
     
     %% Plotting the 4Bar 
     % Plot the Intersection of the 4 bar linkage with respect to the knee joint position
@@ -150,21 +158,22 @@ function Main()
     %% Others Calcs - Bolts, Bearings, Whatever else
     
     
+    
     %% Run Simulations - for different components
     %FourBarLinkageSim(fourBarArray);
     %GaitSimulation(positionArray);
-    FullSimulation(fourBarArray, positionArray);
+    %FullSimulation(fourBarArray, positionArray);
     %PlantarFlexionSpringSim(plantarFlexionArray);
     %DorsiFlexionSpringSim(dorsiFlexionArray);
     %FullSimulationPart2(plantarFlexionArray, positionArray, dorsiFlexionArray);
     
-    %% Inverse Dynamics
-    % Calc the linear and angular accelerations 
-    %patient29_HeelStrike = 0;
-    %patient29_ToeOff = patient29Forces.ToeOffPercentage;
-    %timeForGaitCycle = 1.48478;
-    %linearAccel = LinearAcceleration(positionArray, timeForGaitCycle);
-    %angularAccel = AngularAcceleration(positionArray, timeForGaitCycle);
+    
+    %% Calc the linear and angular accelerations 
+    patient29_HeelStrike = 0;
+    patient29_ToeOff = patient29Forces.ToeOffPercentage;
+    timeForGaitCycle = 1.48478;
+    linearAccel = LinearAcceleration(positionArray, timeForGaitCycle);
+    angularAccel = AngularAcceleration(positionArray, timeForGaitCycle);
     %normCopData = NormalizeCopData(patient29CopData_Left, ...
     %    patient29_HeelStrike, patient29_ToeOff, patient29FootLengthInMm);
     
@@ -177,7 +186,27 @@ function Main()
         %angularAccel.PlotVelocityInterpolationCurves();
         %angularAccel.PlotAccelerationCurves();
         %angularAccel.PlotAvgAccelerationCurves();
+        
+    %% Calculate the Velocity and Acceleration of the 4Bar
     
+    for i=(1:length(fourBarArray-1)) % Only minus one since using average velocity currently
+        xScaleTime = linspace(0, timeForGaitCycle, (length(positionArray)));
+        % Thigh angular
+        angVelThigh = angularAccel.angularVelocityThigh(i);
+        angAccelThigh = subs(angularAccel.angularAccelThigh, xScaleTime(i));
+        angAccelThigh = double(angAccelThigh);
+        % Shank angular
+        angVelShank = angularAccel.angularVelocityShank(i);
+        angAccelShank =  subs(angularAccel.angularAccelShank, xScaleTime(i));
+        angAccelShank = double(angAccelShank);                
+
+        % Do Calcs
+        FourBarCalculations(fourBarArray(i), angVelThigh, angAccelThigh, ...
+        angVelShank, angAccelShank);
+        
+    end
+    
+    %% Inverse Dynamics
     %inverseDynamics = InverseDynamics(model, positionArray, linearAccel, ...
     %    angularAccel, patient29Forces, normCopData, timeForGaitCycle);
     %inverseDynamics.PlotMomentGraphs();

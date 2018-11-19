@@ -131,8 +131,8 @@ function  [weightPlantarExtensionSpring, plantarExtensionCableLength] = ...
     TauAB = UnitConversion.Psi2Pa(TauAB);
     TauMB = UnitConversion.Psi2Pa(TauMB);
     
-    weightDorsiExtensionSpring = GetWeightExtension(theta, d, Nb, R1, density);
-    dorsiExtensionCableLength = CL;
+    weightPlantarExtensionSpring = GetWeightExtension(theta, d, Nb, R1, density);
+    plantarExtensionCableLength = CL;
 end
 function weight = GetWeightExtension(theta, d, Nb, R1, density)
    V = pi*(d.^2)/4*(Nb+2*theta*R1);%Units in meters and rads
