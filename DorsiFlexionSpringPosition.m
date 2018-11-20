@@ -8,6 +8,10 @@ classdef DorsiFlexionSpringPosition
         Link3Y
        
         Length
+        % Used to find moment contribution
+        AppliedToeCableForceAngle
+        distanceFromAnkle2ToeCableX
+        distanceFromAnkle2ToeCableY
     end
     
     methods
@@ -36,8 +40,17 @@ classdef DorsiFlexionSpringPosition
             P3Y = position.KneeJointY - 0.2*lShank*cos(kneeAngleZRads-hipAngleZRads) + (0.05+r)*sin(kneeAngleZRads-hipAngleZRads);
         end
 
+        %% Foot Pulley Position -- this cannot be at the toe
         P4X = position.ToeX;
         P4Y = position.ToeY;
+        
+        %% Attachment of Cable
+        obj.distanceFromAnkle2ToeCableX = position.ToeX - position.AnkleJointX;
+        obj.distanceFromAnkle2ToeCableY =  position.AnkleJointY -  position.ToeY;
+        
+        % Angle that the force is applied to the toe at
+        AppliedForceAngleFromXAxis = 120;
+        obj.AppliedToeCableForceAngle = AppliedForceAngleFromXAxis+footAngleZ;
 
         %% Determining overall length of the system
         obj.Length = sqrt(((P2X-P1X)^2)+((P2Y-P1Y)^2)) + sqrt(((P3X-P2X)^2)+((P3Y-P2Y)^2))+ ...

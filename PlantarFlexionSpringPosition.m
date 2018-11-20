@@ -10,6 +10,11 @@ classdef PlantarFlexionSpringPosition
         Link4Y
         
         Length
+        
+        % Used to find moment contribution
+        AppliedHeelCableForceAngle
+        distanceFromAnkle2LowAttachmentX
+        distanceFromAnkle2LowAttachmentY
     end
     
     methods
@@ -26,7 +31,7 @@ classdef PlantarFlexionSpringPosition
             rCalf = 0.4*distance; % will be deleted when function receives calf radius
             footAngleZRads = deg2rad(footAngleZ);
             
-            %% Determining the coordinates of the 4 points
+            %% Find placement from the ankle joint
             % x1Prime and y1Prime is the position of the ankle joint
             x1Prime = ankleJointXPos; %the next anklejointX location
             y1Prime = ankleJointYPos; %the next anklejointY location
@@ -36,6 +41,8 @@ classdef PlantarFlexionSpringPosition
             % lower spring attachment site
             x2Prime = x1Prime - distance*cos(footAngleZRads);
             y2Prime = y1Prime - distance*sin(footAngleZRads);
+            
+            %% Find projected position from shank
             
             % x4Prime and y4Prime are the x and y of the knee joint and
             % will be used to find the upper spring attachment site
@@ -49,6 +56,14 @@ classdef PlantarFlexionSpringPosition
             % y3Prime) which is perpindicularly out from shank
             x3Prime = kneeJointXPos - rCalf*cos(theta);
             y3Prime = kneeJointYPos + rCalf*sin(theta);
+            
+            %% Find moment contribution distances            
+            xDist = x3Prime - x2Prime;
+            yDist = y3Prime - y2Prime;
+            obj.AppliedHeelCableForceAngle = rad2deg(atan(yDist/xDist));
+            
+            obj.distanceFromAnkle2LowAttachmentX = x2Prime - ankleJointXPos;
+            obj.distanceFromAnkle2LowAttachmentY = ankleJointYPos - y2Prime; 
             
             %% Calculating the overall length of the system
             length = sqrt(((x3Prime-x2Prime)^2)+ ((y3Prime-y2Prime)^2));

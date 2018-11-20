@@ -15,6 +15,8 @@ function Main()
     % Create objects to store the gait information (angles, forces) of patient 29
     patient29Angles = GaitDataAngles(patient29AnglesCsvFileName);
     patient29Forces = GaitDataForces(patient29ForcesCsvFileName);
+    
+    %PlotPatientGaitAngles(patient29Angles);
         
     %% Create arrays over the gait cycle
     positionArray = [];
@@ -84,37 +86,34 @@ function Main()
     
     %% Plotting Graphs for Spring Length - wrt to height
     % Plot the plantarflexion and dorsiflexion spring
-    %PlotDorsiSpringLength(dorsiSpringLengthArray);
-    %PlotPlantarSpringLength(plantarSpringLengthArray);
+    % PlotDorsiSpringLength(dorsiSpringLengthArray);
+    % PlotPlantarSpringLength(plantarSpringLengthArray);
     
     % Plot the shank spring
     % PlotShankSpringLength(springLengthArray);	 
     
     %% Spring Calcs -- note, need mCable to automate, method to find string lengths within the functions 
     % Hip torsional spring
-    [maxTorsionFromSpring, shaftDiameter, wireDiameterSpring, lengthSuppLeg, lengthHipSpring] ...
-        = HipTorsionSpring(personHeight, patient29Angles.LHipAngleZ);
+    hipTorsionSpring = HipTorsionSpring(personHeight, patient29Angles.LHipAngleZ);
     
     % Extension spring for Plantarflexion
-    [weightPlantarExtensionSpring, plantarExtensionCableLength] = ...
-    PlantarSpringCalcs(personHeight, plantarSpringLengthArray);
+    plantarSpring = PlantarSpringCalcs(personHeight, plantarSpringLengthArray);
     
     % Torsional spring for the Platarflexion Cam
     diamPlantarCable = 0.005;
     densityPlantarCable =  7850;
-    mPlantarCable = (pi*(diamPlantarCable.^2)/4)*plantarExtensionCableLength*densityPlantarCable;
-    mPlantarPull = weightPlantarExtensionSpring + mPlantarCable;
+    mPlantarCable = (pi*(diamPlantarCable.^2)/4)*plantarSpring.extensionCableLength*densityPlantarCable;
+    mPlantarPull = plantarSpring.weightExtensionSpring + mPlantarCable;
     PlantarTorsionSpring(personHeight, mPlantarPull, plantarSpringLengthArray);
     
     % Extension spring for Dorsiflexion
-    [weightDorsiExtensionSpring, dorsiExtensionCableLength] = ...
-        DorsiSpringCalcs(personHeight, dorsiSpringLengthArray);
+    dorsiSpring = DorsiSpringCalcs(personHeight, dorsiSpringLengthArray);
     
     % Torsional spring for the Dorsiflexion Cam
     diamDorsiCable = 0.005;
     densityDorsiCable =  7850;
-    mDorsiCable = (pi*(diamDorsiCable.^2)/4)*dorsiExtensionCableLength*densityDorsiCable;
-    mDorsiPull = weightDorsiExtensionSpring + mDorsiCable;
+    mDorsiCable = (pi*(diamDorsiCable.^2)/4)*dorsiSpring.extensionCableLength*densityDorsiCable;
+    mDorsiPull = dorsiSpring.weightExtensionSpring + mDorsiCable;
     DorsiTorsionSpring(personHeight, mDorsiPull, dorsiSpringLengthArray);
     
     %% Plotting the 4Bar 
@@ -129,8 +128,8 @@ function Main()
     exoskeletonMasses = Exoskeleton_Mass_Anthropometric(personHeight);
     
     % Calculates shaft dimensions based on anthropometric model
-    shaft = Shaft_Length_Anthropometric(personHeight, shaftDiameter, ...
-    wireDiameterSpring, lengthSuppLeg, lengthHipSpring);
+    shaft = Shaft_Length_Anthropometric(personHeight, hipTorsionSpring.shaftDiameter, ...
+    hipTorsionSpring.wireDiameterSpring, hipTorsionSpring.lengthSupportLeg, hipTorsionSpring.lengthHipSpring);
     
     % Build the shear force bending moment diagrams with the correct forces
     % Currently returns the right components.. However the gui shows the forces in kN which is wrong...
@@ -152,8 +151,8 @@ function Main()
     disp(['Max Bending Moment Force: ', num2str(max(BendM)), 'N*m,   Min Bending Moment Force: ',  num2str(min(BendM)), 'N*m']);
     
     % Shaft shoulder Analysis
-    ShoulderCalcs(personHeight, GetAbsMaxValueFromArray(BendM), maxTorsionFromSpring,...
-        shaftDiameter, shaft);
+    ShoulderCalcs(personHeight, GetAbsMaxValueFromArray(BendM), hipTorsionSpring.maxTorsionFromSpring,...
+        hipTorsionSpring.shaftDiameter, shaft);
     
     %% Others Calcs - Bolts, Bearings, Whatever else
     
@@ -174,8 +173,8 @@ function Main()
     timeForGaitCycle = 1.48478;
     linearAccel = LinearAcceleration(positionArray, timeForGaitCycle);
     angularAccel = AngularAcceleration(positionArray, timeForGaitCycle);
-    %normCopData = NormalizeCopData(patient29CopData_Left, ...
-    %    patient29_HeelStrike, patient29_ToeOff, patient29FootLengthInMm);
+    normCopData = NormalizeCopData(patient29CopData_Left, ...
+        patient29_HeelStrike, patient29_ToeOff, patient29FootLengthInMm);
     
     % Plot the Linear Velocity and Acceleration
         %linearAccel.PlotVelocityInterpolationCurves();
@@ -188,7 +187,6 @@ function Main()
         %angularAccel.PlotAvgAccelerationCurves();
         
     %% Calculate the Velocity and Acceleration of the 4Bar
-    
     for i=(1:(length(fourBarArray)-1)) % Only minus one since using average velocity currently
         xScaleTime = linspace(0, timeForGaitCycle, (length(positionArray)));
         % Thigh angular
@@ -210,6 +208,64 @@ function Main()
     %inverseDynamics = InverseDynamics(model, positionArray, linearAccel, ...
     %    angularAccel, patient29Forces, normCopData, timeForGaitCycle);
     %inverseDynamics.PlotMomentGraphs();
+    
+    hipContributedMoments = zeros(1, length(positionArray)-1);
+    kneeContributedMoments = zeros(1, length(positionArray)-1);
+    ankleContributedMoments = zeros(1, length(positionArray)-1)
+    %% Moment Contribution
+    for i=(1:(length(positionArray)-1))
+        % Hip Torsion Spring Moment
+        momentAdded = hipTorsionSpring.GetMomentContribution(positionArray(i).HipAngleZ, ...
+            positionArray(i+1).HipAngleZ);
+        hipContributedMoments(i) = (momentAdded);
+        
+        kneeContributedMoments(i) = dorsiSpring.GetMomentContribution(dorsiSpringLengthArray(i), dorsiSpringLengthArray(i+1), ...
+         dorsiFlexionArray(i), dorsiFlexionArray(i));
+     
+        ankleContributedMoments(i) = plantarSpring.GetMomentContribution(plantarSpringLengthArray(i), plantarSpringLengthArray(i+1), ...
+            plantarFlexionArray(i), plantarFlexionArray(i+1));
+    end
+    PlotMomentContribution(hipContributedMoments, kneeContributedMoments, ankleContributedMoments);
+end
+
+function PlotMomentContribution(hipMomentArray, dorsiMomentArray, plantarMomentArray)
+    figure
+    % Plot the plantarflexion cable and spring length graph
+    top = subplot(3,1,1);
+    plot(top, 1:length(hipMomentArray), hipMomentArray, 'LineWidth',2);
+    hold on
+    grid on
+    title('Moment Contribution Hip Spring over Gait Cycle');
+    ylabel('Moment (Nm)')
+    xlabel('Gait Cycle (%)') 
+    set(top, 'LineWidth',1)
+    %legend(top, 'Spring and Cable Length')
+    axis(top, [0 length(hipMomentArray) (min(hipMomentArray)-1) (max(hipMomentArray)+1)]);
+    
+    % Plot the plantarflexion cable and spring length graph
+    middle = subplot(3,1,2);
+    plot(middle, 1:length(dorsiMomentArray), dorsiMomentArray, 'LineWidth',2);
+    hold on
+    grid on
+    title('Moment Contribution Dorsi Spring over Gait Cycle');
+    ylabel('Moment (Nm)')
+    xlabel('Gait Cycle (%)') 
+    set(middle, 'LineWidth',1)
+    %legend(top, 'Spring and Cable Length')
+    axis(middle, [0 length(dorsiMomentArray) (min(dorsiMomentArray)-1) (max(dorsiMomentArray)+1)]);
+    
+    % Plot the plantarflexion cable and spring length graph
+    top = subplot(3,1,3);
+    plot(top, 1:length(plantarMomentArray), plantarMomentArray, 'LineWidth',2);
+    hold on
+    grid on
+    title('Moment Contribution Plantar Spring over Gait Cycle');
+    ylabel('Moment (Nm)')
+    xlabel('Gait Cycle (%)') 
+    set(top, 'LineWidth',1)
+    %legend(top, 'Spring and Cable Length')
+    axis(top, [0 length(plantarMomentArray) (min(plantarMomentArray)-1) (max(plantarMomentArray)+1)]);
+    
 end
 
 function maxValue = GetAbsMaxValueFromArray(array)
