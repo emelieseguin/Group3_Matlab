@@ -165,25 +165,34 @@ classdef DorsiSpringCalcs
         end
         
         function MomentSI = GetMomentContribution(obj, currentSpringCableLength, nextSpringCableLength, ...
-                currentDorsiFlexionSpringPosition, nextDorsiFlexionSpringPosition)
+                currentDorsiFlexionSpringPosition, nextDorsiFlexionSpringPosition, maxDorsiLength, maxValueIndex, i)
             %% Current Position Moment
             yCurrent = (currentSpringCableLength-obj.extensionCableLength-(obj.lengthUnstrechedSpring + (4*obj.R1)));
             % Negative values are the distances being picked up by the cam - slack region
             
             if(yCurrent > 0)
+                % Loading spring
+                
+                if(maxValueIndex < i)
+                    
+                    % Spring pulling toe
+                    yMax = (maxDorsiLength-obj.extensionCableLength-(obj.lengthUnstrechedSpring + (4*obj.R1)));
+                    yCurrent = yCurrent-yMax;
+                end 
+            
                 currentFy = obj.k*yCurrent*sin(deg2rad(currentDorsiFlexionSpringPosition.AppliedToeCableForceAngle));
                 currentFx = obj.k*yCurrent*cos(deg2rad(currentDorsiFlexionSpringPosition.AppliedToeCableForceAngle));
-
                 currentMoment = currentFy*currentDorsiFlexionSpringPosition.distanceFromAnkle2ToeCableX + currentFx*currentDorsiFlexionSpringPosition.distanceFromAnkle2ToeCableY;            
+                
                 %% Next Position Moment
-                yNext = (nextSpringCableLength-obj.extensionCableLength-(obj.lengthUnstrechedSpring + (4*obj.R1)));
-                nextFy = obj.k*yNext*sin(deg2rad(nextDorsiFlexionSpringPosition.AppliedToeCableForceAngle));
-                nextFx = obj.k*yNext*cos(deg2rad(nextDorsiFlexionSpringPosition.AppliedToeCableForceAngle));
+                %yNext = (nextSpringCableLength-obj.extensionCableLength-(obj.lengthUnstrechedSpring + (4*obj.R1)));
+                %nextFy = obj.k*yNext*sin(deg2rad(nextDorsiFlexionSpringPosition.AppliedToeCableForceAngle));
+                %nextFx = obj.k*yNext*cos(deg2rad(nextDorsiFlexionSpringPosition.AppliedToeCableForceAngle));
 
-                nextMoment = nextFy*nextDorsiFlexionSpringPosition.distanceFromAnkle2ToeCableX + nextFx*nextDorsiFlexionSpringPosition.distanceFromAnkle2ToeCableY;
+                %nextMoment = nextFy*nextDorsiFlexionSpringPosition.distanceFromAnkle2ToeCableX + nextFx*nextDorsiFlexionSpringPosition.distanceFromAnkle2ToeCableY;
 
                 %% Next Moment
-                MomentSI = nextMoment - currentMoment;
+                MomentSI = (currentMoment);%(nextMoment- currentMoment);
             else
                 MomentSI = 0;
             end

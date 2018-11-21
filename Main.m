@@ -16,7 +16,7 @@ function Main()
     patient29Angles = GaitDataAngles(patient29AnglesCsvFileName);
     patient29Forces = GaitDataForces(patient29ForcesCsvFileName);
     
-    %PlotPatientGaitAngles(patient29Angles);
+    PlotPatientGaitAngles(patient29Angles);
         
     %% Create arrays over the gait cycle
     positionArray = [];
@@ -205,25 +205,29 @@ function Main()
     end
     
     %% Inverse Dynamics
-    %inverseDynamics = InverseDynamics(model, positionArray, linearAccel, ...
-    %    angularAccel, patient29Forces, normCopData, timeForGaitCycle);
-    %inverseDynamics.PlotMomentGraphs();
+    inverseDynamics = InverseDynamics(model, positionArray, linearAccel, ...
+        angularAccel, patient29Forces, normCopData, timeForGaitCycle);
+    inverseDynamics.PlotMomentGraphs();
     
     hipContributedMoments = zeros(1, length(positionArray)-1);
     kneeContributedMoments = zeros(1, length(positionArray)-1);
-    ankleContributedMoments = zeros(1, length(positionArray)-1)
-    %% Moment Contribution
+    ankleContributedMoments = zeros(1, length(positionArray)-1);
+    %% Moment Contribution -- note, don't need the minus 1, unless plotting power
     for i=(1:(length(positionArray)-1))
         % Hip Torsion Spring Moment
         momentAdded = hipTorsionSpring.GetMomentContribution(positionArray(i).HipAngleZ, ...
-            positionArray(i+1).HipAngleZ);
+            positionArray(i+1).HipAngleZ, timeForGaitCycle, i);
         hipContributedMoments(i) = (momentAdded);
         
+        % Dorsiflexion Spring Moment
+        [maxDorsiLength, maxValueIndex] = max(dorsiSpringLengthArray);
         kneeContributedMoments(i) = dorsiSpring.GetMomentContribution(dorsiSpringLengthArray(i), dorsiSpringLengthArray(i+1), ...
-         dorsiFlexionArray(i), dorsiFlexionArray(i));
+         dorsiFlexionArray(i), dorsiFlexionArray(i), maxDorsiLength, maxValueIndex, i);
      
+        % Plantar Spring Moment
+        [maxPlantarLength, maxValueIndex] = max(plantarSpringLengthArray);
         ankleContributedMoments(i) = plantarSpring.GetMomentContribution(plantarSpringLengthArray(i), plantarSpringLengthArray(i+1), ...
-            plantarFlexionArray(i), plantarFlexionArray(i+1));
+            plantarFlexionArray(i), plantarFlexionArray(i+1), maxPlantarLength, maxValueIndex, i);
     end
     PlotMomentContribution(hipContributedMoments, kneeContributedMoments, ankleContributedMoments);
 end
@@ -240,7 +244,7 @@ function PlotMomentContribution(hipMomentArray, dorsiMomentArray, plantarMomentA
     xlabel('Gait Cycle (%)') 
     set(top, 'LineWidth',1)
     %legend(top, 'Spring and Cable Length')
-    axis(top, [0 length(hipMomentArray) (min(hipMomentArray)-1) (max(hipMomentArray)+1)]);
+    %axis(top, [0 length(hipMomentArray) (min(hipMomentArray)-1) (max(hipMomentArray)+1)]);
     
     % Plot the plantarflexion cable and spring length graph
     middle = subplot(3,1,2);
