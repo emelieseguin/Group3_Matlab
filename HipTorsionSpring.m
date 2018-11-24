@@ -13,7 +13,7 @@ classdef HipTorsionSpring
         
         lengthSupportLeg
         lengthWorkingLeg
-        
+
         % Values to return
         maxTorsionFromSpring
         shaftDiameter
@@ -98,7 +98,7 @@ classdef HipTorsionSpring
             obj.weightHipTorsionSpring = obj.GetWeightTorsion(d, Lwork, Lsupp);
         end
         
-        function MomentSI = GetMomentContribution(obj, currentHipAngle, nextHipAngle, timeForGaitCycle, i)
+        function MomentSI = GetMomentContribution(obj, currentHipAngle, i)
             
             MomentSI = 0;
             if(currentHipAngle < 0)
@@ -113,7 +113,7 @@ classdef HipTorsionSpring
                 MomentImperial = (-1)*(3*pi/64)*((angle*(d.^4)*E)/(3*pi*D*obj.NumberBodyTurns+Lwork+Lsupp));
                 if(i > 57) % Flexing - ' -'ve moment applied by spring '
                    angle = deg2rad(abs(obj.maxExtension -  currentHipAngle));
-                   MomentImperial = (-1)*(3*pi/64)*((angle*(d.^4)*E)/(3*pi*D*obj.NumberBodyTurns+Lwork+Lsupp));
+                   MomentImperial = (-1)*(3*pi/64)*((angle*(d.^4)*E)/(3*pi*D*obj.NumberBodyTurns+Lwork+Lsupp)); %uses newly calcuated angle
                 end 
 
                 % CCW is +'ve so times -1 

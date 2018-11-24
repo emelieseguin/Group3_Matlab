@@ -163,8 +163,8 @@ classdef PlantarSpringCalcs
             obj.extensionCableLength = CL;
         end 
         
-        function MomentSI = GetMomentContribution(obj, currentSpringCableLength, nextSpringCableLength, ...
-                currentPlantarFlexionSpringPosition, nextPlantarFlexionSpringPosition, maxPlantarLength, maxValueIndex, i)
+        function MomentSI = GetMomentContribution(obj, currentSpringCableLength, ...
+                currentPlantarFlexionSpringPosition, maxPlantarLength, maxValueIndex, i)
             %% Current Position Moment
             yCurrent = (currentSpringCableLength-obj.extensionCableLength-(obj.lengthUnstrechedSpring + (4*obj.R1)));
             % Negative values are the distances being picked up by the cam - slack region

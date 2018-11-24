@@ -164,8 +164,8 @@ classdef DorsiSpringCalcs
             obj.extensionCableLength = CL;
         end
         
-        function MomentSI = GetMomentContribution(obj, currentSpringCableLength, nextSpringCableLength, ...
-                currentDorsiFlexionSpringPosition, nextDorsiFlexionSpringPosition, maxDorsiLength, maxValueIndex, i)
+        function MomentSI = GetMomentContribution(obj, currentSpringCableLength, ...
+                currentDorsiFlexionSpringPosition, maxDorsiLength, maxValueIndex, i)
             %% Current Position Moment
             yCurrent = (currentSpringCableLength-obj.extensionCableLength-(obj.lengthUnstrechedSpring + (4*obj.R1)));
             % Negative values are the distances being picked up by the cam - slack region
