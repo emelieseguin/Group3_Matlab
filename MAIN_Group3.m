@@ -22,7 +22,7 @@ function varargout = MAIN_Group3(varargin)
 
 % Edit the above text to modify the response to help MAIN_Group3
 
-% Last Modified by GUIDE v2.5 24-Nov-2018 12:42:47
+% Last Modified by GUIDE v2.5 24-Nov-2018 21:53:10
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -55,12 +55,20 @@ function MAIN_Group3_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for MAIN_Group3
 handles.output = hObject;
 
+% Turn on the correct buttons on start
 set(handles.mainContent_panel, 'visible', 'on');
 set(handles.patientGaitPanel, 'visible', 'off');
 set(handles.fourBarPanel, 'visible', 'off');
 set(handles.dorsiflexionPanel, 'visible', 'off');
 set(handles.plantarflexionPanel, 'visible', 'off');
 set(handles.inversePanel, 'visible', 'off');
+
+% Make certain buttons invisible until created from build
+set(handles.fourBarButton,'visible','off');
+set(handles.patientGaitButton,'visible','off');
+set(handles.dorsiflexionButton,'visible','off');
+set(handles.plantarflexionButton,'visible','off');
+set(handles.Gait_Inverse_Button,'visible','off');
 
 axes(handles.displayImageAxis);
 imshow('TempDesignImage.jpg');
@@ -101,6 +109,30 @@ set(handles.dorsiflexionPanel, 'visible', 'off');
 set(handles.plantarflexionPanel, 'visible', 'off');
 set(handles.inversePanel, 'visible', 'off');
 
+%% Set the labels
+gaitPositionArray = getappdata(handles.patientGaitPanel, 'gaitPositionArray');
+set(handles.hipAngleLabel, 'String', round(gaitPositionArray(1).HipAngleZ, 1));
+set(handles.kneeAngleLabel, 'String', round(gaitPositionArray(1).KneeAngleZ, 1));
+set(handles.footAngleLabel, 'String', round(gaitPositionArray(1).FootAngleZ, 1));
+
+%% Set the bottom graphs
+% Set the graph data
+patientAngles = getappdata(handles.patientGaitPanel, 'patientAngles');
+% Hip Graph
+plot(handles.hipAngles, 0:length(patientAngles.LHipAngleZ)-1, patientAngles.LHipAngleZ, 'LineWidth',2);
+axes(handles.hipAngles);
+ylabel(['Angle (', char(176), ')']);
+grid on
+% Knee Graph
+plot(handles.kneeAngles, 0:length(patientAngles.LKneeAngleZ)-1, patientAngles.LKneeAngleZ, 'LineWidth',2);
+axes(handles.kneeAngles);
+grid on
+% Foot Graph
+plot(handles.footAngles, 0:length(patientAngles.LFootAngleZ)-1, patientAngles.LFootAngleZ, 'LineWidth',2);
+axes(handles.footAngles);
+grid on
+
+
 % --- Executes on button press in fourBarButton.
 function fourBarButton_Callback(hObject, eventdata, handles)
 set(handles.mainContent_panel, 'visible', 'off');
@@ -128,6 +160,7 @@ set(handles.dorsiflexionPanel, 'visible', 'off');
 set(handles.plantarflexionPanel, 'visible', 'on');
 set(handles.inversePanel, 'visible', 'off');
 
+%------------------------ Inverse TAB ------------------------------------%
 % --- Executes on button press in Gait_Inverse_Button.
 function Gait_Inverse_Button_Callback(hObject, eventdata, handles)
 set(handles.mainContent_panel, 'visible', 'off');
@@ -136,8 +169,62 @@ set(handles.fourBarPanel, 'visible', 'off');
 set(handles.dorsiflexionPanel, 'visible', 'off');
 set(handles.plantarflexionPanel, 'visible', 'off');
 set(handles.inversePanel, 'visible', 'on');
+set(handles.basicHipMoment, 'visible', 'on');
+set(handles.basicKneeMoment, 'visible', 'off');
+set(handles.basicAnkleMoment, 'visible', 'off');
+axes(handles.basicHipFBD);
+% Show Hip FBD
+imshow('BasicThighFBD.jpg', 'InitialMagnification','fit');
+
+% Hip Moment Graph
+basicHipMoments = getappdata(handles.inversePanel, 'basicHipMoments');
+plot(handles.basicHipMomentGraph, 0:length(basicHipMoments)-1, basicHipMoments, 'LineWidth',2);
+axes(handles.basicHipMomentGraph);
+grid on
+
+% --- Executes on button press in basicHipMomentButton.
+function basicHipMomentButton_Callback(hObject, eventdata, handles)
+set(handles.basicHipMoment, 'visible', 'on');
+set(handles.basicKneeMoment, 'visible', 'off');
+set(handles.basicAnkleMoment, 'visible', 'off');
+axes(handles.basicHipFBD);
+imshow('BasicThighFBD.jpg');
+% Hip Moment Graph
+basicHipMoments = getappdata(handles.inversePanel, 'basicHipMoments');
+plot(handles.basicHipMomentGraph, 0:length(basicHipMoments)-1, basicHipMoments, 'LineWidth',2);
+axes(handles.basicHipMomentGraph);
+grid on
 
 
+% --- Executes on button press in basicKneeMomentButton.
+function basicKneeMomentButton_Callback(hObject, eventdata, handles)
+set(handles.basicHipMoment, 'visible', 'off');
+set(handles.basicKneeMoment, 'visible', 'on');
+set(handles.basicAnkleMoment, 'visible', 'off');
+axes(handles.basicKneeFBD);
+imshow('BasicShankFBD.jpg');
+% Knee Moment Graph
+basicKneeMoments = getappdata(handles.inversePanel, 'basicKneeMoments');
+plot(handles.basicKneeMomentGraph, 0:length(basicKneeMoments)-1, basicKneeMoments, 'LineWidth',2);
+axes(handles.basicKneeMomentGraph);
+grid on
+
+% --- Executes on button press in basicAnkleMomentButton.
+function basicAnkleMomentButton_Callback(hObject, eventdata, handles)
+set(handles.basicHipMoment, 'visible', 'off');
+set(handles.basicKneeMoment, 'visible', 'off');
+set(handles.basicAnkleMoment, 'visible', 'on');
+% Show fbd
+axes(handles.basicAnkleFBD);
+imshow('BasicFootFBD.jpg');
+
+% Knee Moment Graph
+basicAnkleMoments = getappdata(handles.inversePanel, 'basicAnkleMoments');
+plot(handles.basicAnkleMomentGraph, 0:length(basicAnkleMoments)-1, basicAnkleMoments, 'LineWidth',2);
+axes(handles.basicAnkleMomentGraph);
+grid on
+
+%------------------------------------------------------------------------
 
 % --- Executes during object creation, after setting all properties.
 function mainContent_panel_CreateFcn(hObject, eventdata, handles)
@@ -303,9 +390,14 @@ run AboutDimensions.m;
 % -------------------------- Run The CAD Program -------------------------%
 % --- Executes on button press in RunCADButton.
 function RunCADButton_Callback(hObject, eventdata, handles)
-% hObject    handle to RunCADButton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+
+% Make build buttons invisible once the build is selected and not finished
+set(handles.fourBarButton,'visible','off');
+set(handles.patientGaitButton,'visible','off');
+set(handles.dorsiflexionButton,'visible','off');
+set(handles.plantarflexionButton,'visible','off');
+set(handles.Gait_Inverse_Button,'visible','off');
+
 logFilePath = 'C:\MCG4322B\Group3\Log\group3_LOG.txt';
 % New trial - delete the old log file
 if exist(logFilePath, 'file')==2
@@ -313,9 +405,9 @@ if exist(logFilePath, 'file')==2
 end
 
 %% Read in the input variables from the user, check if they are numbers
-readWeight = get(handles.weightEditTextBox,'String');
-[numWeight, status] = str2num(readWeight);
-isWeightNumber = CheckIfNumberInput(readWeight, status, logFilePath, 'weight');
+readMass = get(handles.weightEditTextBox,'String');
+[numMass, status] = str2num(readMass);
+isMassNumber = CheckIfNumberInput(readMass, status, logFilePath, 'weight');
 
 readHeight = get(handles.heightEditTextBox,'String'); 
 [numHeight, status] = str2num(readHeight);
@@ -324,11 +416,11 @@ isHeightNumber = CheckIfNumberInput(readHeight, status, logFilePath, 'height');
 %% Check to make sure that they are in the required range
 isWeightWithinBounds = false;
 isHeightWithinBounds = false;
-maxWeight = 100; minWeight = 40;
+maxMass = 100; minMass = 40;
 maxHeight = 2; minHeight = 1;
 
-if(isWeightNumber)
-    isWeightWithinBounds = CheckIfBetweenBounds(numWeight, maxWeight, minWeight, 'kg', logFilePath);
+if(isMassNumber)
+    isWeightWithinBounds = CheckIfBetweenBounds(numMass, maxMass, minMass, 'kg', logFilePath);
 end
 
 if(isHeightNumber)
@@ -339,15 +431,26 @@ end
 if(isWeightWithinBounds && isHeightWithinBounds)
     initialLog = [  'Initial Dimensions:', newline, ...
                     '      Height: ', num2str(numHeight), 'm', newline, ...
-                    '      Weight: ', num2str(numWeight), 'kg', newline];
+                    '      Weight: ', num2str(numMass), 'kg', newline];
     AppendToLog(logFilePath, initialLog);
     
-    %%%%%%%% Where to call main and stuff here -- it will be validated here
-    %MainToUseWithGui(numHeight, numWeight);
-    SetUpThePatientGaitPanel()
+    %% Update the log window - Update user
+    set(handles.LogFileText, 'String', ['Running the code to build all components, ', ...
+        'this may take a minute.']);
+    pause(0.01); % allow time for the update to occur
+    % Store the inputted data
+    setappdata(handles.mainContent_panel, 'mass', numMass)
+    setappdata(handles.mainContent_panel, 'height', numHeight)
     
+     %%%%%%%% Where to call main and stuff here -- it will be validated here
+    %MainToUseWithGui(numHeight, numWeight);
+    SetPanelVariablesFromMain(hObject, eventdata, handles);
     
     % Once the code has ran, then make the buttons visible
+    set(handles.fourBarButton,'visible','on');
+    set(handles.patientGaitButton,'visible','on');
+    set(handles.dorsiflexionButton,'visible','on');
+    set(handles.plantarflexionButton,'visible','on');
     set(handles.Gait_Inverse_Button,'visible','on');
     
 else
@@ -390,3 +493,47 @@ function PopoutLogFileButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 run DisplayLogFile.m;
+
+function SetPanelVariablesFromMain(hObject, eventdata, handles)
+
+% Get the inputted dimensions to put to main
+inputtedMass = getappdata(handles.mainContent_panel, 'mass');
+inputtedHeight = getappdata(handles.mainContent_panel, 'height');
+
+mainCalcs = MainToUseWithGui(inputtedHeight, inputtedMass);
+
+%% Set variables for the patientGaitPanel
+setappdata(handles.patientGaitPanel, 'gaitPositionArray', mainCalcs.gaitPositionArray)
+setappdata(handles.patientGaitPanel, 'patientAngles', mainCalcs.patientAngles)
+
+%% Set variables for the basicInverseDynamics
+setappdata(handles.inversePanel, 'basicHipMoments', mainCalcs.basicInverseDynamics.MHipZ_Array);
+setappdata(handles.inversePanel, 'basicKneeMoments', mainCalcs.basicInverseDynamics.MKneeZ_Array);
+setappdata(handles.inversePanel, 'basicAnkleMoments', mainCalcs.basicInverseDynamics.MAnkleZ_Array);
+
+% --- Executes on button press in pushbutton15.
+function pushbutton15_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton15 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton16.
+function pushbutton16_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton16 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton17.
+function pushbutton17_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton17 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in basicAnkleFBDButton.
+function basicAnkleFBDButton_Callback(hObject, eventdata, handles)
+% hObject    handle to basicAnkleFBDButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
