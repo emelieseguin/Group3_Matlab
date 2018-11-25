@@ -29,7 +29,7 @@ function Main()
     plantarFlexionArray = [];
     plantarSpringLengthArray = [];
     dorsiFlexionArray = [];
-    dorsiSpringLengthArray = [];
+    dorsiSpringAndCableLengthArray = [];
     distanceChangeOfTopLink = zeros(1,101);
     distanceChangeOfBottomLink = zeros(1,101);
     topLinkXMovement = zeros(1,101);
@@ -67,11 +67,13 @@ function Main()
         distanceChangeOfBottomLink(item) = linkagePosition.BottomBarLinkageDistanceChange;
         topLinkXMovement(item) = linkagePosition.TopBarMovementX;
         topLinkYMovement(item) = linkagePosition.TopBarMovementY;
-         
+        
+        %% Build dorsispring arrays
         dorsiPosition = DorsiFlexionSpringPosition(position, model.dimensionMap,...
             hip, knee, ankle, foot);
         dorsiFlexionArray = [dorsiFlexionArray dorsiPosition];
-        dorsiSpringLengthArray = [dorsiSpringLengthArray dorsiPosition.Length];
+        dorsiSpringAndCableLengthArray = [dorsiSpringAndCableLengthArray dorsiPosition.Length];
+        dorsiSpringLengthArray = [dorsiSpringLengthArray ]
     end
     
     %% Test Stuff - not used currently - shows range of motion for 4Bar
@@ -87,7 +89,7 @@ function Main()
     
     %% Plotting Graphs for Spring Length - wrt to height
     % Plot the plantarflexion and dorsiflexion spring
-    PlotDorsiSpringLength(dorsiSpringLengthArray);
+    PlotDorsiSpringLength(dorsiSpringAndCableLengthArray);
     PlotPlantarSpringLength(plantarSpringLengthArray);
     
     % Plot the shank spring
@@ -108,14 +110,14 @@ function Main()
     plantarTorsionSpring = PlantarTorsionSpring(personHeight, mPlantarPull, plantarSpringLengthArray);
     
     % Extension spring for Dorsiflexion
-    dorsiSpring = DorsiSpringCalcs(personHeight, dorsiSpringLengthArray);
+    dorsiSpring = DorsiSpringCalcs(personHeight, dorsiSpringAndCableLengthArray);
     
     % Torsional spring for the Dorsiflexion Cam
     diamDorsiCable = 0.005;
     densityDorsiCable =  7850;
     mDorsiCable = (pi*(diamDorsiCable.^2)/4)*dorsiSpring.extensionCableLength*densityDorsiCable;
     mDorsiPull = dorsiSpring.weightExtensionSpring + mDorsiCable;
-    dorsiTorsionSpring = DorsiTorsionSpring(personHeight, mDorsiPull, dorsiSpringLengthArray);
+    dorsiTorsionSpring = DorsiTorsionSpring(personHeight, mDorsiPull, dorsiSpringAndCableLengthArray);
     
     %% Plotting the 4Bar 
     % Plot the Intersection of the 4 bar linkage with respect to the knee joint position
@@ -234,8 +236,8 @@ function Main()
         hipContributedMoments(i) = momentAdded;
         
         % Dorsiflexion Spring Moment
-        [maxDorsiLength, maxValueIndex] = max(dorsiSpringLengthArray);
-        dorsiSpringContributedMoments(i) = dorsiSpring.GetMomentContribution(dorsiSpringLengthArray(i), ...
+        [maxDorsiLength, maxValueIndex] = max(dorsiSpringAndCableLengthArray);
+        dorsiSpringContributedMoments(i) = dorsiSpring.GetMomentContribution(dorsiSpringAndCableLengthArray(i), ...
          dorsiFlexionArray(i), maxDorsiLength, maxValueIndex, i);
      
         % Plantar Spring Moment
@@ -254,14 +256,14 @@ function Main()
     for i=(1:(length(positionArray)))
         % Find the cable lengths
         if(i==1) % Start 1, Previous 101
-            currentDorsiSpringLength = dorsiSpringLengthArray(i);
-            previousDorsiSpringLength = dorsiSpringLengthArray(length(positionArray));
+            currentDorsiSpringLength = dorsiSpringAndCableLengthArray(i);
+            previousDorsiSpringLength = dorsiSpringAndCableLengthArray(length(positionArray));
             
             currentPlantarSpringLength = plantarSpringLengthArray(i);
             previousPlantarSpringLength = plantarSpringLengthArray(length(positionArray));
         else % Start i, Previous i - 1
-            currentDorsiSpringLength = dorsiSpringLengthArray(i);
-            previousDorsiSpringLength = dorsiSpringLengthArray(i-1);
+            currentDorsiSpringLength = dorsiSpringAndCableLengthArray(i);
+            previousDorsiSpringLength = dorsiSpringAndCableLengthArray(i-1);
             
             currentPlantarSpringLength = plantarSpringLengthArray(i);
             previousPlantarSpringLength = plantarSpringLengthArray(i-1);

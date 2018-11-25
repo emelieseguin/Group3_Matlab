@@ -16,11 +16,17 @@ classdef DorsiSpringCalcs
         R2
         curlAngle = 330; %how "curled" in the end hooks are
         
-        % Calculated to return
+        %% Put the Neutral of the graph
+        neutralLengthIndex = 9;
+        neutralLengthValue;
+        
+        
+        %% Calculated to return
         k
         lengthUnstrechedSpring
         weightExtensionSpring
         extensionCableLength 
+        totalLengthUnstrechedSpring
     end
     methods
         
@@ -46,7 +52,8 @@ classdef DorsiSpringCalcs
             minLength = min(dorsiSpringLengthArray);
             % Position where the second highest peek occurs -- will need to change 
             % if the placement of pulleys changes
-            neutralLength = dorsiSpringLengthArray(9);
+            neutralLength = dorsiSpringLengthArray(obj.neutralLengthIndex);
+            obj.neutralLengthValue = neutralLength;
 
             LtotO = UnitConversion.Meters2Inches(neutralLength);
 
@@ -132,6 +139,8 @@ classdef DorsiSpringCalcs
             Fi = UnitConversion.Lbf2Newton(Fi); 
             Lo = UnitConversion.Inches2Meters(Lo);
             obj.lengthUnstrechedSpring = Lo;
+            obj.totalLengthUnstrechedSpring = Lo + 4*R1;
+            
             L = UnitConversion.Inches2Meters(L);
             y = UnitConversion.Inches2Meters(y);
             k = UnitConversion.PoundFperInch2NewtonperMeter(k);
