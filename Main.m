@@ -5,7 +5,8 @@ function Main()
     
     % Build the anthropomtric model
     personHeight = 2; % in m
-    model = AnthropometricModel(personHeight, 50.0);
+    personMass = 50.0;
+    model = AnthropometricModel(personHeight, personMass);
 
     patient29AnglesCsvFileName = 'Patient29_Normal_Walking_Angles.csv';
     patient29ForcesCsvFileName = 'Patient29_Normal_Walking_Forces.csv';
@@ -206,13 +207,23 @@ function Main()
     
     %% Inverse Dynamics
     inverseDynamics = InverseDynamics(model, positionArray, linearAccel, ...
-        angularAccel, patient29Forces, normCopData, timeForGaitCycle);
+        angularAccel, patient29Forces, normCopData, timeForGaitCycle);    
     inverseDynamics.PlotMomentGraphs();
+    
+    %% With Dynamics with the exoskeleton - need volume calcs
+    totalMassOfExoskelton = 10; % in kg
+    thighExoMass = 4; % in kg
+    shankExoMass = 3.5;
+    footExoMass = 2.5;
+    inverseDynamicsExo = InverseDynamicsWithExoskeleton(model, positionArray, linearAccel, ...
+        angularAccel, patient29Forces, normCopData, timeForGaitCycle, totalMassOfExoskelton, ...
+        thighExoMass, shankExoMass, footExoMass);
+    inverseDynamicsExo.PlotMomentGraphs();
     
     %% Moment Contribution
     hipContributedMoments = zeros(1, length(positionArray));
-    kneeContributedMoments = zeros(1, length(positionArray));
-    ankleContributedMoments = zeros(1, length(positionArray));
+    dorsiSpringContributedMoments = zeros(1, length(positionArray));
+    plantarSpringContributedMoments = zeros(1, length(positionArray));
     
     dorsiTorsionContributedMoments = zeros(1, length(positionArray));
     plantarTorsionContributedMoments = zeros(1, length(positionArray));
@@ -220,16 +231,16 @@ function Main()
     for i=(1:(length(positionArray)))
         % Hip Torsion Spring Moment
         momentAdded = hipTorsionSpring.GetMomentContribution(positionArray(i).HipAngleZ, i);
-        hipContributedMoments(i) = (momentAdded);
+        hipContributedMoments(i) = momentAdded;
         
         % Dorsiflexion Spring Moment
         [maxDorsiLength, maxValueIndex] = max(dorsiSpringLengthArray);
-        kneeContributedMoments(i) = dorsiSpring.GetMomentContribution(dorsiSpringLengthArray(i), ...
+        dorsiSpringContributedMoments(i) = dorsiSpring.GetMomentContribution(dorsiSpringLengthArray(i), ...
          dorsiFlexionArray(i), maxDorsiLength, maxValueIndex, i);
      
         % Plantar Spring Moment
         [maxPlantarLength, maxValueIndex] = max(plantarSpringLengthArray);
-        ankleContributedMoments(i) = plantarSpring.GetMomentContribution(plantarSpringLengthArray(i), ...
+        plantarSpringContributedMoments(i) = plantarSpring.GetMomentContribution(plantarSpringLengthArray(i), ...
             plantarFlexionArray(i), maxPlantarLength, maxValueIndex, i);
         
         % Cam contributed to gait moments
@@ -268,9 +279,74 @@ function Main()
     end
     
     %% Plotting Moments
-    PlotMomentContribution(hipContributedMoments, kneeContributedMoments, ankleContributedMoments, ...
-        dorsiTorsionContributedMoments, plantarTorsionContributedMoments);
-    PlotCamMoments(dorsiTorsionCamMoments, plantarTorsionCamMoments);
+    %PlotMomentContribution(hipContributedMoments, dorsiSpringContributedMoments, plantarSpringContributedMoments, ...
+    %    dorsiTorsionContributedMoments, plantarTorsionContributedMoments);
+    %PlotCamMoments(dorsiTorsionCamMoments, plantarTorsionCamMoments);
+    
+    %% Total Moments
+    PlotTotalMoments(inverseDynamics.MHipZ_Array, inverseDynamicsExo.MHipZExo_Array, hipContributedMoments, ...
+        inverseDynamics.MKneeZ_Array, inverseDynamicsExo.MKneeZExo_Array, ...
+        inverseDynamics.MAnkleZ_Array, inverseDynamicsExo.MAnkleZExo_Array, ...
+        dorsiSpringContributedMoments, dorsiTorsionContributedMoments, ...
+        plantarSpringContributedMoments, plantarTorsionContributedMoments);
+    
+end
+
+function PlotTotalMoments(hipMoment, hipExoMoment, hipExoContributionMoment, ...
+    kneeMoment, kneeExoMoment, ankleMoment, ankleExoMoment, dorsiSpringContributionMoment, ...
+    dorsiCamContributionMoment, plantarSpringContributionMoment, plantarCamContributionMoment)
+
+    figure
+    % Plot the plantarflexion cable and spring length graph
+    top = subplot(3,1,1);
+    plot(top, 1:length(hipMoment), (-1)*hipMoment, 'LineWidth',1);
+    hold on
+    grid on
+    plot(top, 1:length(hipExoMoment), (-1)*hipExoMoment, 'LineWidth',1);
+    hold on
+    plot(top, 1:length(hipExoContributionMoment), hipExoContributionMoment, 'LineWidth',1);
+    title('All Hip Moment');
+    ylabel('Moment (Nm)')
+    xlabel('Gait Cycle (%)') 
+    set(top, 'LineWidth',1)
+    legend(top, 'Reg Hip', 'Exo Hip', 'Cont Hip')
+    %axis(top, [0 length(hipMomentArray) (min(hipMomentArray)-1) (max(hipMomentArray)+1)]);
+    
+     % Plot the plantarflexion cable and spring length graph
+    middle = subplot(3,1,2);
+    plot(middle, 1:length(kneeMoment), (-1)*kneeMoment, 'LineWidth', 1);
+    hold on
+    grid on
+    plot(middle, 1:length(kneeExoMoment), (-1)*kneeExoMoment, 'LineWidth', 1);
+    title('All Knee Moments');
+    ylabel('Moment (Nm)')
+    xlabel('Gait Cycle (%)') 
+    set(middle, 'LineWidth',1)
+    legend(middle, 'Reg Knee', 'Exo Knee')
+    %axis(middle, [0 length(dorsiMomentArray) (min(dorsiMomentArray)-1) (max(dorsiMomentArray)+1)]);
+     
+    % Plot the plantarflexion cable and spring length graph
+    top = subplot(3,1,3);
+    plot(top, 1:length(ankleMoment), (-1)*ankleMoment, 'LineWidth', 1);
+    hold on
+    grid on
+    plot(top, 1:length(ankleExoMoment), (-1)*ankleExoMoment, 'LineWidth', 1);
+    hold on
+    plot(top, 1:length(dorsiSpringContributionMoment), dorsiSpringContributionMoment, 'LineWidth', 1);
+    hold on
+    plot(top, 1:length(dorsiCamContributionMoment), dorsiCamContributionMoment, 'LineWidth', 1);
+    hold on
+    plot(top, 1:length(plantarSpringContributionMoment), plantarSpringContributionMoment, 'LineWidth', 1);
+    hold on
+    plot(top, 1:length(plantarCamContributionMoment), plantarCamContributionMoment, 'LineWidth', 1);
+    
+    title('Moment Contribution Plantar Spring over Gait Cycle');
+    ylabel('Moment (Nm)')
+    xlabel('Gait Cycle (%)') 
+    set(top, 'LineWidth',1)
+    legend(top, 'Reg Ankle', 'Exo Ankle', 'Dorsi Spring', 'Dorsi Cam', ...
+         'Plant Spring', 'Plan Cam')
+    %axis(top, [0 length(plantarMomentArray) (min(plantarMomentArray)-1) (max(plantarMomentArray)+1)]);
 end
 
 function PlotCamMoments(dorsiTorsionMoments, plantarTorsionMoments)
