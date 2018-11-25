@@ -163,26 +163,34 @@ classdef PlantarSpringCalcs
             obj.extensionCableLength = CL;
         end 
         
-        function MomentSI = GetMomentContribution(obj, currentSpringCableLength, nextSpringCableLength, ...
-                currentPlantarFlexionSpringPosition, nextPlantarFlexionSpringPosition)
+        function MomentSI = GetMomentContribution(obj, currentSpringCableLength, ...
+                currentPlantarFlexionSpringPosition, maxPlantarLength, maxValueIndex, i)
             %% Current Position Moment
             yCurrent = (currentSpringCableLength-obj.extensionCableLength-(obj.lengthUnstrechedSpring + (4*obj.R1)));
             % Negative values are the distances being picked up by the cam - slack region
             
             if(yCurrent > 0)
+                
+                if(maxValueIndex < i)
+                    
+                    % Spring pulling toe
+                    yMax = (maxPlantarLength-obj.extensionCableLength-(obj.lengthUnstrechedSpring + (4*obj.R1)));
+                    yCurrent = yCurrent-yMax;
+                end 
+                
+                
                 currentFy = obj.k*yCurrent*sin(deg2rad(currentPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
                 currentFx = obj.k*yCurrent*cos(deg2rad(currentPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
-
                 currentMoment = currentFy*currentPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentX + currentFx*currentPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentY;            
                 %% Next Position Moment
-                yNext = (nextSpringCableLength-obj.extensionCableLength-(obj.lengthUnstrechedSpring + (4*obj.R1)));
-                nextFy = obj.k*yNext*sin(deg2rad(nextPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
-                nextFx = obj.k*yNext*cos(deg2rad(nextPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
+                %yNext = (nextSpringCableLength-obj.extensionCableLength-(obj.lengthUnstrechedSpring + (4*obj.R1)));
+                %nextFy = obj.k*yNext*sin(deg2rad(nextPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
+                %nextFx = obj.k*yNext*cos(deg2rad(nextPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
 
-                nextMoment = nextFy*nextPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentX + nextFx*nextPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentY;
+                %nextMoment = nextFy*nextPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentX + nextFx*nextPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentY;
 
                 %% Next Moment
-                MomentSI = nextMoment - currentMoment;
+                MomentSI = (-1)*currentMoment;%nextMoment - currentMoment;
             else
                 MomentSI = 0;
             end

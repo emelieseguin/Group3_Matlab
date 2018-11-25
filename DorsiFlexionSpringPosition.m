@@ -8,7 +8,11 @@ classdef DorsiFlexionSpringPosition
         Link3Y
        
         Length
-        % Used to find moment contribution
+        
+        %% Distance Off Toe -- change with param
+        distAboveToe = 0.02;
+        
+        %% Used to find moment contribution
         AppliedToeCableForceAngle
         distanceFromAnkle2ToeCableX
         distanceFromAnkle2ToeCableY
@@ -24,6 +28,7 @@ classdef DorsiFlexionSpringPosition
         lShank = anthroDimensionMap(leftShankLength);
         hipAngleZRads = deg2rad(hipAngleZ);
         kneeAngleZRads = deg2rad(kneeAngleZ);
+        footAngleZRads = deg2rad(footAngleZ);
 
         %% Determining the coordinates of 4 points
         P1X =  position.ThighComXPoint + (0.05+r)*cos(hipAngleZRads);
@@ -38,15 +43,18 @@ classdef DorsiFlexionSpringPosition
         elseif (kneeAngleZRads<hipAngleZRads)
             P3X = position.KneeJointX + 0.2*lShank*sin(hipAngleZRads-kneeAngleZRads) + (0.05+r)*cos(hipAngleZRads-kneeAngleZRads);
             P3Y = position.KneeJointY - 0.2*lShank*cos(kneeAngleZRads-hipAngleZRads) + (0.05+r)*sin(kneeAngleZRads-hipAngleZRads);
-        end
-
-        %% Foot Pulley Position -- this cannot be at the toe
-        P4X = position.ToeX;
-        P4Y = position.ToeY;
+        end 
+        
+        %% Foot Pulley Position 
+        footPulleyXProj = position.ToeX;
+        footPulleyYProj = position.ToeY + obj.distAboveToe;
+        
+        [P4X, P4Y] = obj.RotatePointsAroundPoint(footPulleyXProj, footPulleyYProj, ...
+                footAngleZRads, position.ToeX, position.ToeY);
         
         %% Attachment of Cable
-        obj.distanceFromAnkle2ToeCableX = position.ToeX - position.AnkleJointX;
-        obj.distanceFromAnkle2ToeCableY =  position.AnkleJointY -  position.ToeY;
+        obj.distanceFromAnkle2ToeCableX = P4X - position.AnkleJointX;
+        obj.distanceFromAnkle2ToeCableY =  position.AnkleJointY -  P4Y;
         
         % Angle that the force is applied to the toe at
         AppliedForceAngleFromXAxis = 120;
@@ -63,6 +71,23 @@ classdef DorsiFlexionSpringPosition
         obj.Link2Y = [P2Y P3Y];
         obj.Link3X = [P3X P4X];
         obj.Link3Y = [P3Y P4Y];
+        
+        obj.CheckLengthConsistent('Foot Attachment: ', [P3X P4X], [P3Y P4Y]);
+        end
+    end
+    
+    methods 
+        function [xRotated, yRotated] = RotatePointsAroundPoint(~, initialX, initialY, angleInRads_CCW, ...
+                pointToRotateAroundX, pointToRotateAroundY)
+            % Rotate X co-ordinate
+            xRotated = pointToRotateAroundX + [(initialX-pointToRotateAroundX)*cos(angleInRads_CCW)- (initialY-pointToRotateAroundY)*sin(angleInRads_CCW)];
+            % Rotate Y co-ordinate
+            yRotated = pointToRotateAroundY + [(initialX-pointToRotateAroundX)*sin(angleInRads_CCW)+ (initialY-pointToRotateAroundY)*cos(angleInRads_CCW)];
+        end
+        
+        function CheckLengthConsistent(~, variableName, LineX, LineY)
+            length = sum(sqrt(diff(LineX).^2+diff(LineY).^2));
+            disp([variableName, num2str(length)])
         end
     end
 end

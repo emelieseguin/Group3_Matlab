@@ -1,5 +1,6 @@
 classdef GaitLegPosition
     properties
+        %% Anatomical Points
         % Vector positions for each segment of the leg
         ThighPositionX
         ThighPositionY
@@ -53,6 +54,16 @@ classdef GaitLegPosition
         % Lines for the Thigh and Shank
         ThighLine
         ShankLine
+        
+        %% Exoskeleton Points
+        ThighExoComX
+        ThighExoComY
+        
+        ShankExoComX
+        ShankExoComY
+        
+        FootExoComX
+        FootExoComY        
     end
     
     % CCW in the sagital plane is positive
@@ -88,12 +99,20 @@ classdef GaitLegPosition
             x3proj = obj.HipJointX;
             y3proj = obj.HipJointY - thighLengthDim;
             thighXComProj = obj.HipJointX;
-            thingYComProj = obj.HipJointY - (model.comPercentageMap(pThighCOM)*thighLengthDim);
+            thighYComProj = obj.HipJointY - (model.comPercentageMap(pThighCOM)*thighLengthDim);
             
             % Find the Knee and Thigh COM Points in space
             [obj.KneeJointX, obj.KneeJointY] = obj.RotatePointsAroundPoint(x3proj, y3proj, ...
                 hipAngleZRads, obj.HipJointX, obj.HipJointY);
-            [obj.ThighComXPoint, obj.ThighComYPoint] = obj.RotatePointsAroundPoint(thighXComProj, thingYComProj, ...
+            [obj.ThighComXPoint, obj.ThighComYPoint] = obj.RotatePointsAroundPoint(thighXComProj, thighYComProj, ...
+                hipAngleZRads, obj.HipJointX, obj.HipJointY);
+            
+            %% Acting COM of the Exoskeleton on the Thigh
+            percetageDownThighOfCom = 0.4;
+            thighExoComProjX =  obj.HipJointX;
+            thighExoComProjY =  obj.HipJointY - thighLengthDim*percetageDownThighOfCom;
+            
+            [obj.ThighExoComX, obj.ThighExoComY] = obj.RotatePointsAroundPoint(thighExoComProjX, thighExoComProjY, ...
                 hipAngleZRads, obj.HipJointX, obj.HipJointY);
             
             %% Position of the Ankle Segment %%
@@ -113,7 +132,17 @@ classdef GaitLegPosition
                 hipAngleZRads, obj.HipJointX, obj.HipJointY);
             [obj.ShankComXPoint, obj.ShankComYPoint] = obj.RotatePointsAroundPoint(shankXproj, shankYproj, ...
                 kneeAngleZRads, obj.KneeJointX, obj.KneeJointY);
-
+            
+            %% Acting COM of the Exoskeleton on the Shank
+            percetageDownShankOfCom = 0.35;
+            shankExoComProjX = obj.HipJointX;
+            shankExoComProjY = obj.HipJointY - thighLengthDim - (percetageDownShankOfCom*shankLengthDim);
+            
+            [shankExoComProjX, shankExoComProjY] = obj.RotatePointsAroundPoint(shankExoComProjX, shankExoComProjY, ...
+                hipAngleZRads, obj.HipJointX, obj.HipJointY);
+            [obj.ShankExoComX, obj.ShankExoComY] = obj.RotatePointsAroundPoint(shankExoComProjX, shankExoComProjY, ...
+                kneeAngleZRads, obj.KneeJointX, obj.KneeJointY);
+            
             %% Position of the Foot Segment %%
             % Find the position of the calcaneous relative to the ankle
             dCalcToAnkle = footHeightDim/(sin(model.TalocalcanealAngleRad));
@@ -149,6 +178,11 @@ classdef GaitLegPosition
             
             [obj.FootComXPoint, obj.FootComYPoint] = obj.RotatePointsAroundPoint(footComXProj, footComYProj, ...
                 footAngleZRads, obj.HeelX, obj.HeelY);
+            
+            %% Acting COM of the Exoskeleton on the Foot
+            obj.FootExoComX = obj.FootComXPoint;
+            obj.FootExoComY = obj.FootComYPoint;
+            
             %% Create Vectors %%
             % Set the vectors of the segments
             obj.ThighPositionX = [obj.KneeJointX obj.HipJointX];
@@ -206,7 +240,4 @@ classdef GaitLegPosition
         end
     end
     
-end
-
-
-            
+end        

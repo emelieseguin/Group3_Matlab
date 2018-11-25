@@ -13,12 +13,13 @@ classdef HipTorsionSpring
         
         lengthSupportLeg
         lengthWorkingLeg
-        
+
         % Values to return
         maxTorsionFromSpring
         shaftDiameter
         lengthHipSpring
         weightHipTorsionSpring
+        maxExtension
     end
     methods
         function obj = HipTorsionSpring(patientHeight, patientHipAngles) 
@@ -44,8 +45,9 @@ classdef HipTorsionSpring
                 c = D/d;        
             %Calculate factor for inner surface stress concentration     
                 Ki = ((4*(c.^2))-c-1)/(4*c*(c-1));             
-            %Maximum extension angle - multiply by -1 to get a positive value 
+            %Maximum extension angle - multiply by -1 to get a positive value
                 maxExtension = deg2rad((min(patientHipAngles))*(-1)); 
+                obj.maxExtension = (-1)*rad2deg(maxExtension);
             %Maximum moment
                 Mmax = (3*pi/64)*((maxExtension*(d.^4)*E)/(3*pi*D*obj.NumberBodyTurns+Lwork+Lsupp));       
             %Deflection of body coils
@@ -96,17 +98,29 @@ classdef HipTorsionSpring
             obj.weightHipTorsionSpring = obj.GetWeightTorsion(d, Lwork, Lsupp);
         end
         
-        function MomentSI = GetMomentContribution(obj, currentHipAngle, nextHipAngle)
-            d = UnitConversion.Meters2Inches(obj.wireDiameterSpring); 
-            D = UnitConversion.Meters2Inches(obj.meanDiameterCoil); 
-            Lwork = UnitConversion.Meters2Inches(obj.lengthWorkingLeg); 
-            Lsupp = UnitConversion.Meters2Inches(obj.lengthSupportLeg);
-            E = UnitConversion.Pa2Psi(obj.YoungsModulus);  
-            angleDiff = deg2rad(nextHipAngle-currentHipAngle);
+        function MomentSI = GetMomentContribution(obj, currentHipAngle, i)
             
-            % CCW is +'ve so times -1 
-            MomentImperial = (-1)*(3*pi/64)*((angleDiff*(d.^4)*E)/(3*pi*D*obj.NumberBodyTurns+Lwork+Lsupp));
-            MomentSI = UnitConversion.Psi2Pa(MomentImperial);
+            MomentSI = 0;
+            if(currentHipAngle < 0)
+                d = UnitConversion.Meters2Inches(obj.wireDiameterSpring); 
+                D = UnitConversion.Meters2Inches(obj.meanDiameterCoil); 
+                Lwork = UnitConversion.Meters2Inches(obj.lengthWorkingLeg); 
+                Lsupp = UnitConversion.Meters2Inches(obj.lengthSupportLeg);
+                E = UnitConversion.Pa2Psi(obj.YoungsModulus);  
+                %angleDiff = deg2rad(nextHipAngle-currentHipAngle);
+                %angleDiff = (deg2rad(nextHipAngle-currentHipAngle));%/(timeForGaitCycle/100);
+                angle = deg2rad(currentHipAngle);
+                MomentImperial = (-1)*(3*pi/64)*((angle*(d.^4)*E)/(3*pi*D*obj.NumberBodyTurns+Lwork+Lsupp));
+                if(i > 57) % Flexing - ' -'ve moment applied by spring '
+                   angle = deg2rad(abs(obj.maxExtension -  currentHipAngle));
+                   MomentImperial = (-1)*(3*pi/64)*((angle*(d.^4)*E)/(3*pi*D*obj.NumberBodyTurns+Lwork+Lsupp)); %uses newly calcuated angle
+                end 
+
+                % CCW is +'ve so times -1 
+                %MomentImperial = (-1)*(3*pi/64)*((angleDiff*(d.^4)*E)/(3*pi*D*obj.NumberBodyTurns+Lwork+Lsupp));
+                %MomentImperial = (-1)*(3*pi/64)*((angle*(d.^4)*E)/(3*pi*D*obj.NumberBodyTurns+Lwork+Lsupp));
+                MomentSI = UnitConversion.PoundFInch2NewtonM(MomentImperial);
+            end 
         end
         
         function weight = GetWeightTorsion(obj, d, Lwork, Lsupp)
