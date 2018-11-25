@@ -142,6 +142,7 @@ set(handles.dorsiflexionPanel, 'visible', 'off');
 set(handles.plantarflexionPanel, 'visible', 'off');
 set(handles.inversePanel, 'visible', 'off');
 
+% ------------------------------ Dorsiflexion Panel ----------------------%
 % --- Executes on button press in dorsiflexionButton.
 function dorsiflexionButton_Callback(hObject, eventdata, handles)
 set(handles.mainContent_panel, 'visible', 'off');
@@ -150,6 +151,23 @@ set(handles.fourBarPanel, 'visible', 'off');
 set(handles.dorsiflexionPanel, 'visible', 'on');
 set(handles.plantarflexionPanel, 'visible', 'off');
 set(handles.inversePanel, 'visible', 'off');
+% Show Spring and Cable Length
+dorsiSpringAndCableLengthArray = getappdata(handles.dorsiflexionPanel, 'dorsiSpringAndCableLengthArray')
+plot(handles.dorsiSpringCableLengthAxes, 0:length(dorsiSpringAndCableLengthArray)-1, dorsiSpringAndCableLengthArray, 'LineWidth',2);
+axes(handles.dorsiSpringCableLengthAxes);
+ylabel('Length (m)');
+grid on
+% Show just the spring length
+dorsiSpringLengthArray = getappdata(handles.dorsiflexionPanel, 'dorsiSpringLengthArray')
+plot(handles.dorsiSpringExtensionAxes, 0:length(dorsiSpringLengthArray)-1, dorsiSpringLengthArray, 'LineWidth',2);
+axes(handles.dorsiSpringExtensionAxes);
+ylabel('Length (m)');
+grid on
+% Array used for the sim
+dorsiSpringAndCablePosition = getappdata(handles.dorsiflexionPanel, 'dorsiSpringAndCablePosition')
+
+
+
 
 % --- Executes on button press in plantarflexionButton.
 function plantarflexionButton_Callback(hObject, eventdata, handles)
@@ -245,7 +263,6 @@ function edit4_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit4 as text
 %        str2double(get(hObject,'String')) returns contents of edit4 as a double
-
 
 % --- Executes during object creation, after setting all properties.
 function edit4_CreateFcn(hObject, eventdata, handles)
@@ -505,6 +522,11 @@ mainCalcs = MainToUseWithGui(inputtedHeight, inputtedMass);
 %% Set variables for the patientGaitPanel
 setappdata(handles.patientGaitPanel, 'gaitPositionArray', mainCalcs.gaitPositionArray)
 setappdata(handles.patientGaitPanel, 'patientAngles', mainCalcs.patientAngles)
+
+%% Set variables for the DorsiFlexion Panel
+setappdata(handles.dorsiflexionPanel, 'dorsiSpringAndCableLengthArray', mainCalcs.dorsiSpringAndCableLengthArray)
+setappdata(handles.dorsiflexionPanel, 'dorsiSpringAndCablePosition', mainCalcs.dorsiSpringAndCablePosition)
+setappdata(handles.dorsiflexionPanel, 'dorsiSpringLengthArray', mainCalcs.dorsiSpringLengthArray)
 
 %% Set variables for the basicInverseDynamics
 setappdata(handles.inversePanel, 'basicHipMoments', mainCalcs.basicInverseDynamics.MHipZ_Array);

@@ -9,6 +9,7 @@ classdef MainToUseWithGui
         
         %% Dorsiflexion Spring
         dorsiSpringAndCableLengthArray
+        dorsiSpringAndCablePosition
         dorsiSpringLengthArray
     end
     methods
@@ -18,8 +19,6 @@ classdef MainToUseWithGui
             SetAnthropometricNames(); % Run this to initialize all global naming variables
 
             % Build the anthropomtric model
-            personHeight = 2; % in m
-            personMass = 50.0;
             model = AnthropometricModel(personHeight, personMass);
 
             patient29AnglesCsvFileName = 'Patient29_Normal_Walking_Angles.csv';
@@ -137,7 +136,9 @@ classdef MainToUseWithGui
                 end
                 dorsiSpringLengthArray = [dorsiSpringLengthArray springLength];
             end
-            %plot(1:length(dorsiSpringLengthArray), dorsiSpringLengthArray);
+            main.dorsiSpringAndCableLengthArray = dorsiSpringAndCableLengthArray;
+            main.dorsiSpringLengthArray = dorsiSpringLengthArray;
+            main.dorsiSpringAndCablePosition = dorsiFlexionArray;
             
             %% Torsional spring for the Dorsiflexion Cam
             diamDorsiCable = 0.005;
