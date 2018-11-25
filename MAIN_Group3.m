@@ -22,7 +22,7 @@ function varargout = MAIN_Group3(varargin)
 
 % Edit the above text to modify the response to help MAIN_Group3
 
-% Last Modified by GUIDE v2.5 24-Nov-2018 21:53:10
+% Last Modified by GUIDE v2.5 25-Nov-2018 14:46:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -535,5 +535,26 @@ function pushbutton17_Callback(hObject, eventdata, handles)
 % --- Executes on button press in basicAnkleFBDButton.
 function basicAnkleFBDButton_Callback(hObject, eventdata, handles)
 % hObject    handle to basicAnkleFBDButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in simDorsiSpringPrev.
+function simDorsiSpringPrev_Callback(hObject, eventdata, handles)
+% hObject    handle to simDorsiSpringPrev (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in simDorsiSpringNext.
+function simDorsiSpringNext_Callback(hObject, eventdata, handles)
+% hObject    handle to simDorsiSpringNext (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in simDorsiSpringFull.
+function simDorsiSpringFull_Callback(hObject, eventdata, handles)
+% hObject    handle to simDorsiSpringFull (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
