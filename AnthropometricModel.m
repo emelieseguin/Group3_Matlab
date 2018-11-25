@@ -2,10 +2,10 @@ classdef AnthropometricModel
     properties
         errorMessage
         dimensionMap
-        weightMap
+        weightMap % this is a mass map - not weight
         comPercentageMap
         height
-        weight
+        weight % this is a mass - not weight
         % TalocalcanealAngle in Radians
         TalocalcanealAngleRad
     end
@@ -19,7 +19,7 @@ classdef AnthropometricModel
             end
 
             obj.height = height;
-            obj.weight = weight;
+            obj.weight = weight; % This is actually mass
             obj.TalocalcanealAngleRad = deg2rad(41);
             obj.dimensionMap = obj.GetDimensions(height);
             obj.weightMap = obj.GetWeight(weight);  

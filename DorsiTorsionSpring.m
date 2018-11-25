@@ -14,19 +14,62 @@ classdef DorsiTorsionSpring
         lengthSupportLeg
         lengthWorkingLeg
         
+        % Additional Torque
+        additionalTorquePercentage = 0.2;
+        
+        % Moment Contribution
+        firstValueIndex
+        neutralValueIndex
+        min1ValueIndex
+        max2ValueIndex
+        min2ValueIndex
+        max3ValueIndex
+        min3ValueIndex
+        
+        firstValue
+        neutralValue
+        min1Value
+        max2Value
+        min2Value
+        max3Value
+        min3Value
+        
+        rCam
+        S
+        wDorsiPull
+        effectiveWDorsiPull
+        
         % Values to return
         weightDorsiTorsionSpring
     end
     methods
         function obj = DorsiTorsionSpring(patientHeight, mDorsiPull, ...
                                     dorsiSpringLengthArray) 
-            %% Create a function to find the vertical displacement from the array, from dorsiSpringLengthArray
-            %Required vertical displacement of cam-cable attachment point to pick up slack
-            S = 0.01197*patientHeight; %[m] 
+            %% Values to pull for moment contribution
+            obj.firstValueIndex = 1;
+            obj.neutralValueIndex = 9; 
+            obj.min1ValueIndex = 48;
+            obj.max2ValueIndex = 66;
+            obj.min2ValueIndex = 87;
+            obj.max3ValueIndex = 92;
+            obj.min3ValueIndex = 100;
+            
+            obj.firstValue = dorsiSpringLengthArray(obj.firstValueIndex);
+            obj.neutralValue = dorsiSpringLengthArray(obj.neutralValueIndex);
+            obj.min1Value = dorsiSpringLengthArray(obj.min1ValueIndex);
+            obj.max2Value = dorsiSpringLengthArray(obj.max2ValueIndex);
+            obj.min2Value = dorsiSpringLengthArray(obj.min2ValueIndex);
+            obj.max3Value = dorsiSpringLengthArray(obj.max3ValueIndex);
+            obj.min3Value = dorsiSpringLengthArray(obj.min3ValueIndex);
+            
+            
             %% Set Design Variables
             %Rotation of cam
-             camRotation = pi/2; %[rad]
-
+             camRotation = pi; %[rad]
+             rCam = 0.02; %[m]
+             obj.rCam = rCam;
+             S = rCam; %Vertical translation of cam-cable attachment point for one cam rotation
+             obj.S = S;
              obj.wireDiameterSpring = (0.0005/1.78)*patientHeight; % Diameter of wire[m]
              d = UnitConversion.Meters2Inches(obj.wireDiameterSpring);
 
@@ -44,8 +87,11 @@ classdef DorsiTorsionSpring
             %% Calculations
             %Calculate weight of cable
                 wDorsiPull = mDorsiPull*9.81; %[N]
+                obj.wDorsiPull = wDorsiPull;
+                effectiveWDorsiPull = wDorsiPull * (1 + obj.additionalTorquePercentage);
+                obj.effectiveWDorsiPull = effectiveWDorsiPull;
             %Required torque on cam to lift the string:
-                T = wDorsiPull*S/camRotation; %[Nm]
+                T = effectiveWDorsiPull*S/camRotation; %[Nm]
                 Mmax = UnitConversion.NewtonM2PoundFInch(T); %[lbf in]
             %Calculate spring index 
                 c = D/d;        
@@ -98,13 +144,80 @@ classdef DorsiTorsionSpring
 
         end
         
+        function MomentSI = GetMomentOnCam(obj, currentSpringCableLength, previousSpringCableLength, extensionCableLength, ...
+                lengthUnstrechedSpring, R1, i)
+            %% Current Position Moment
+            yCurrent = (currentSpringCableLength-extensionCableLength-(obj.neutralValue + (4*R1)));
+            MomentSI = 0;
+            angleCurrent = (obj.neutralValue - currentSpringCableLength)/obj.rCam;
+            angleLast = (obj.neutralValue - previousSpringCableLength)/obj.rCam;
+            Si = obj.rCam*(sin(angleCurrent) - sin(angleLast));
+                
+            if (yCurrent < 0)
+                angle = (obj.neutralValue-currentSpringCableLength)/obj.rCam;
+                
+                %Section A
+                if (i <= obj.neutralValueIndex)
+                    angleFirst = (obj.neutralValue-obj.firstValue)/obj.rCam;
+                    angleI = angleFirst - angle; 
+                end
+                %Section B
+                if ((obj.neutralValueIndex < i) && (i <= obj.min1ValueIndex))
+                    angleI = (-1)*angle;
+                end
+                %Section C
+                if ((obj.min1ValueIndex < i) && (i <= obj.max2ValueIndex))
+                    angleI = (pi/2) - angle;
+                end
+                %Section D
+                if ((obj.max2ValueIndex < i) && (i <= obj.min2ValueIndex))
+                    angleI = (-1)*angle;
+                end
+                %Section E
+                if ((obj.min2ValueIndex < i) && (i <= obj.max3ValueIndex))
+                    angleMin2 = (obj.neutralValue-obj.min2Value)/obj.rCam;
+                    angleI = angleMin2 - angle; 
+                end
+                %Section F
+                if ((obj.max3ValueIndex < i) && (i <= obj.min3ValueIndex))
+                    angleMax3 = (obj.neutralValue-obj.max3Value)/obj.rCam;
+                    angleI = angleMax3 - angle; 
+                end
+                %Section G
+                if (obj.min3ValueIndex < i)
+                    angleMin3 = (obj.neutralValue-obj.min3Value)/obj.rCam;
+                    angleI = angleMin3 - angle; 
+                    
+                end
+                MomentSI = (obj.effectiveWDorsiPull)*Si/angleI; %[Nm]
+                %MomentSI = (obj.effectiveWDorsiPull-obj.wDorsiPull)*obj.S/angleI; %[Nm]
+                disp(rad2deg(angleI));
+            end
+            
+%             function MomentSI = GetMomentContribution(obj, currentPlantarFlexionSpringPosition)
+%             forceOnFoot = obj.effectiveWPlantarPull-obj.wPlantarPull;
+%             currentFy = forceOnFoot*sin(deg2rad(currentPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
+%             currentFx = forceOnFoot*cos(deg2rad(currentPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
+%             currentMoment = currentFy*currentPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentX + currentFx*currentPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentY;
+%             MomentSI = (-1)*currentMoment;%nextMoment - currentMoment;
+%         end
+            
+            
+        end
+        
+        function MomentSI = GetMomentContribution(obj, currentDorsiFlexionSpringPosition)
+           
+            forceOnFoot = obj.effectiveWDorsiPull-obj.wDorsiPull;
+            currentFy = forceOnFoot*sin(deg2rad(currentDorsiFlexionSpringPosition.AppliedToeCableForceAngle));
+            currentFx = forceOnFoot*cos(deg2rad(currentDorsiFlexionSpringPosition.AppliedToeCableForceAngle));
+            currentMoment = currentFy*currentDorsiFlexionSpringPosition.distanceFromAnkle2ToeCableX + currentFx*currentDorsiFlexionSpringPosition.distanceFromAnkle2ToeCableY;            
+                
+            MomentSI = (-1)*currentMoment;
+        end
+        
         function weight = GetWeightTorsion(obj, d, Lwork, Lsupp)
             V = pi*(d.^2)/4*(obj.NumberBodyTurns+Lwork+Lsupp);%Units in meters
             weight = V*obj.Density; %Units in Kg
         end
     end
 end
-
-
-
-

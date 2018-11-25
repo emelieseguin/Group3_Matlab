@@ -1,36 +1,37 @@
-classdef InverseDynamics
+classdef InverseDynamicsWithExoskeleton
     properties
-       FAnkleX_Array
-       FAnkleY_Array
-       MAnkleZ_Array
+       FAnkleXExo_Array
+       FAnkleYExo_Array
+       MAnkleZExo_Array
        
-       FKneeX_Array
-       FKneeY_Array
-       MKneeZ_Array
+       FKneeXExo_Array
+       FKneeYExo_Array
+       MKneeZExo_Array
        
-       FHipX_Array
-       FHipY_Array
-       MHipZ_Array
+       FHipXExo_Array
+       FHipYExo_Array
+       MHipZExo_Array
     end
     methods
-        function obj = InverseDynamics(anthropometricModel, positionArray, linearAccel, ...
-            angularAccel, patientForces, normCopData, timeForGaitCycle)
+        function obj = InverseDynamicsWithExoskeleton(anthropometricModel, positionArray, linearAccel, ...
+            angularAccel, patientForces, normCopData, timeForGaitCycle, totalMassOfExoskelton, ...
+            thighExoMass, shankExoMass, footExoMass)
             global footSegmentWeight legSegmentWeight thighSegmentWeight;
             global footLength leftShankLength thighLength;
             
             xScaleTime = linspace(0, timeForGaitCycle, (length(positionArray)));
             
-            obj.FAnkleX_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
-            obj.FAnkleY_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
-            obj.MAnkleZ_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
+            obj.FAnkleXExo_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
+            obj.FAnkleYExo_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
+            obj.MAnkleZExo_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
             
             % For all frames with ground reaction force
             for i=1:length(positionArray)
             
                 % Do the Inverse Dynamics of the Foot
                 % Get Ground Reaction Forces
-                Frx = (patientForces.LGRFX(i))*anthropometricModel.weight;
-                Fry = (patientForces.LGRFY(i))*anthropometricModel.weight;
+                Frx = (patientForces.LGRFX(i))*(anthropometricModel.weight + totalMassOfExoskelton);
+                Fry = (patientForces.LGRFY(i))*(anthropometricModel.weight + totalMassOfExoskelton);
                 
                 % Only 65 COP positions given, so if not <65 it is 0
                 if(i <= 65)
@@ -56,10 +57,12 @@ classdef InverseDynamics
                 ComYFoot = positionArray(i).FootComYPoint;
                 AnklePos_X = positionArray(i).AnkleJointX;
                 AnklePos_Y = positionArray(i).AnkleJointY;
+                %ComExoFootX = positionArray(i).FootExoComX; - since at same com
+                %ComExoFootY = positionArray(i).FootExoComY;
                 
                 % Summation of Forces
                 FAnkleX = ((Mfoot)*AFootX) - Frx;
-                FAnkleY = ((Mfoot)*AFootY) - Fry + Mfoot*9.81;
+                FAnkleY = ((Mfoot)*AFootY) - Fry + Mfoot*9.81 + footExoMass*9.81;
                 
                 % Summation of Moments
                 MAnkleZ = (MomentInert_Foot*A_AngularFoot -Fry*(CopPositionX - ComXFoot) ...
@@ -67,23 +70,25 @@ classdef InverseDynamics
                 + FAnkleX*(ComYFoot-AnklePos_Y));
                 
                 % Store the results in arrays
-                obj.FAnkleX_Array(i)=FAnkleX;
-                obj.FAnkleY_Array(i)= FAnkleY;
-                obj.MAnkleZ_Array(i) = MAnkleZ;
+                obj.FAnkleXExo_Array(i)=FAnkleX;
+                obj.FAnkleYExo_Array(i)= FAnkleY;
+                obj.MAnkleZExo_Array(i) = MAnkleZ;
             end
             
             % Do the inverse dynamics on the knee
-            obj.FKneeX_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
-            obj.FKneeY_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
-            obj.MKneeZ_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
+            obj.FKneeXExo_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
+            obj.FKneeYExo_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
+            obj.MKneeZExo_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
+            
+            %% Do the thigh and shank once we know where it is
             
             % For all frames with ground reaction force
             for i=1:length(positionArray)
             
                 % Do the Inverse Dynamics of the Shank
-                FAnkleX = (-1)*obj.FAnkleX_Array(i);
-                FAnkleY = (-1)*obj.FAnkleY_Array(i);
-                MomentAnkleZ = (-1)*obj.MAnkleZ_Array(i);
+                FAnkleX = (-1)*obj.FAnkleXExo_Array(i);
+                FAnkleY = (-1)*obj.FAnkleYExo_Array(i);
+                MomentAnkleZ = (-1)*obj.MAnkleZExo_Array(i);
                 MShank = anthropometricModel.weightMap(legSegmentWeight);
                 
                 AShankX = subs(linearAccel.linearAccelShankX, xScaleTime(i));
@@ -94,6 +99,7 @@ classdef InverseDynamics
                 A_AngularShank = subs(angularAccel.angularAccelShank, xScaleTime(i));
                 A_AngularShank = double(A_AngularShank);
                 
+                % Get the positions
                 ShankLength = anthropometricModel.dimensionMap(leftShankLength);
                 MomentInert_Shank = ((0.528*ShankLength).^2)*MShank;
                 ComXShank = positionArray(i).ShankComXPoint;
@@ -102,34 +108,37 @@ classdef InverseDynamics
                 AnklePos_Y = positionArray(i).AnkleJointY;
                 KneePos_X = positionArray(i).KneeJointX;
                 KneePos_Y = positionArray(i).KneeJointY;
+                ComExoShankX = positionArray(i).ShankExoComX;
+                %ComExoShankY = positionArray(i).ShankExoComY;
                 
                 % Summation of Forces
                 FKneeX = MShank*AShankX - FAnkleX;
-                FKneeY = MShank*AShankY - FAnkleY + MShank*9.81;
+                FKneeY = MShank*AShankY - FAnkleY + MShank*9.81 + shankExoMass*9.81;
                 
                 % Summation of Moments
+                isExoAboveTheComShank = 1; % 1 is above, -1 is below
                 MKneeZ = MomentInert_Shank*A_AngularShank + FKneeX*(KneePos_Y-ComYShank) ...
                 - FKneeY*(KneePos_X-ComXShank) - FAnkleX*(ComYShank-AnklePos_Y) ...
-                + FAnkleY*(ComXShank-AnklePos_X) - MomentAnkleZ;
+                + FAnkleY*(ComXShank-AnklePos_X) - MomentAnkleZ - (isExoAboveTheComShank)*(shankExoMass*9.81)*(ComXShank-ComExoShankX);
             
                 % Store the results in arrays
-                obj.FKneeX_Array(i)=FKneeX;
-                obj.FKneeY_Array(i)= FKneeY;
-                obj.MKneeZ_Array(i) = MKneeZ;
+                obj.FKneeXExo_Array(i)=FKneeX;
+                obj.FKneeYExo_Array(i)= FKneeY;
+                obj.MKneeZExo_Array(i) = MKneeZ;
             end
             
             % Do the inverse dynamics on the hip
-            obj.FHipX_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
-            obj.FHipY_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
-            obj.MHipZ_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
+            obj.FHipXExo_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
+            obj.FHipYExo_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
+            obj.MHipZExo_Array = zeros(1, length(normCopData.NormalizedCopArray_FromHeel));
             
             % For all frames with ground reaction force
             for i=1:length(positionArray)
             
                 % Do the Inverse Dynamics of the Shank
-                FKneeX = (-1)*obj.FKneeX_Array(i);
-                FKneeY = (-1)*obj.FKneeY_Array(i);
-                MomentKneeZ = (-1)*obj.MKneeZ_Array(i);
+                FKneeX = (-1)*obj.FKneeXExo_Array(i);
+                FKneeY = (-1)*obj.FKneeYExo_Array(i);
+                MomentKneeZ = (-1)*obj.MKneeZExo_Array(i);
                 MThigh = anthropometricModel.weightMap(thighSegmentWeight);
                 
                 AThighX = subs(linearAccel.linearAccelThighX, xScaleTime(i));
@@ -148,61 +157,67 @@ classdef InverseDynamics
                 KneePos_Y = positionArray(i).KneeJointY;
                 HipPos_X = 0;
                 HipPos_Y = 0;
+                ComExoThighX = positionArray(i).ThighExoComX;
+                %ComExoShankY = positionArray(i).ShankExoComY;
+                
                 
                 % Summation of Forces
                 FHipX = MThigh*AThighX - FKneeX;
-                FHipY = MThigh*AThighY - FKneeY + MThigh*9.81;
+                FHipY = MThigh*AThighY - FKneeY + MThigh*9.81 + thighExoMass*9.81;
                 
                 % Summation of Moments
+                isExoAboveTheComThigh = 1;
                 MHipZ = MomentInert_Thigh*A_AngularThigh - MomentKneeZ ...
                     + FHipY*(ComXThigh-HipPos_X) + FHipX*(HipPos_Y-ComYThigh) ...
-                    - FKneeY*(KneePos_X-ComXThigh) - FKneeX*(ComYThigh-KneePos_Y);
-            
+                    - FKneeY*(KneePos_X-ComXThigh) - FKneeX*(ComYThigh-KneePos_Y) ...
+                    - (isExoAboveTheComThigh)*(thighExoMass*9.81)*(ComXThigh-ComExoThighX);
+
                 % Store the results in arrays
-                obj.FHipX_Array(i)=FHipX;
-                obj.FHipY_Array(i)= FHipY;
-                obj.MHipZ_Array(i) = MHipZ;
+                obj.FHipXExo_Array(i)=FHipX;
+                obj.FHipYExo_Array(i)= FHipY;
+                obj.MHipZExo_Array(i) = MHipZ;
             end
         end
         
-        % All graphs plotted with CW as positive
+        % All graphs plotted with CW as positive -- of the inverse with
+        % Exoskelton
         function PlotMomentGraphs(obj)
             figure
             % Plot the Hip moment graph
             top = subplot(3,1,1);
-            plot(top, 1:length(obj.MHipZ_Array), (-1)*obj.MHipZ_Array, 'LineWidth',2);
+            plot(top, 1:length(obj.MHipZExo_Array), (-1)*obj.MHipZExo_Array, 'LineWidth',2);
             hold on
             grid on
-            title('Hip Moment vs. Percent Gait Cycle');
+            title('Hip Moment with Exo vs. Percent Gait Cycle');
             ylabel('Moment (N*m)')
             xlabel('Gait Cycle (%)') 
             set(top, 'LineWidth',1)
             legend(top, 'Hip Moment')
-            axis(top, [0 length(obj.MHipZ_Array)  (-1)*(max(obj.MHipZ_Array)+10) (-1)*(min(obj.MHipZ_Array)-10)])
+            axis(top, [0 length(obj.MHipZExo_Array)  (-1)*(max(obj.MHipZExo_Array)+10) (-1)*(min(obj.MHipZExo_Array)-10)])
             
             middle = subplot(3,1,2);
             % Plot the Knee moment graph
-            plot(middle, 1:length(obj.MKneeZ_Array), (-1)*obj.MKneeZ_Array, 'LineWidth',2);
+            plot(middle, 1:length(obj.MKneeZExo_Array), (-1)*obj.MKneeZExo_Array, 'LineWidth',2);
             hold on
             grid on
-            title('Knee Moment vs. Percent Gait Cycle');
+            title('Knee Moment with Exo vs. Percent Gait Cycle');
             ylabel('Moment (N*m)')
             xlabel('Gait Cycle (%)') 
             set(middle, 'LineWidth',1)
             legend(middle, 'Knee Moment')
-            axis(middle, [0 length(obj.MKneeZ_Array) (-1)*(max(obj.MKneeZ_Array)+5) (-1)*(min(obj.MKneeZ_Array)-5)])
+            axis(middle, [0 length(obj.MKneeZExo_Array) (-1)*(max(obj.MKneeZExo_Array)+5) (-1)*(min(obj.MKneeZExo_Array)-5)])
             
             bottom = subplot(3,1,3);
             % Plot the Ankle moment graph
-            plot(bottom, 1:length(obj.MAnkleZ_Array), (-1)*obj.MAnkleZ_Array, 'LineWidth',2);
+            plot(bottom, 1:length(obj.MAnkleZExo_Array), (-1)*obj.MAnkleZExo_Array, 'LineWidth',2);
             hold on
             grid on
-            title('Ankle Moment vs. Percent Gait Cycle');
+            title('Ankle Moment with Exo vs. Percent Gait Cycle');
             ylabel('Moment (N*m)')
             xlabel('Gait Cycle (%)') 
             set(bottom, 'LineWidth',1)
             legend(bottom, 'Ankle Moment')
-            axis(bottom, [0 length(obj.MAnkleZ_Array) (-1)*(max(obj.MAnkleZ_Array)+10) (-1)*(min(obj.MAnkleZ_Array)-20)])
+            axis(bottom, [0 length(obj.MAnkleZExo_Array) (-1)*(max(obj.MAnkleZExo_Array)+10) (-1)*(min(obj.MAnkleZExo_Array)-20)])
         end
     end
 end
