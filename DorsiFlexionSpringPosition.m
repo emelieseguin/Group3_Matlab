@@ -72,7 +72,8 @@ classdef DorsiFlexionSpringPosition
         obj.Link3X = [P3X P4X];
         obj.Link3Y = [P3Y P4Y];
         
-        obj.CheckLengthConsistent('Foot Attachment: ', [P3X P4X], [P3Y P4Y]);
+        %% Tests
+        %obj.CheckLengthConsistent('Foot Attachment: ', [P3X P4X], [P3Y P4Y]);
         end
     end
     
