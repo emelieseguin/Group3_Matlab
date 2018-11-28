@@ -42,9 +42,9 @@ classdef DorsiSpringCalcs
             G = UnitConversion.Pa2Psi(obj.ShearModulus);  
             Fi = UnitConversion.Newton2Lbf(5.29/1.78*personHeight); %Initial tension force in spring
             
-            obj.R1 = 0.005/1.78*personHeight;
+            obj.R1 = D/2; %0.005/1.78*personHeight;
             R1 = UnitConversion.Meters2Inches(obj.R1); 
-            obj.R2 = 0.005/1.78*personHeight;
+            obj.R2 = D/2; %0.005/1.78*personHeight;
             R2 = UnitConversion.Meters2Inches(obj.R2);
             
             %% Length of the dorsiflexion spring - find from array -- use dorsiSpringLengthArray
@@ -171,6 +171,18 @@ classdef DorsiSpringCalcs
 
             obj.weightExtensionSpring = GetWeightExtension(obj, d, R1);
             obj.extensionCableLength = CL;
+            
+            
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\dorsiSpringDimensions.txt','w');
+                fprintf(fileID, '"dDorsiSpringCoil"= %f\n', D);
+                fprintf(fileID, '"dDorsiSpringWire"= %f\n', d);
+                fprintf(fileID, '"r1DorsiSpring"= %7.7f\n', R1);
+                fprintf(fileID, '"r2DorsiSpring"= %7.7f\n', R2);
+                fprintf(fileID, '"LoDorsiSpring"= %f\n', Lo);
+                fprintf(fileID, '"numBodyTurnsDorsiSpring"= %f\n', obj.NumberBodyTurns);
+            fclose(fileID);
+            
+            
         end
         
         function MomentSI = GetMomentContribution(obj, currentSpringCableLength, ...

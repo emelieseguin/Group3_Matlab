@@ -1,4 +1,31 @@
-function FinalPartsCombined(patientHeight, hipShaft)
+function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition)
+%% Set Up Equations for Length of Segments in final assembly 
+ 
+ ThighLength= (0.245*patientHeight); %??read in from main?? 
+ ShankLength= (0.246*patientHeight); %??read in from main??
+ FootHeight = (0.039*patientHeight);
+ 
+ percentDownThigh = dorsiCablePosition.thighPulleyPercentDownThigh;
+ percentDownShank = dorsiCablePosition.shankPullyPercentDownShank;
+ 
+ PulleyFromProximalHip = percentDownThigh*ThighLength;
+ PulleyFromProximalKnee = percentDownShank*ShankLength;
+
+ThighCom =  0.433*ThighLength;
+ShankCom =  0.433*ShankLength;
+
+ 
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\LengthOfSegmentsInAssembly.txt', 'w');
+                fprintf(fileID, '"ThighLength" = %7.7f\n', ThighLength);
+                fprintf(fileID, '"ShankLength" = %7.7f\n', ShankLength);
+                fprintf(fileID, '"FootHeight" = %7.7f\n', FootHeight);
+                fprintf(fileID, '"ThighCom" = %7.7f\n', ThighCom);
+                fprintf(fileID, '"ShankCom" = %7.7f\n', ShankCom);
+                fprintf(fileID, '"PulleyFromProximalHip" = %7.7f\n', PulleyFromProximalHip);
+                fprintf(fileID, '"PulleyFromProximalKnee" = %7.7f\n', PulleyFromProximalKnee);
+                
+            fclose(fileID);
+
 %% MetalHipAttachmentsDimension.txt variables
 hipInnerDiameter=(0.3/1.78) * patientHeight; %could be inputed value rest of dimensions need to be based off this one 
 hipOuterDiameter=hipInnerDiameter + ((0.02/1.78) * patientHeight);%
@@ -120,14 +147,14 @@ cutHeight=(0.018/1.78)*patientHeight;
         fprintf(fileID, '"cutHeight"= %f\n', cutHeight);       
     fclose(fileID);
 %% Hip2DOFJointOutputShaft.txt Variables 
-outputShaftSupportWidth = hipShaft.distFromZ6_Z3 + ((0.012575)/1.78)*patientHeight;
+outputShaftSupportWidth = hipShaft.distFromZ5_Z3; %+ ((0.012575)/1.78)*patientHeight;
 connectorLength=(cutlength/2);
 cutWidth=(0.0142875/1.78)*patientHeight;
 pinLength=(shaftDiameter1-cutWidth)/2;
 pinDiameter=(0.008/1.78)*patientHeight; 
 pinHeightFromShaftBase=(0.012/1.78)*patientHeight;
 taperAngle=145;
-taperLength=(0.01/1.78)*patientHeight;
+taperLength=(hipShaft.distFromZ5_Z3/2);                                 %(0.01/1.78)*patientHeight;
 distanceBetweenTaper=(0.015/1.78)*patientHeight;
 diameterHipCylinder1=(0.08/1.78)*patientHeight;
 cutRadius=(0.01/1.78)*patientHeight;
@@ -140,12 +167,9 @@ cutRadiusOuter=(0.035/1.78)*patientHeight;
 cutRadiusInner=(0.015/1.78)*patientHeight; %% Length of keyway???????  it is ---- hipShaft.lShaftKeyHip
 lengthBetweenCuts=(0.01/1.78)*patientHeight;
 lengthOfCut=outputShaftSupportWidth-taperLength;
-extrudeDepth= hipShaft.distFromZ6_Z3 - taperLength;                        %needs to be driven off of change in length of shaft (z6-z3)
+extrudeDepth= hipShaft.distFromZ5_Z3 + lengthOfCut - outputShaftSupportWidth;                        %needs to be driven off of change in length of shaft (z6-z3)
 %extrudeDepth= (z6-z3) - (thickness of wall) --> thickness of wall=
 %shaftdiameter1-lengthofcut *warning --this is only 6mm at this point*
-
-%original code up to here 
-lengthOfCut2 = (0.02/1.78)*patientHeight;
 
     fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\Hip2DOFJointOutputShaft.txt','w');
         fprintf(fileID, '"shaftDiameter1"= %f\n', shaftDiameter1);
@@ -168,10 +192,8 @@ lengthOfCut2 = (0.02/1.78)*patientHeight;
         fprintf(fileID, '"cutRadiusInner"= %f\n', cutRadiusInner);
         fprintf(fileID, '"lengthBetweenCuts"= %f\n', lengthBetweenCuts);
         fprintf(fileID, '"lengthOfCut"= %f\n', lengthOfCut);
-        fprintf(fileID, '"extrudeDepth"= %f\n', extrudeDepth);    
-        
-       %original code up to here 
-        fprintf(fileID, '"lengthOfCut2"= %f\n', lengthOfCut2);    
+        fprintf(fileID, '"extrudeDepth"= %f\n', extrudeDepth);
+        fprintf(fileID, '"outputShaftSupportWidth"= %f\n', outputShaftSupportWidth);                         
     fclose(fileID);
     
 %% Hip2DOFJointCasing.txt Variables 
@@ -191,7 +213,7 @@ revolveDistanceTOBearingProfile=revolve1Length/2;
 notchLength1=(0.00047625/1.78)*patientHeight;
 outerWidthToCenterline=revolve1Width1-notchLength1;
 taperLength2=(0.003/1.78)*patientHeight;
-distanceToPlane= (casingOuterDiameter/2) + ((0.01/1.78)*patientHeight);
+distanceToPlane= (casingOuterDiameter/2) + ((0.03/1.78)*patientHeight);
 distanceToHipAttachmentBolts=(casingExtrudeLength/2);
 heightOfAttachmentBar= (hipBeltThickness/3);
 
@@ -226,7 +248,7 @@ revolve2Distance1=(0.00195385/1.78)*patientHeight;
 cylindricalRevolveDistance2=(0.00423333/1.78)*patientHeight;
 revolve2Length=(0.053975/1.78)*patientHeight;
 revolve2Length2=hipShaft.dp5;                                               %dp5 from Shaft
-revolve2Width1= hipShaft.distFromZ9_Z11;                                    %from length of Z9 to Z11
+revolve2Width1= hipShaft.distFromZ11_Z10;                                    %from length of Z10 to Z11
 
     fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\MedialDiskBallBearing.txt','w');
         fprintf(fileID, '"notchLength2"= %f\n', notchLength2);
@@ -254,15 +276,17 @@ cutRadius=(0.01/1.78)*patientHeight;
 %revolve2Length2=(0.020000/1.78)*patientHeight;                             %dp5 from Shaft
 %revolve2Width1=(0.012000/1.78)*patientHeight;                              s%same as length of Z9 to Z11
 revolveRadius=revolve2Length/2;
-medialDiskWidth=(0.02/1.78)*patientHeight;
+medialDiskWidth=hipShaft.distFromZ11_Z10 + 0.01;
 medialDiskHeight=(0.015/1.78)*patientHeight;
-femurConnectorHeight = revolveRadius + (0.1/1.78)*patientHeight;
+femurConnectorHeight = ThighCom;
 femurConnectorWidth = (0.04/1.78)*patientHeight;
 %connectingShaftDiameter1=(0.020000/1.78)*patientHeight;                        %dp1 - from shaft
-plungerExtrudeLength=hipShaft.distFromZ6_Z9 + extrudeDepth - ((medialDiskWidth - revolve2Width1)/2); %length of z9 to z6 of shaft minus...
+plungerExtrudeLength=hipShaft.distFromZ10_Z5 + extrudeDepth - ((medialDiskWidth - revolve2Width1)/2); %length of z9 to z6 of shaft minus...
 plungerHeight= cutRadius/3;
 plungerAngle=30;
 halfPlungerAngle=15;
+ExtrudetoGet4BarOffset = (0.00657866/1.78)*patientHeight;
+
 
     fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\HipMedialDisk.txt','w');
         fprintf(fileID, '"shaftDiameter1"= %f\n', shaftDiameter1);
@@ -279,8 +303,9 @@ halfPlungerAngle=15;
         fprintf(fileID, '"plungerExtrudeLength"= %f\n', plungerExtrudeLength);      
         fprintf(fileID, '"plungerHeight"= %f\n', plungerHeight);      
         fprintf(fileID, '"plungerAngle"= %f\n', plungerAngle);      
-        fprintf(fileID, '"halfPlungerAngle"= %f\n', halfPlungerAngle);      
-       
+        fprintf(fileID, '"halfPlungerAngle"= %f\n', halfPlungerAngle);
+        fprintf(fileID, '"ExtrudetoGet4BarOffset"= %f\n', ExtrudetoGet4BarOffset);
+        
         %fromMedialBallBearing       
         fprintf(fileID, '"notchLength2"= %f\n', notchLength2);
         fprintf(fileID, '"notchAngle1"= %f\n', notchAngle1);
@@ -288,6 +313,51 @@ halfPlungerAngle=15;
         fprintf(fileID, '"revolveRadius"= %f\n', revolveRadius);          
     fclose(fileID);
     
+    
+%% Paramaterized Pulley 
+
+PulleyRevolveWidth= (0.009525/1.78)*patientHeight;
+RopeDiameter = (0.004763/1.78)*patientHeight;
+PulleyRevolveLength = (0.04/1.78)*patientHeight;
+PulleyRevolveAngle =20;
+LengthtoPulleyPlane = (0.000762/1.78)*patientHeight;
+Sketch4ExtrudeDepth = (0.00127/1.78)*patientHeight;
+PulleyExtrudeDepth2= (0.0014224/1.78)*patientHeight;
+PulleyFilletRadius1 = (0.0015875/1.78)*patientHeight;
+PulleyFilletRadius2 = (0.0028575/1.78)*patientHeight;
+PulleyCutRadius1 = (0.005334/1.78)*patientHeight;
+PulleyExtrude2 = (0.009525/1.78)*patientHeight;
+PulleyFilletRadius3 = (0.000635/1.78)*patientHeight;
+PulleyExtrudeDiameter2 = (0.005715/1.78)*patientHeight;
+PulleyAttachWidth = (0.01778/1.78)*patientHeight; 
+PulleyAttachHeight=(0.02709747/1.78)*patientHeight;
+PulleyAttachmentAngle = 97.82997;
+PulleyAttachRadius=(0.0127/1.78)*patientHeight;
+PulleyLipThickness = (0.00192443/1.78)*patientHeight; 
+PulleyRevolveDistance = (0.015/1.78)*patientHeight;
+
+        fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\ParamaterizedPulley.txt','w');
+            fprintf(fileID, '"PulleyRevolveWidth"= %f\n', PulleyRevolveWidth);
+            fprintf(fileID, '"RopeDiameter"= %f\n', RopeDiameter);
+            fprintf(fileID, '"PulleyRevolveLength"= %f\n', PulleyRevolveLength);
+            fprintf(fileID, '"PulleyRevolveAngle"= %f\n', PulleyRevolveAngle);
+            fprintf(fileID, '"LengthtoPulleyPlane"= %f\n', LengthtoPulleyPlane);
+            fprintf(fileID, '"Sketch4ExtrudeDepth"= %f\n', Sketch4ExtrudeDepth);
+            fprintf(fileID, '"PulleyFilletRadius1"= %f\n', PulleyFilletRadius1);
+            fprintf(fileID, '"PulleyFilletRadius2"= %f\n', PulleyFilletRadius2);
+            fprintf(fileID, '"PulleyCutRadius1"= %f\n', PulleyCutRadius1);
+            fprintf(fileID, '"PulleyExtrude2"= %f\n', PulleyExtrude2);
+            fprintf(fileID, '"PulleyFilletRadius3"= %f\n', PulleyFilletRadius3);
+            fprintf(fileID, '"PulleyExtrudeDiameter2"= %f\n', PulleyExtrudeDiameter2);
+            fprintf(fileID, '"PulleyExtrudeDepth2"= %f\n', PulleyExtrudeDepth2);
+            fprintf(fileID, '"PulleyAttachWidth"= %f\n', PulleyAttachWidth);
+            fprintf(fileID, '"PulleyAttachHeight"= %f\n', PulleyAttachHeight);
+            fprintf(fileID, '"PulleyAttachmentAngle"= %f\n', PulleyAttachmentAngle);
+            fprintf(fileID, '"PulleyAttachRadius"= %f\n', PulleyAttachRadius);
+            fprintf(fileID, '"PulleyLipThickness"= %f\n', PulleyLipThickness);
+            fprintf(fileID, '"PulleyRevolveDistance"= %f\n', PulleyRevolveDistance);
+           
+        fclose(fileID);
 %%  
 %%Sheldons Parts
 
@@ -501,8 +571,8 @@ halfPlungerAngle=15;
             
             WbotBar = (0.04/1.78)*patientHeight;
             HbotBarKnee = (0.03/1.78)*patientHeight;
-            HbotBarCOM = (0.03/1.78)*patientHeight;
-            botBarAngle = 75
+            HbotBarCOM = (0.05960204/1.78)*patientHeight;
+            botBarAngle = 75;
             TbotBar = (0.01/1.78)*patientHeight;
             HbotBarAngle = (0.116408/1.78)*patientHeight;
             LbotBarCut1 = (0.015/1.78)*patientHeight;
@@ -516,6 +586,12 @@ halfPlungerAngle=15;
             BotBarCut4 = (0.0005/1.78)*patientHeight;
             Link1Angle = 19.5;
             FilletBotBarDimension = (0.005/1.78)*patientHeight;
+            DistancetoExtrudePlaneBotBar=TbotBar/2; 
+            ExtraExtrudeForFourBar= (0.03/1.78)*patientHeight;
+            HCutBotBarForFourBat = HbotBarKnee/2;
+            WCutBotBarForFourBat = (0.025/1.78)*patientHeight;
+            DistanceToPulley2 = (0.09926034/1.78)*patientHeight;
+            LengthToPlaneOfPulley=(0.025/1.78)*patientHeight; %needs to be driven off of dorsiflexion cam
             
             % Link dimensions 
             
@@ -525,12 +601,13 @@ halfPlungerAngle=15;
             wLinks = (0.01/1.78)*patientHeight;
             LinkEndRadius = (0.005/1.78)*patientHeight;
             LinkPinDiameter= (0.0055/1.78)*patientHeight;
+            OuterConnectionPin = (tLinks)+(TbotBar);
             
             % Top bar dimensions
             
             WtopBar = (0.04/1.78)*patientHeight;
             HtopBarKnee = (0.05/1.78)*patientHeight;
-            HtopBarHip = (0.05/1.78)*patientHeight;
+            HtopBarHip = (0.107687/1.78)*patientHeight;
             topBarAngle = 71.48304
             TtopBar = (0.01/1.78)*patientHeight;
             HtopBarAngle = (0.09194892/1.78)*patientHeight;
@@ -543,6 +620,11 @@ halfPlungerAngle=15;
             LinkPinDiameter = (0.0055/1.78)*patientHeight;
             Link3Angle = 27.5;
             TopBarCut3 = (0.0313719/1.78)*patientHeight;
+            ExtrudeCutWidth1=(0.008/1.78)*patientHeight;
+            ExtrudeTopBarLength=(0.002/1.78)*patientHeight;
+            ExtraExtrudeForFourBarTopBar= (0.015/1.78)*patientHeight;
+            HCutForFourBar = HtopBarKnee/2;
+            DistanceToPulley1= (0.160049/1.78)*patientHeight;
             
             % dimensions of the calf strap case
             
@@ -567,11 +649,12 @@ halfPlungerAngle=15;
             HalfcalfPaddingHeight = 0.5*calfCaseHeight;
             QuartercalfPaddingHeight = 0.5*HalfcalfCaseHeight;
             PaddingFillet = (0.003/1.78)*patientHeight;
+            DistanceToCalfPlane = (0.08/1.78)*patientHeight;
             
              % dimensions of the thigh strap case
             
-            thighInnerCaseDiameter = (0.10/1.78)*patientHeight;
-            thighOuterCaseDiameter = (0.12/1.78)*patientHeight;
+            thighInnerCaseDiameter = (0.16/1.78)*patientHeight;
+            thighOuterCaseDiameter = (0.18/1.78)*patientHeight;
             thighCaseThickness = (0.01/1.78)*patientHeight; %
             thighCaseHeight = (0.12/1.78)*patientHeight;
             thighDistToCutZ = (0.10832885/1.78)*patientHeight;
@@ -580,12 +663,12 @@ halfPlungerAngle=15;
             HalfthighCaseHeight = 0.5*thighCaseHeight;
             QuarterthighCaseHeight = 0.5*HalfthighCaseHeight;
             thighSupportRadius = (0.1/1.78)*patientHeight;
-            DistancetoThighPlane=(0.08/1.78)*patientHeight;
+            DistancetoThighPlane=(0.12/1.78)*patientHeight;
             
              % dimensions of the thigh strap padding
             
-            thighInnerPaddingDiameter = (0.08/1.78)*patientHeight;
-            thighOuterPaddingDiameter = (0.10/1.78)*patientHeight;
+            thighInnerPaddingDiameter = (0.14/1.78)*patientHeight;
+            thighOuterPaddingDiameter = (0.16/1.78)*patientHeight;
             thighPaddingThickness = (0.01/1.78)*patientHeight;
             thighPaddingHeight = (0.12/1.78)*patientHeight;
             thighDistToCutZPadding = (0.09848078/1.78)*patientHeight;
@@ -607,7 +690,8 @@ halfPlungerAngle=15;
 %             radiusOfarms = (0.01039742/1.78)*patientHeight;
 %             distToHole = (0.00083077/1.78)*patientHeight;
 %             reatiningRingFillet = (0.0001/1.78)*patientHeight;
-            
+
+            %%This needs to be done properly cause right now its cheated
             % plantar cam shaft dimensions to print
             PlantarCamZ1_Z2 = PlantarCamZ2 - PlantarCamZ1;
             PlantarCamZ2_Z3 = PlantarCamZ3 - PlantarCamZ2;
@@ -809,7 +893,16 @@ halfPlungerAngle=15;
             fprintf(fileID, '"Link1Angle"= %f\n', Link1Angle);
             fprintf(fileID, '"BotBarCut3"= %f\n', BotBarCut3);
             fprintf(fileID, '"BotBarCut4"= %f\n', BotBarCut4);
-            fprintf(fileID, '"FilletBotBarDimension"= %f\n', FilletBotBarDimension);       
+            fprintf(fileID, '"FilletBotBarDimension"= %f\n', FilletBotBarDimension); 
+            fprintf(fileID, '"OuterConnectionPin"= %f\n', OuterConnectionPin);          
+            fprintf(fileID, '"DistancetoExtrudePlaneBotBar"= %f\n', DistancetoExtrudePlaneBotBar);          
+            fprintf(fileID, '"ExtraExtrudeForFourBar"= %f\n', ExtraExtrudeForFourBar);
+            fprintf(fileID, '"HCutBotBarForFourBat"= %f\n', HCutBotBarForFourBat);
+            fprintf(fileID, '"WCutBotBarForFourBat"= %f\n', WCutBotBarForFourBat);
+            fprintf(fileID, '"DistanceToPulley2"= %f\n', DistanceToPulley2);
+            fprintf(fileID, '"LengthToPlaneOfPulley"= %f\n', LengthToPlaneOfPulley);
+            fprintf(fileID, '"PulleyFilletRadius1"= %f\n', PulleyFilletRadius1);
+            fprintf(fileID, '"PulleyFilletRadius2"= %f\n', PulleyFilletRadius2);
             fclose(fileID);
             
              fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\fourBarDimensions.txt','w');
@@ -822,6 +915,7 @@ halfPlungerAngle=15;
             
              fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\topBarDimensions.txt','w');
             fprintf(fileID, '"WtopBar"= %f\n', WtopBar);
+            fprintf(fileID, '"HtopBarHip"= %f\n', HtopBarHip);        
             fprintf(fileID, '"HtopBarKnee"= %f\n', HtopBarKnee);
             fprintf(fileID, '"topBarAngle"= %f\n', topBarAngle);
             fprintf(fileID, '"TtopBar"= %f\n', TtopBar);
@@ -835,6 +929,15 @@ halfPlungerAngle=15;
             fprintf(fileID, '"LinkPinDiameter"= %f\n', LinkPinDiameter);
             fprintf(fileID, '"Link3Angle"= %f\n', Link3Angle);
             fprintf(fileID, '"TopBarCut3"= %f\n', TopBarCut3);
+            fprintf(fileID, '"ExtrudeCutWidth1"= %f\n', ExtrudeCutWidth1);
+            fprintf(fileID, '"ExtrudeTopBarLength"= %f\n', ExtrudeTopBarLength);
+            fprintf(fileID, '"ExtraExtrudeForFourBarTopBar"= %f\n', ExtraExtrudeForFourBarTopBar);
+            fprintf(fileID, '"DistancetoExtrudePlaneBotBar"= %f\n', DistancetoExtrudePlaneBotBar);
+            fprintf(fileID, '"HCutForFourBar"= %f\n', HCutForFourBar);          
+            fprintf(fileID, '"DistanceToPulley1"= %f\n', DistanceToPulley1);
+            fprintf(fileID, '"LengthToPlaneOfPulley"= %f\n', LengthToPlaneOfPulley);
+            fprintf(fileID, '"PulleyFilletRadius1"= %f\n', PulleyFilletRadius1);
+            fprintf(fileID, '"PulleyFilletRadius2"= %f\n', PulleyFilletRadius2);            
             fclose(fileID);
             
             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\calfCaseDimensions.txt','w');
@@ -847,6 +950,7 @@ halfPlungerAngle=15;
                 fprintf(fileID, '"HalfcalfCaseHeight"=%f\n', HalfcalfCaseHeight);
                 fprintf(fileID, '"QuartercalfCaseHeight"=%f\n', QuartercalfCaseHeight);
                 fprintf(fileID, '"calfSupportRadius"=%f\n', calfSupportRadius);
+                fprintf(fileID, '"DistanceToCalfPlane"=%f\n', DistanceToCalfPlane);  
             fclose(fileID);
             
             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\calfPaddingDimensions.txt','w');
@@ -889,9 +993,8 @@ halfPlungerAngle=15;
             
             
             
- %%
- %Macks Foot code
- 
+ %% macks foot code
+  
             lFoot = round(0.152*patientHeight, 6);
             wFoot = round(0.055*patientHeight, 6);
             %heelToAnkle = 0.039*patientHeight;
@@ -899,33 +1002,56 @@ halfPlungerAngle=15;
             %% Inner Rigid Piece
             dInnerHeel = wFoot;
             rInnerHeel = wFoot/2;
-            dRigidHeel = wFoot+0.01;
+            dRigidHeel = wFoot+((0.01/1.78)*patientHeight);
             rRigidHeel = dRigidHeel/2;
             rHalfRigid = rRigidHeel/2;
-            loftingDimension1 = dRigidHeel-0.01;
-            hBackHeelPieceRigid = 0.05/1.78*patientHeight;
+            loftingDimension1 = dRigidHeel-(0.01/1.78)*patientHeight;
+            hBackHeelPieceRigid = (0.05/1.78)*patientHeight;
             hBackHeelPieceOuter = hBackHeelPieceRigid - 0.025;
             
             dFromZ1_Z6 = round(lFoot - rInnerHeel, 6);
-            dFromZ1_Z2 = (0.15*dFromZ1_Z6)/1.78*patientHeight;
-            dFromZ2_Z3 = (0.25*dFromZ1_Z6)/1.78*patientHeight;
-            dFromZ3_Z4 = (0.25*dFromZ1_Z6)/1.78*patientHeight;
-            dFromZ4_Z5 = (0.25*dFromZ1_Z6)/1.78*patientHeight;
-            dFromZ5_Z6 = (0.10*dFromZ1_Z6)/1.78*patientHeight;
+            dFromZ1_Z2 = ((0.15*dFromZ1_Z6)/1.78)*patientHeight;
+            dFromZ2_Z3 = ((0.25*dFromZ1_Z6)/1.78)*patientHeight;
+            dFromZ3_Z4 = ((0.25*dFromZ1_Z6)/1.78)*patientHeight;
+            dFromZ4_Z5 = ((0.25*dFromZ1_Z6)/1.78)*patientHeight;
+            dFromZ5_Z6 = ((0.10*dFromZ1_Z6)/1.78)*patientHeight;
             
             dFromZ2_Z4 = dFromZ2_Z3 + dFromZ3_Z4;
             dFromZ2_Z4_wEdge = dFromZ2_Z4+0.0025;
             dFromZ2_Z3_Over2 = dFromZ2_Z3/2;
             
-            lWideRigidPiece = 0.05/1.78*patientHeight;
-            lNarrowRigidPiece = 0.05/1.78*patientHeight;
+            lWideRigidPiece = (0.05/1.78)*patientHeight;
+            lNarrowRigidPiece = (0.05/1.78)*patientHeight;
             
             strapWidth = dRigidHeel - 0.002;
             
             %% Soft Outer Piece
-            dSoftHeel = wFoot+0.02;
+            dSoftHeel = wFoot+((0.02/1.78)*patientHeight);
             rSoftHeel = dSoftHeel/2;
-            loftingDimension2 = dSoftHeel-0.01;
+            loftingDimension2 = dSoftHeel-(0.01/1.78)*patientHeight;
+            
+            %% Often Used Dimensions
+            d1 = (0.0025/1.78)*patientHeight;
+            d2 = (0.005/1.78)*patientHeight;
+            d3 = (0.0075/1.78)*patientHeight;
+            d4 = (0.01/1.78)*patientHeight;
+            d5 = (0.015/1.78)*patientHeight;
+            d6 = (0.02/1.78)*patientHeight;
+            d7 = (0.05/1.78)*patientHeight;
+            d8 = (0.06/1.78)*patientHeight;
+            d9 = (0.00485/1.78)*patientHeight;
+            d10 = (0.0015/1.78)*patientHeight;
+            d11 = (0.0035/1.78)*patientHeight;
+            d12 = (0.002/1.78)*patientHeight;
+            d13 = (0.012/1.78)*patientHeight;
+            d14 = (0.035/1.78)*patientHeight;
+            d15 = (0.006/1.78)*patientHeight;
+            d16 = (0.04/1.78)*patientHeight;
+            d17 = (0.008/1.78)*patientHeight;
+            d18 = (0.1/1.78)*patientHeight;
+            d19 = (0.025/1.78)*patientHeight;
+            d20 = (0.15/1.78)*patientHeight;
+            d21 = (0.004/1.78)*patientHeight;
             
             %% Rigid Piece Volume Calculations
 %             v1 = (1/4)*(4/3)*pi*((rRigidHeel^3)-(rInnerHeel^3));
@@ -983,39 +1109,112 @@ halfPlungerAngle=15;
 %                 +v17+v18+v19+v20+v21+v22+v23+v24+v25+v26+v27+v28+v29+v30 ...
 %                 +v31+v32+v33+v34+v35+v36+v37+v38+v39; %missing v13
             
-            %% Printing to file
-            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footMechanismDimensions.txt', 'w');
+            %% Rigid Piece File
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footRigidPieceDimensions.txt', 'w');
                 fprintf(fileID, '"dInnerHeel" = %7.7f\n', dInnerHeel);
                 fprintf(fileID, '"rInnerHeel" = %7.7f\n', dInnerHeel/2);
-                
                 fprintf(fileID, '"dRigidHeel" = %7.7f\n', dRigidHeel);
                 fprintf(fileID, '"rRigidHeel" = %7.7f\n', dRigidHeel/2);
                 fprintf(fileID, '"hBackHeelPieceRigid" = %7.7f\n', hBackHeelPieceRigid);
                 fprintf(fileID, '"loftingDimension1" = %7.7f\n', loftingDimension1);
-                fprintf(fileID, '"loftingDimension2" = %7.7f\n', loftingDimension2);
-                fprintf(fileID, '"lWideRigidPiece" = %7.7f\n', lWideRigidPiece);
-                fprintf(fileID, '"lNarrowRigidPiece" = %7.7f\n', lNarrowRigidPiece);
                 fprintf(fileID, '"rHalfRigid" = %7.7f\n', rHalfRigid);
-                
                 fprintf(fileID, '"dFromZ1_Z2" = %7.7f\n', dFromZ1_Z2);
                 fprintf(fileID, '"dFromZ2_Z3" = %7.7f\n', dFromZ2_Z3);
                 fprintf(fileID, '"dFromZ3_Z4" = %7.7f\n', dFromZ3_Z4);
                 fprintf(fileID, '"dFromZ4_Z5" = %7.7f\n', dFromZ4_Z5);
                 fprintf(fileID, '"dFromZ5_Z6" = %7.7f\n', dFromZ5_Z6);
-                
-                fprintf(fileID, '"dFromZ2_Z4" = %f\n', dFromZ2_Z4);
-                fprintf(fileID, '"dFromZ2_Z4_wEdge" = %f\n', dFromZ2_Z4_wEdge);
                 fprintf(fileID, '"dFromZ2_Z3_Over2" = %7.7f\n', dFromZ2_Z3_Over2);
-                
+                fprintf(fileID, '"dimension1" = %7.7f\n', d1);
+                fprintf(fileID, '"dimension2" = %7.7f\n', d2);
+                fprintf(fileID, '"dimension3" = %7.7f\n', d3);
+                fprintf(fileID, '"dimension4" = %7.7f\n', d4);
+                fprintf(fileID, '"dimension5" = %7.7f\n', d5);
+                fprintf(fileID, '"dimension6" = %7.7f\n', d6);
+                fprintf(fileID, '"dimension7" = %7.7f\n', d7);
+                fprintf(fileID, '"dimension8" = %7.7f\n', d8);
+            fclose(fileID);
+            
+            %% Outer Piece File
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footOuterPieceDimensions.txt', 'w');
                 fprintf(fileID, '"dSoftHeel" = %7.7f\n', dSoftHeel);
                 fprintf(fileID, '"rSoftHeel" = %7.7f\n', dSoftHeel/2);
+                fprintf(fileID, '"dRigidHeel" = %7.7f\n', dRigidHeel);
+                fprintf(fileID, '"rRigidHeel" = %7.7f\n', dRigidHeel/2);
                 fprintf(fileID, '"hBackHeelPieceOuter" = %7.7f\n', hBackHeelPieceOuter);
-                fprintf(fileID, '"strapWidth" = %7.7f\n', strapWidth);
-             fclose(fileID);
+                fprintf(fileID, '"loftingDimension2" = %7.7f\n', loftingDimension2);
+                fprintf(fileID, '"dFromZ1_Z2" = %7.7f\n', dFromZ1_Z2);
+                fprintf(fileID, '"dFromZ2_Z3" = %7.7f\n', dFromZ2_Z3);
+                fprintf(fileID, '"dFromZ3_Z4" = %7.7f\n', dFromZ3_Z4);
+                fprintf(fileID, '"dFromZ4_Z5" = %7.7f\n', dFromZ4_Z5);
+                fprintf(fileID, '"dFromZ5_Z6" = %7.7f\n', dFromZ5_Z6);
+                fprintf(fileID, '"dFromZ2_Z4" = %f\n', dFromZ2_Z4);
+                fprintf(fileID, '"dimension1" = %7.7f\n', d1);
+                fprintf(fileID, '"dimension2" = %7.7f\n', d2);
+                fprintf(fileID, '"dimension3" = %7.7f\n', d3);
+                fprintf(fileID, '"dimension4" = %7.7f\n', d4);
+                fprintf(fileID, '"dimension5" = %7.7f\n', d5);
+                fprintf(fileID, '"dimension6" = %7.7f\n', d6);
+                fprintf(fileID, '"dimension7" = %7.7f\n', d7);
+                fprintf(fileID, '"dimension8" = %7.7f\n', d8);
+                fprintf(fileID, '"dimension9" = %7.7f\n', d9);
+            fclose(fileID);
             
-        %end
-    %end
-%end
+            %% Side Piece File
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footSidePieceDimensions.txt', 'w');
+                fprintf(fileID, '"dimension2" = %7.7f\n', d2);
+                fprintf(fileID, '"dimension5" = %7.7f\n', d5);
+                fprintf(fileID, '"dimension10" = %7.7f\n', d10);
+                fprintf(fileID, '"dimension11" = %7.7f\n', d11);
+                fprintf(fileID, '"dimension14" = %7.7f\n', d14);
+            fclose(fileID);
+            
+            %% Strap Insert Piece File
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footInsertPieceDimensions.txt', 'w');
+                fprintf(fileID, '"dimension2" = %7.7f\n', d2);
+                fprintf(fileID, '"dimension12" = %7.7f\n', d12);
+                fprintf(fileID, '"dimension13" = %7.7f\n', d13);
+                fprintf(fileID, '"dimension15" = %7.7f\n', d15);
+                fprintf(fileID, '"dimension16" = %7.7f\n', d16);
+                fprintf(fileID, '"dimension17" = %7.7f\n', d17);
+                fprintf(fileID, '"dimension21" = %7.7f\n', d21);
+            fclose(fileID);
+            
+            %% Ankle Strap Piece File
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footAnkleStrapPieceDimensions.txt', 'w');
+                fprintf(fileID, '"dimension2" = %7.7f\n', d2);
+                fprintf(fileID, '"dimension3" = %7.7f\n', d3);
+                fprintf(fileID, '"dimension6" = %7.7f\n', d6);
+                fprintf(fileID, '"dimension18" = %7.7f\n', d18);
+                fprintf(fileID, '"dimension19" = %7.7f\n', d19);
+                fprintf(fileID, '"strapWidth" = %7.7f\n', strapWidth);
+            fclose(fileID);
+            
+            %% Toe Strap Piece File
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footToeStrapPieceDimensions.txt', 'w');
+                fprintf(fileID, '"dimension1" = %7.7f\n', d1);
+                fprintf(fileID, '"dimension2" = %7.7f\n', d2);
+                fprintf(fileID, '"dimension3" = %7.7f\n', d3);
+                fprintf(fileID, '"dimension4" = %7.7f\n', d4);
+                fprintf(fileID, '"dimension5" = %7.7f\n', d5);
+                fprintf(fileID, '"dimension6" = %7.7f\n', d6);
+                fprintf(fileID, '"dimension16" = %7.7f\n', d16);
+                fprintf(fileID, '"dimension20" = %7.7f\n', d20);
+                fprintf(fileID, '"strapWidth" = %7.7f\n', strapWidth);
+            fclose(fileID);
+            
+            %% Toe Insert Piece
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footToeInsertPieceDimensions.txt', 'w');
+                fprintf(fileID, '"dimension1" = %7.7f\n', d1);
+                fprintf(fileID, '"dimension2" = %7.7f\n', d2);
+                fprintf(fileID, '"dimension3" = %7.7f\n', d3);
+                fprintf(fileID, '"dimension4" = %7.7f\n', d4);
+                fprintf(fileID, '"dimension5" = %7.7f\n', d5);
+                fprintf(fileID, '"dimension6" = %7.7f\n', d6);
+                fprintf(fileID, '"dSoftHeel" = %7.7f\n', dSoftHeel);
+            fclose(fileID);          
+            
+ 
+ 
 
 end
 

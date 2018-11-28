@@ -136,6 +136,16 @@ classdef PlantarTorsionSpring
             Sr = UnitConversion.Psi2Pa(Sr);      
             Se = UnitConversion.Psi2Pa(Se);
             Sa = UnitConversion.Psi2Pa(Sa);
+            
+            
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\plantarTorsionSpringDimensions.txt', 'w');
+                fprintf(fileID, '"dPlantarTorsionSpringCoil" = %f\n', D);
+                fprintf(fileID, '"dPlantarTorsionSpringWire" = %f\n', d);
+                fprintf(fileID, '"LoPlantarTorsionSpring" = %f\n', L);
+                fprintf(fileID, '"numBodyTurnsPlantarTorsionSpring" = %f\n', obj.NumberBodyTurns);
+                fprintf(fileID, '"LWorkPlantarTorsionSpring" = %f\n', Lwork);
+                fprintf(fileID, '"LSuppPlantarTorsionSpring" = %f\n', Lsupp);
+            fclose(fileID);            
 
             obj.weightPlantarTorsionSpring = obj.GetWeightTorsion(d, Lwork, Lsupp);
         end

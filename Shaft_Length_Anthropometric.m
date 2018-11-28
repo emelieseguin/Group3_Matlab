@@ -22,6 +22,10 @@ classdef Shaft_Length_Anthropometric
         distFromZ9_Z11
         distFromZ6_Z9
         distFromZ6_Z3
+        distFromZ5_Z3
+        distFromZ11_Z10
+        distFromZ5_Z9
+        distFromZ10_Z5
         
         lShaftKeyHip
         wShaftKeyHip
@@ -112,6 +116,9 @@ classdef Shaft_Length_Anthropometric
             distFromZ11_Z12 = z12-z11;
             distFromZ12_Z13 = z13-z12;
             distFromZ8_Z7 = z8-z7;
+            distFromZ5_Z3 = z5-z3;
+            distFromZ11_Z10 = z11 - z10;
+            distFromZ5_Z9 = z9 - z5;
             
             %% More calcs
             %Summation of masses and there centers of mass
@@ -228,6 +235,7 @@ classdef Shaft_Length_Anthropometric
             distFromZ9_Z11 = z11-z9;
             distFromZ11_Z12 = z12-z11;
             distFromZ12_Z13 = z13-z12;
+            distFromZ10_Z5 = z10-z5;
             obj.diameter3 = dp3;
             
             
@@ -237,6 +245,10 @@ classdef Shaft_Length_Anthropometric
             obj.distFromZ9_Z11 = distFromZ9_Z11;
             obj.distFromZ6_Z9 = distFromZ6_Z9; 
             obj.distFromZ6_Z3 = distFromZ6_Z3;
+            obj.distFromZ5_Z3 = distFromZ5_Z3;
+            obj.distFromZ11_Z10 = distFromZ11_Z10;
+            obj.distFromZ5_Z9 = distFromZ5_Z9;
+            obj.distFromZ10_Z5 = distFromZ10_Z5;
             
             obj.lShaftKeyHip = lShaftKeyHip;
             obj.wShaftKeyHip = wShaftKeyHip;

@@ -9,6 +9,11 @@ classdef DorsiFlexionSpringPosition
        
         Length
         
+        %% Percentages up and down the leg for the attachments
+        thighPulleyPercentDownThigh = 0.8;
+        shankPullyPercentDownShank = 0.2;
+        radiusOfPulley = 0.01111;
+        
         %% Distance Off Toe -- change with param
         distAboveToe = 0.02;
         
@@ -22,7 +27,7 @@ classdef DorsiFlexionSpringPosition
         function obj = DorsiFlexionSpringPosition(position, anthroDimensionMap, ...
                 hipAngleZ, kneeAngleZ, ankleAngleZ, footAngleZ)
         %% Setting up the variables to be used
-        r = 0.01111; %radius of the pulley wheel
+        r = obj.radiusOfPulley; %radius of the pulley wheel
         global leftShankLength thighLength;
         lThigh = anthroDimensionMap(thighLength);
         lShank = anthroDimensionMap(leftShankLength);
@@ -34,18 +39,22 @@ classdef DorsiFlexionSpringPosition
         P1X =  position.ThighComXPoint + (0.05+r)*cos(hipAngleZRads);
         P1Y = position.ThighComYPoint + (0.05+r)*sin(hipAngleZRads);
 
-        P2X = 0.9*lThigh*sin(hipAngleZRads) + (0.05+r)*cos(hipAngleZRads);
-        P2Y = -0.9*lThigh*cos(hipAngleZRads) + (0.05+r)*sin(hipAngleZRads);
+        P2X = obj.thighPulleyPercentDownThigh*lThigh*sin(hipAngleZRads) + (0.05+r)*cos(hipAngleZRads);
+        P2Y = -obj.thighPulleyPercentDownThigh*lThigh*cos(hipAngleZRads) + (0.05+r)*sin(hipAngleZRads);
 
         if (kneeAngleZRads>hipAngleZRads)
-            P3X = position.KneeJointX - 0.2*lShank*sin(kneeAngleZRads-hipAngleZRads) + (0.05+r)*cos(kneeAngleZRads-hipAngleZRads);
-            P3Y = position.KneeJointY - 0.2*lShank*cos(kneeAngleZRads-hipAngleZRads) - (0.05+r)*sin(kneeAngleZRads-hipAngleZRads);
+            P3X = position.KneeJointX - obj.shankPullyPercentDownShank*lShank*sin(kneeAngleZRads-hipAngleZRads) + (0.05+r)*cos(kneeAngleZRads-hipAngleZRads);
+            P3Y = position.KneeJointY - obj.shankPullyPercentDownShank*lShank*cos(kneeAngleZRads-hipAngleZRads) - (0.05+r)*sin(kneeAngleZRads-hipAngleZRads);
         elseif (kneeAngleZRads<hipAngleZRads)
-            P3X = position.KneeJointX + 0.2*lShank*sin(hipAngleZRads-kneeAngleZRads) + (0.05+r)*cos(hipAngleZRads-kneeAngleZRads);
-            P3Y = position.KneeJointY - 0.2*lShank*cos(kneeAngleZRads-hipAngleZRads) + (0.05+r)*sin(kneeAngleZRads-hipAngleZRads);
-        end 
+            P3X = position.KneeJointX + obj.shankPullyPercentDownShank*lShank*sin(hipAngleZRads-kneeAngleZRads) + (0.05+r)*cos(hipAngleZRads-kneeAngleZRads);
+            P3Y = position.KneeJointY - obj.shankPullyPercentDownShank*lShank*cos(kneeAngleZRads-hipAngleZRads) + (0.05+r)*sin(kneeAngleZRads-hipAngleZRads);
+        end
         
-        %% Foot Pulley Position 
+        %P3X = position.ShankComXPoint;
+        %P3Y = position.ShankComYPoint;
+        
+        
+        %% Foot Pulley Position
         footPulleyXProj = position.ToeX;
         footPulleyYProj = position.ToeY + obj.distAboveToe;
         

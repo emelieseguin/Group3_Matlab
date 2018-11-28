@@ -22,7 +22,7 @@ classdef HipTorsionSpring
         maxExtension
     end
     methods
-        function obj = HipTorsionSpring(patientHeight, patientHipAngles) 
+        function obj = HipTorsionSpring(patientHeight, patientHipAngles)  %% read it in
             %% Set Design Variables 
             obj.wireDiameterSpring = (0.003/1.78)*patientHeight; % Diameter of wire[m]
             d = UnitConversion.Meters2Inches(obj.wireDiameterSpring);  
@@ -94,6 +94,16 @@ classdef HipTorsionSpring
             Sr = UnitConversion.Psi2Pa(Sr);      
             Se = UnitConversion.Psi2Pa(Se);
             Sa = UnitConversion.Psi2Pa(Sa);
+                        
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\hipTorsionSpringDimensions.txt', 'w');
+                fprintf(fileID, '"dHipTorsionSpringCoil"= %f\n', D);
+                fprintf(fileID, '"rHipTorsionSpringCoil"= %7.7f\n', D/2); % I think thats R
+                fprintf(fileID, '"dHipTorsionSpringWire"= %f\n', d);
+                fprintf(fileID, '"LoHipTorsionSpring"= %f\n', L);
+                fprintf(fileID, '"LWorkHipTorsionSpring"= %f\n', Lwork);
+                fprintf(fileID, '"LSuppHipTorsionSpring"= %f\n', Lsupp);
+                fprintf(fileID, '"numBodyTurnsHipTorsionSpring"= %f\n', obj.NumberBodyTurns);
+            fclose(fileID);
 
             obj.weightHipTorsionSpring = obj.GetWeightTorsion(d, Lwork, Lsupp);
         end

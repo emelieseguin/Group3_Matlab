@@ -139,7 +139,15 @@ classdef DorsiTorsionSpring
             Sr = UnitConversion.Psi2Pa(Sr);      
             Se = UnitConversion.Psi2Pa(Se);
             Sa = UnitConversion.Psi2Pa(Sa);
-
+            
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\dorsiTorsionSpringDimensions.txt', 'w');
+                fprintf(fileID, '"dDorsiTorsionSpringCoil" = %f\n', D);
+                fprintf(fileID, '"dDorsiTorsionSpringWire" = %f\n', d);
+                fprintf(fileID, '"LoDorsiTorsionSpring" = %f\n', L);
+                fprintf(fileID, '"numBodyTurnsDorsiTorsionSpring" = %f\n', obj.NumberBodyTurns);
+                fprintf(fileID, '"LWorkDorsiTorsionSpring" = %f\n', Lwork);
+                fprintf(fileID, '"LSuppDorsiTorsionSpring" = %f\n', Lsupp);
+            fclose(fileID);
             weightDorsiTorsionSpring = obj.GetWeightTorsion(d, Lwork, Lsupp);
 
         end
