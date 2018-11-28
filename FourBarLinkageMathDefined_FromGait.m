@@ -62,7 +62,9 @@ classdef FourBarLinkageMathDefined_FromGait
             %Lbot4BarFromKnee = shankLength - Lbotbar;
             
             % Try an equal distance above and below knee joint - 4 cm
-            distanceMeters = (0.0090/1.78)*personHeight;
+            %distanceMeters = (0.0090/1.78)*personHeight;
+            distanceMeters = (0.01110937/1.78)*personHeight; % ----- Update
+            
             Lbot4BarFromKnee = distanceMeters;
             LToThighBar = thighLength- distanceMeters;
             
@@ -115,7 +117,7 @@ classdef FourBarLinkageMathDefined_FromGait
                 kneeAngleZRads, kneeJointXPos, kneeJointYPos);
             
             % Give length of shank bar from center to B
-            xBProj = xR2+((1/4)*L1);
+            xBProj = xR2+((0.01000034/1.78)*personHeight);  % ----- update             %((1/4)*L1);
             yBProj = yR2;
             
             % Find point B in space rotate by - theta4, hip, knee

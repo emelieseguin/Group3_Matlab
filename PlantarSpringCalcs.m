@@ -16,11 +16,16 @@ classdef PlantarSpringCalcs
         R2
         curlAngle = 330; %how "curled" in the end hooks are
         
-        % Calculated Values
+         %% Put the Neutral of the graph
+        neutralLengthIndex = 85;
+        neutralLengthValue;
+        
+        %% Calculated Values
         k
         lengthUnstrechedSpring
         weightExtensionSpring
         extensionCableLength
+        totalLengthUnstrechedSpring
     end
     methods
         function  obj = PlantarSpringCalcs(personHeight, plantarSpringLengthArray)
@@ -35,9 +40,9 @@ classdef PlantarSpringCalcs
             G = UnitConversion.Pa2Psi(obj.ShearModulus);  
             Fi = UnitConversion.Newton2Lbf(5.29/1.78*personHeight); %Initial tension force in spring
             
-            obj.R1 = 0.005/1.78*personHeight;
+            obj.R1 = D/2; %0.005/1.78*personHeight;
             R1 = UnitConversion.Meters2Inches(obj.R1); 
-            obj.R2 = 0.005/1.78*personHeight;
+            obj.R2 = D/2; %0.005/1.78*personHeight;
             R2 = UnitConversion.Meters2Inches(obj.R2); 
 
             %% Length of the plantar flexion spring - find from array -- use plantarSpringLengthArray
@@ -45,7 +50,8 @@ classdef PlantarSpringCalcs
             minLength = min(plantarSpringLengthArray);
             % Position where the second highest peek occurs -- will need to change 
             % if the placement of pulleys changes
-            neutralLength = plantarSpringLengthArray(85);
+            neutralLength = plantarSpringLengthArray(obj.neutralLengthIndex);
+            obj.neutralLengthValue = neutralLength;
 
             LtotO = UnitConversion.Meters2Inches(neutralLength);
 
@@ -131,6 +137,8 @@ classdef PlantarSpringCalcs
             Fi = UnitConversion.Lbf2Newton(Fi); 
             Lo = UnitConversion.Inches2Meters(Lo);
             obj.lengthUnstrechedSpring = Lo;
+            obj.totalLengthUnstrechedSpring = Lo + 4*R1;
+            
             L = UnitConversion.Inches2Meters(L);
             y = UnitConversion.Inches2Meters(y);
             k = UnitConversion.PoundFperInch2NewtonperMeter(k);
@@ -158,6 +166,15 @@ classdef PlantarSpringCalcs
             Se = UnitConversion.Psi2Pa(Se);
             TauAB = UnitConversion.Psi2Pa(TauAB);
             TauMB = UnitConversion.Psi2Pa(TauMB);
+            
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\plantarSpringDimensions.txt','w');
+                fprintf(fileID, '"dPlantarSpringCoil"= %f\n', D);
+                fprintf(fileID, '"dPlantarSpringWire"= %f\n', d);
+                fprintf(fileID, '"r1PlantarSpring"= %7.7f\n', R1);
+                fprintf(fileID, '"r2PlantarSpring"= %7.7f\n', R2);
+                fprintf(fileID, '"LoPlantarSpring"= %f\n', Lo);
+                fprintf(fileID, '"numBodyTurnsPlantarSpring"= %f\n', obj.NumberBodyTurns);
+           fclose(fileID);
 
             obj.weightExtensionSpring = GetWeightExtension(obj, d, R1);
             obj.extensionCableLength = CL;
