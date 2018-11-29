@@ -1,32 +1,13 @@
 classdef HipTorsionSpring
     properties
-        % Material Properties
-        %YoungsModulus = 103400000000; % Young's Modulus [Pa]
-        %Density = 8800; % kg/m^3
-        %A = 145000; % Area from Shigley table 10-4
-        %m = 0; % Constant from Shigley table 10-4
-        
-        % Hard Drawn
+        % Hard Drawn Steel
         YoungsModulus = 200000000000; % Young's Modulus [Pa]
         Density = 7850; % kg/m^3
         A = 140000; % Area from Shigley table 10-4
-        m = 0.19; % Constant from Shigley table 10-4
-        
-        % Chrome vanadium
-        %YoungsModulus = 206840000000; % Young's Modulus [Pa]
-        %Density = 7850; % kg/m^3
-        %A = 169000; % Area from Shigley table 10-4
-        %m = 0.168; % Constant from Shigley table 10-4
-        
-        % 302 Stainless
-        %%YoungsModulus = 193050000000; % Young's Modulus [Pa]
-        %Density = 7850; % kg/m^3
-        %A = 128000; % Area from Shigley table 10-4
-        %m = 0.263; % Constant from Shigley table 10-4
-        
+        m = 0.19; % Constant from Shigley table 10-4        
         
         % Spring dimensions - can put more
-        NumberBodyTurns = 1;
+        NumberBodyTurns = 0.9;
         wireDiameterSpring
         meanDiameterCoil
         
@@ -117,6 +98,7 @@ classdef HipTorsionSpring
             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\hipTorsionSpringDimensions.txt', 'w');
                 fprintf(fileID, '"dHipTorsionSpringCoil"= %f\n', D);
                 fprintf(fileID, '"rHipTorsionSpringCoil"= %7.7f\n', D/2); % I think thats R
+                fprintf(fileID, '"shaftRadius"= %f\n', Dp/2);
                 fprintf(fileID, '"dHipTorsionSpringWire"= %f\n', d);
                 fprintf(fileID, '"LoHipTorsionSpring"= %f\n', L);
                 fprintf(fileID, '"LWorkHipTorsionSpring"= %f\n', Lwork);

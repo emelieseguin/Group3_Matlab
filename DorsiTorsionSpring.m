@@ -7,7 +7,7 @@ classdef DorsiTorsionSpring
         m = 0.19; % Constant from Shigley table 10-4
         
         % Spring dimensions - can put more
-        NumberBodyTurns = 3; % least amount possible
+        NumberBodyTurns = 3.5; % least amount possible
         wireDiameterSpring
         meanDiameterCoil
         
@@ -150,6 +150,7 @@ classdef DorsiTorsionSpring
             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\dorsiTorsionSpringDimensions.txt', 'w');
                 fprintf(fileID, '"dDorsiTorsionSpringCoil" = %f\n', D);
                 fprintf(fileID, '"dDorsiTorsionSpringWire" = %f\n', d);
+                fprintf(fileID, '"shaftRadius"= %f\n', Dp/2);
                 fprintf(fileID, '"LoDorsiTorsionSpring" = %f\n', L);
                 fprintf(fileID, '"numBodyTurnsDorsiTorsionSpring" = %f\n', obj.NumberBodyTurns);
                 fprintf(fileID, '"LWorkDorsiTorsionSpring" = %f\n', Lwork);

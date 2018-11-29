@@ -13,7 +13,7 @@ classdef PlantarTorsionSpring
         m = 0.19; % Constant from Shigley table 10-4
         
         % Spring dimensions - can put more
-        NumberBodyTurns = 3;
+        NumberBodyTurns = 3.5;
         wireDiameterSpring
         meanDiameterCoil
         
@@ -153,6 +153,7 @@ classdef PlantarTorsionSpring
             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\plantarTorsionSpringDimensions.txt', 'w');
                 fprintf(fileID, '"dPlantarTorsionSpringCoil" = %f\n', D);
                 fprintf(fileID, '"dPlantarTorsionSpringWire" = %f\n', d);
+                fprintf(fileID, '"shaftRadius"= %f\n', Dp/2);
                 fprintf(fileID, '"LoPlantarTorsionSpring" = %f\n', L);
                 fprintf(fileID, '"numBodyTurnsPlantarTorsionSpring" = %f\n', obj.NumberBodyTurns);
                 fprintf(fileID, '"LWorkPlantarTorsionSpring" = %f\n', Lwork);
