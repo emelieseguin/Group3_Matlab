@@ -9,7 +9,7 @@ function ShoulderCalcs (personHeight, maxShaftMoment, maxTorsionFromSpring, ...
     %maxTorsionFromSpring = 20.188551; %lbf in
         %Tmax = 2.281; %Nm
 %% Design Variables - Calcs 1
-    dReal = UnitConversion.Meters2Inches(shaft.diameter3); % This is the actual small shaft diameter
+    d = UnitConversion.Meters2Inches(shaft.diameter3); % This is the actual small shaft diameter
     Sut = 47000; %Psi
         %Sut = 324000000; %Mpa - Aluminum
     Sy = 24500; %Psi
@@ -19,7 +19,7 @@ function ShoulderCalcs (personHeight, maxShaftMoment, maxTorsionFromSpring, ...
     b = -0.265; 
     kT1 = 1.7; 
     kTS1 = 1.5; 
-    n = 2.1; %Design safety factor
+    %n = 1.5; %Design safety factor
     kb1 = 0.9; 
     D = UnitConversion.Meters2Inches(shaftDiameter); %in - Diameter of shaft where torsional spring sits
 
@@ -35,16 +35,17 @@ function ShoulderCalcs (personHeight, maxShaftMoment, maxTorsionFromSpring, ...
     %First iteration of endurance limit of actual machine element subjected to loading
     Se1 = ka*kb1*SePrime;
     % Alternating and midrange bending moments
-    Ma = maxShaftMoment/2;
+    Ma = abs(maxShaftMoment/2);
     Mm = Ma;
     %Alternating and midrange torques
-    Ta = maxTorsionFromSpring/2;
+    Ta = abs(maxTorsionFromSpring/2);
     Tm = Ta;
     %Diameter of critical location - from Goodman criterion
     eqnPart1 = (4*((kF1*Ma).^2)+3*((kFS1*Ta).^2)).^(1/2);
     eqnPart2 = (4*((kF1*Mm).^2)+3*((kFS1*Tm).^2)).^(1/2);
-    d = (16*n/pi)*(((1/Se1)*(eqnPart1)+(1/Sut)*(eqnPart2)).^(1/3));
-
+%     dmin = (16*n/pi)*(((1/Se1)*(eqnPart1)+(1/Sut)*(eqnPart2)).^(1/3));
+    dmin = (16/pi)*(((1/Se1)*(eqnPart1)+(1/Sut)*(eqnPart2)).^(1/3));
+    
     %Check D/d ratio
     if(1.02 <= D/d && D/d <= 1.5)
       disp(['D/d = ', num2str(D/d), ' -> within boundaries.']);
@@ -76,8 +77,10 @@ function ShoulderCalcs (personHeight, maxShaftMoment, maxTorsionFromSpring, ...
     %Safety factor - using Goodman criterion
         nF = (sigmaAPrime/Se+sigmaMPrime/Sut).^(-1);
         disp(['nF = ',num2str(nF)]);
+    %Other safety factor
+        n=d/dmin;
     %Check minimum d is less than design d
-    if(d <= dReal)
+    if(dmin <= d)
       disp('Design is valid.');
     else
       disp('Design is not valid. Required diameter is larger than actual diameter.');
