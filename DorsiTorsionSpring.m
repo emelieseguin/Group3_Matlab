@@ -157,7 +157,6 @@ classdef DorsiTorsionSpring
                 fprintf(fileID, '"LSuppDorsiTorsionSpring" = %f\n', Lsupp);
             fclose(fileID);
             weightDorsiTorsionSpring = obj.GetWeightTorsion(d, Lwork, Lsupp);
-
         end
         
         function MomentSI = GetMomentOnCam(obj, currentSpringCableLength, previousSpringCableLength, extensionCableLength, ...

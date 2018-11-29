@@ -40,9 +40,9 @@ classdef PlantarSpringCalcs
             G = UnitConversion.Pa2Psi(obj.ShearModulus);  
             Fi = UnitConversion.Newton2Lbf(5.29/1.78*personHeight); %Initial tension force in spring
             
-            obj.R1 = D/2; %0.005/1.78*personHeight;
+            obj.R1 = obj.meanDiameterCoil/2;
             R1 = UnitConversion.Meters2Inches(obj.R1); 
-            obj.R2 = D/2; %0.005/1.78*personHeight;
+            obj.R2 = obj.meanDiameterCoil/2;
             R2 = UnitConversion.Meters2Inches(obj.R2); 
 
             %% Length of the plantar flexion spring - find from array -- use plantarSpringLengthArray
@@ -128,7 +128,7 @@ classdef PlantarSpringCalcs
             nCase4 = (1/2)*((Ssu/TauMB).^2)*(TauAB/Sse)*(-1+((1+(((2*TauMB*Sse)/(Ssu*TauAB)).^2)).^(1/2)));
 
             %convert variables to SI units
-            D = UnitConversion.Inches2Meters(D); 
+            D = round(UnitConversion.Inches2Meters(D),6);
             d = UnitConversion.Inches2Meters(d); 
             E = UnitConversion.Psi2Pa(E); 
             G = UnitConversion.Psi2Pa(G);
@@ -168,10 +168,10 @@ classdef PlantarSpringCalcs
             TauMB = UnitConversion.Psi2Pa(TauMB);
             
             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\plantarSpringDimensions.txt','w');
-                fprintf(fileID, '"dPlantarSpringCoil"= %f\n', D);
+                fprintf(fileID, '"dPlantarSpringCoil"= %7.7f\n', D);
                 fprintf(fileID, '"dPlantarSpringWire"= %f\n', d);
-                fprintf(fileID, '"r1PlantarSpring"= %7.7f\n', R1);
-                fprintf(fileID, '"r2PlantarSpring"= %7.7f\n', R2);
+                fprintf(fileID, '"r1PlantarSpring"= %7.7f\n', D/2);
+                fprintf(fileID, '"r2PlantarSpring"= %7.7f\n', D/2);
                 fprintf(fileID, '"LoPlantarSpring"= %f\n', Lo);
                 fprintf(fileID, '"numBodyTurnsPlantarSpring"= %f\n', obj.NumberBodyTurns);
            fclose(fileID);

@@ -98,13 +98,14 @@ classdef Shaft_Length_Anthropometric
             obj.casingDist2 = (z12+z13)/2;
             
             %Different diameters along shaft based on a percentage
-            dp1 = (0.015/1.78)*patientHeight;
-            dp2 = (0.012/1.78)*patientHeight;
-            dp3 = (0.015/1.78)*patientHeight;
-            dp4 = (diameterHipTorsionSpring/1.78)*patientHeight;
-            dp5 = (0.015/1.78)*patientHeight;
-            dp6 = (0.012/1.78)*patientHeight;
-            dp7 = (0.015/1.78)*patientHeight;
+             dp4 = diameterHipTorsionSpring; % Already param in HipTorsionSpring.m
+            
+            dp1 = dp4 - (0.0048/1.78)*patientHeight;
+            dp2 = dp4 - (0.0078/1.78)*patientHeight;
+            dp3 = dp4 - (0.0048/1.78)*patientHeight;
+            dp5 = dp4 - (0.0048/1.78)*patientHeight;
+            dp6 = dp4 - (0.0078/1.78)*patientHeight;
+            dp7 = dp4 - (0.0048/1.78)*patientHeight;
             
             distFromZ2_Z1 = z2-z1;
             distFromZ3_Z2 = z3-z2;

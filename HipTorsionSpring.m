@@ -39,7 +39,8 @@ classdef HipTorsionSpring
             
             obj.lengthSupportLeg = 0.01/1.78*patientHeight; % Length of supporting leg [m] 
             Lsupp = UnitConversion.Meters2Inches(obj.lengthSupportLeg); 
-
+            supportArmSmallExtension = (0.0005/1.78)*patientHeight;
+            
             %% Calculations
             %Calculate spring index 
                 c = D/d;        
@@ -104,6 +105,7 @@ classdef HipTorsionSpring
                 fprintf(fileID, '"LWorkHipTorsionSpring"= %f\n', Lwork);
                 fprintf(fileID, '"LSuppHipTorsionSpring"= %f\n', Lsupp);
                 fprintf(fileID, '"numBodyTurnsHipTorsionSpring"= %f\n', obj.NumberBodyTurns);
+                 fprintf(fileID, '"supportArmSmallExtension" = %f\n', supportArmSmallExtension);
             fclose(fileID);
 
             obj.weightHipTorsionSpring = obj.GetWeightTorsion(d, Lwork, Lsupp);

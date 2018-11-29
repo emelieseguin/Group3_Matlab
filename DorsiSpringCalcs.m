@@ -42,9 +42,9 @@ classdef DorsiSpringCalcs
             G = UnitConversion.Pa2Psi(obj.ShearModulus);  
             Fi = UnitConversion.Newton2Lbf(5.29/1.78*personHeight); %Initial tension force in spring
             
-            obj.R1 = D/2; %0.005/1.78*personHeight;
+            obj.R1 = obj.meanDiameterCoil/2;
             R1 = UnitConversion.Meters2Inches(obj.R1); 
-            obj.R2 = D/2; %0.005/1.78*personHeight;
+            obj.R2 = obj.meanDiameterCoil/2;
             R2 = UnitConversion.Meters2Inches(obj.R2);
             
             %% Length of the dorsiflexion spring - find from array -- use dorsiSpringLengthArray
@@ -130,7 +130,7 @@ classdef DorsiSpringCalcs
             nCase4 = (1/2)*((Ssu/TauMB).^2)*(TauAB/Sse)*(-1+((1+(((2*TauMB*Sse)/(Ssu*TauAB)).^2)).^(1/2)));
 
             %convert variables to SI units
-            D = UnitConversion.Inches2Meters(D); 
+            D = round(UnitConversion.Inches2Meters(D),6); 
             d = UnitConversion.Inches2Meters(d); 
             E = UnitConversion.Psi2Pa(E); 
             G = UnitConversion.Psi2Pa(G);
@@ -176,8 +176,8 @@ classdef DorsiSpringCalcs
             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\dorsiSpringDimensions.txt','w');
                 fprintf(fileID, '"dDorsiSpringCoil"= %f\n', D);
                 fprintf(fileID, '"dDorsiSpringWire"= %f\n', d);
-                fprintf(fileID, '"r1DorsiSpring"= %7.7f\n', R1);
-                fprintf(fileID, '"r2DorsiSpring"= %7.7f\n', R2);
+                fprintf(fileID, '"r1DorsiSpring"= %7.7f\n', D/2);
+                fprintf(fileID, '"r2DorsiSpring"= %7.7f\n', D/2);
                 fprintf(fileID, '"LoDorsiSpring"= %f\n', Lo);
                 fprintf(fileID, '"numBodyTurnsDorsiSpring"= %f\n', obj.NumberBodyTurns);
             fclose(fileID);
