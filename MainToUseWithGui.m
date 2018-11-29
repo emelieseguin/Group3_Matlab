@@ -98,8 +98,8 @@ classdef MainToUseWithGui
                 intersectPointXArray(item) = linkagePosition.IntersectPointX;
                 intersectPointYArray(item) = linkagePosition.IntersectPointY;
 
-                plantarPosition = PlantarFlexionSpringPosition(personHeight, position.AnkleJointX, position.AnkleJointY, ...
-                     ankle, foot, position.ShankComXPoint, position.ShankComYPoint, knee, hip);
+                plantarPosition = PlantarFlexionSpringPosition(personHeight, position, hip, knee, foot);
+                
                 plantarFlexionArray = [plantarFlexionArray plantarPosition];
                 plantarSpringAndCableLengthArray = [plantarSpringAndCableLengthArray plantarPosition.Length];
 
@@ -245,7 +245,7 @@ classdef MainToUseWithGui
             %FullSimulation(fourBarArray, positionArray);
             %PlantarFlexionSpringSim(plantarFlexionArray);
             %DorsiFlexionSpringSim(dorsiFlexionArray);
-            %FullSimulationPart2(plantarFlexionArray, positionArray, dorsiFlexionArray);
+            FullSimulationPart2(plantarFlexionArray, positionArray, dorsiFlexionArray);
 
             %% Calc the linear and angular accelerations 
             patient29_HeelStrike = 0;
@@ -374,16 +374,16 @@ classdef MainToUseWithGui
              end
 
             %% Plotting Moments
-            main.PlotMomentContribution(hipContributedMoments, dorsiSpringContributedMoments, plantarSpringContributedMoments, ...
-                dorsiTorsionContributedMoments, plantarTorsionContributedMoments);
-            main.PlotCamMoments(dorsiTorsionCamMoments, plantarTorsionCamMoments);
+            %main.PlotMomentContribution(hipContributedMoments, dorsiSpringContributedMoments, plantarSpringContributedMoments, ...
+            %    dorsiTorsionContributedMoments, plantarTorsionContributedMoments);
+            %main.PlotCamMoments(dorsiTorsionCamMoments, plantarTorsionCamMoments);
 
             %% Total Moments
-            main.PlotTotalMoments(inverseDynamics.MHipZ_Array, inverseDynamicsExo.MHipZExo_Array, hipContributedMoments, ...
-                inverseDynamics.MKneeZ_Array, inverseDynamicsExo.MKneeZExo_Array, ...
-                inverseDynamics.MAnkleZ_Array, inverseDynamicsExo.MAnkleZExo_Array, ...
-                dorsiSpringContributedMoments, dorsiTorsionContributedMoments, ...
-                plantarSpringContributedMoments, plantarTorsionContributedMoments);
+            %main.PlotTotalMoments(inverseDynamics.MHipZ_Array, inverseDynamicsExo.MHipZExo_Array, hipContributedMoments, ...
+            %    inverseDynamics.MKneeZ_Array, inverseDynamicsExo.MKneeZExo_Array, ...
+            %    inverseDynamics.MAnkleZ_Array, inverseDynamicsExo.MAnkleZExo_Array, ...
+            %    dorsiSpringContributedMoments, dorsiTorsionContributedMoments, ...
+            %    plantarSpringContributedMoments, plantarTorsionContributedMoments);
         end
     end
     
