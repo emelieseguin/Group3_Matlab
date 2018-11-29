@@ -11,6 +11,11 @@ classdef PlantarFlexionSpringPosition
         
         Length
         
+        %% Solidworks Dimensions
+        lowerAttachmentDistFromCenterLine
+        upperAttachmentDistFromCenterLine
+        lowerAttachmentDistUpShank
+        
         % Used to find moment contribution
         AppliedHeelCableForceAngle
         distanceFromAnkle2LowAttachmentX
@@ -30,6 +35,10 @@ classdef PlantarFlexionSpringPosition
             distance = 0.4*length;
             rCalf = 0.4*distance; % will be deleted when function receives calf radius
             footAngleZRads = deg2rad(footAngleZ);
+            
+            obj.upperAttachmentDistFromCenterLine = (0.12/1.78)*personHeight; % drive sim off that
+            obj.lowerAttachmentDistFromCenterLine = (0.175/1.78)*personHeight; % drive sim off that
+            obj.lowerAttachmentDistUpShank = (0.021894/1.78);  % 5% --- drive sim off this
             
             %% Find placement from the ankle joint
             % x1Prime and y1Prime is the position of the ankle joint

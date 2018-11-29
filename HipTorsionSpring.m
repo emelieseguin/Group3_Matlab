@@ -1,13 +1,32 @@
 classdef HipTorsionSpring
     properties
         % Material Properties
-        YoungsModulus = 103400000000; % Young's Modulus [Pa]
-        Density = 8800; % kg/m^3
-        A = 145000; % Area from Shigley table 10-4
-        m = 0; % Constant from Shigley table 10-4
+        %YoungsModulus = 103400000000; % Young's Modulus [Pa]
+        %Density = 8800; % kg/m^3
+        %A = 145000; % Area from Shigley table 10-4
+        %m = 0; % Constant from Shigley table 10-4
+        
+        % Hard Drawn
+        YoungsModulus = 200000000000; % Young's Modulus [Pa]
+        Density = 7850; % kg/m^3
+        A = 140000; % Area from Shigley table 10-4
+        m = 0.19; % Constant from Shigley table 10-4
+        
+        % Chrome vanadium
+        %YoungsModulus = 206840000000; % Young's Modulus [Pa]
+        %Density = 7850; % kg/m^3
+        %A = 169000; % Area from Shigley table 10-4
+        %m = 0.168; % Constant from Shigley table 10-4
+        
+        % 302 Stainless
+        %%YoungsModulus = 193050000000; % Young's Modulus [Pa]
+        %Density = 7850; % kg/m^3
+        %A = 128000; % Area from Shigley table 10-4
+        %m = 0.263; % Constant from Shigley table 10-4
+        
         
         % Spring dimensions - can put more
-        NumberBodyTurns = 18;
+        NumberBodyTurns = 1;
         wireDiameterSpring
         meanDiameterCoil
         
@@ -24,17 +43,17 @@ classdef HipTorsionSpring
     methods
         function obj = HipTorsionSpring(patientHeight, patientHipAngles)  %% read it in
             %% Set Design Variables 
-            obj.wireDiameterSpring = (0.003/1.78)*patientHeight; % Diameter of wire[m]
+            obj.wireDiameterSpring = (0.004/1.78)*patientHeight; % Diameter of wire[m]
             d = UnitConversion.Meters2Inches(obj.wireDiameterSpring);  
             
-            obj.meanDiameterCoil = (0.035/1.78)*patientHeight; % Mean diameter of coil[m]  
+            obj.meanDiameterCoil = (0.025/1.78)*patientHeight; % Mean diameter of coil[m]  
             D = UnitConversion.Meters2Inches(obj.meanDiameterCoil); 
             
             % MUST HAVE D>(Dp4+Delta+d) 
             E = UnitConversion.Pa2Psi(obj.YoungsModulus);  
             Delta = UnitConversion.Meters2Inches(0.0005/1.78*patientHeight); % Diametral clearance [m] 
             
-            obj.lengthWorkingLeg = 0.04/1.78*patientHeight; % Length of working leg [m] 
+            obj.lengthWorkingLeg = 0.03/1.78*patientHeight; % Length of working leg [m] 
             Lwork = UnitConversion.Meters2Inches(obj.lengthWorkingLeg); 
             
             obj.lengthSupportLeg = 0.01/1.78*patientHeight; % Length of supporting leg [m] 

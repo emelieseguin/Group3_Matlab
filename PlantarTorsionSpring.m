@@ -1,13 +1,19 @@
 classdef PlantarTorsionSpring
     properties
         % Material Properties
-        YoungsModulus = 103400000000; % Young's Modulus [Pa]
-        Density = 8800; % kg/m^3
-        A = 145000; % Area from Shigley table 10-4
-        m = 0; % Constant from Shigley table 10-4
+        %YoungsModulus = 103400000000; % Young's Modulus [Pa]
+        %Density = 8800; % kg/m^3
+        %A = 145000; % Area from Shigley table 10-4
+        %m = 0; % Constant from Shigley table 10-4
+        
+        % Hard Drawn
+        YoungsModulus = 200000000000; % Young's Modulus [Pa]
+        Density = 7850; % kg/m^3
+        A = 140000; % Area from Shigley table 10-4
+        m = 0.19; % Constant from Shigley table 10-4
         
         % Spring dimensions - can put more
-        NumberBodyTurns = 2;
+        NumberBodyTurns = 3;
         wireDiameterSpring
         meanDiameterCoil
         
@@ -38,6 +44,10 @@ classdef PlantarTorsionSpring
         min3Value
         max3Value    
         
+        %% Param Variables
+        diameterNeededForShaft
+        originalLengthOfSpringOnShaft
+        
         %Other values for moment contribution
         rCam
         S
@@ -59,17 +69,17 @@ classdef PlantarTorsionSpring
             obj.neutralValue = plantarSpringLengthArray(obj.neutralValueIndex);
         
            %% Set Design Variables
-           %Rotation of cam
+            %Rotation of cam
             camRotation = pi; %[rad]
-            rCam = 0.02; %[m]
+            rCam = (obj.neutralValue - obj.min2Value)/pi;
             obj.rCam = rCam;
             S = rCam*2; %Vertical translation of cam-cable attachment point for one cam rotation
             obj.S = S;
              
-            obj.wireDiameterSpring = (0.0005/1.78)*patientHeight; % Diameter of wire[m]
+            obj.wireDiameterSpring = (0.0012/1.78)*patientHeight; % Diameter of wire[m]
             d = UnitConversion.Meters2Inches(obj.wireDiameterSpring);
             
-            obj.meanDiameterCoil = (0.004/1.78)*patientHeight; % Mean diameter of coil[m]  
+            obj.meanDiameterCoil = (0.014/1.78)*patientHeight; % Mean diameter of coil[m]  
             D = UnitConversion.Meters2Inches(obj.meanDiameterCoil);  
             % MUST HAVE D>(Dp+Delta+d) 
             E = UnitConversion.Pa2Psi(obj.YoungsModulus); % Young's Modulus [Pa]
@@ -126,10 +136,12 @@ classdef PlantarTorsionSpring
             Lwork = UnitConversion.Inches2Meters(Lwork); 
             Lsupp = UnitConversion.Inches2Meters(Lsupp);    
             L = UnitConversion.Inches2Meters(L);
+            obj.originalLengthOfSpringOnShaft = L;
             LPrime = UnitConversion.Inches2Meters(LPrime);
             Delta = UnitConversion.Inches2Meters(Delta);
             DPrime = UnitConversion.Inches2Meters(DPrime);
             Dp = UnitConversion.Inches2Meters(Dp);
+            obj.diameterNeededForShaft = Dp;
             Mmax = UnitConversion.PoundFInch2NewtonM(Mmax);
             SigmaA = UnitConversion.Psi2Pa(SigmaA);
             Sut = UnitConversion.Psi2Pa(Sut);
@@ -164,8 +176,18 @@ classdef PlantarTorsionSpring
             
             angleCurrent = (obj.neutralValue - currentSpringCableLength)/obj.rCam;
             angleLast = (obj.neutralValue - previousSpringCableLength)/obj.rCam;
+            
+            %% Find Si
             Si = obj.rCam*(sin(angleCurrent) - sin(angleLast));
-                
+            
+            % Check negative cases
+            if((angleCurrent>pi/2) && (angleLast>pi/2) || ...
+            (angleCurrent > pi/2)&&(angleLast<pi/2)&& (sin(angleLast) > sin(angleCurrent)) || ...
+            ((angleCurrent < pi/2)&&(angleLast>pi/2) && (sin(angleCurrent) > sin(angleLast))))
+                Si = Si*(-1);
+            end
+            
+            %% Find angle
             if (yCurrent < 0)
                 angle = (obj.neutralValue-currentSpringCableLength)/obj.rCam;
                 
