@@ -26,7 +26,7 @@ classdef PlantarFlexionSpringPosition
         function obj = PlantarFlexionSpringPosition(personHeight, position, hipAngleZ, ...
                 kneeAngleZ, footAngleZ)  
             obj.upperAttachmentDistFromCenterLine = (0.12/1.78)*personHeight; % drive sim off that
-            obj.lowerAttachmentDistFromCenterLine = (0.175/1.78)*personHeight; % drive sim off that
+            obj.lowerAttachmentDistFromCenterLine = (0.15/1.78)*personHeight; % drive sim off that
             obj.lowerAttachmentDistUpShank = (0.021894/1.78);  % 5% --- drive sim off this
             
             %% Setting up variables to be used
