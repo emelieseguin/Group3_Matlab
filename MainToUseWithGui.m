@@ -245,7 +245,7 @@ classdef MainToUseWithGui
             %FullSimulation(fourBarArray, positionArray);
             %PlantarFlexionSpringSim(plantarFlexionArray);
             %DorsiFlexionSpringSim(dorsiFlexionArray);
-            FullSimulationPart2(plantarFlexionArray, positionArray, dorsiFlexionArray);
+            %FullSimulationPart2(plantarFlexionArray, positionArray, dorsiFlexionArray);
 
             %% Calc the linear and angular accelerations 
             patient29_HeelStrike = 0;

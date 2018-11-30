@@ -57,7 +57,11 @@ filletRadiusMetalHip= (0.0025/1.78)*patientHeight;
         fprintf(fileID, '"heightOfAttachmentBar"= %f\n', heightOfAttachmentBar);      
         fprintf(fileID, '"filletRadiusMetalHip"= %f\n', filletRadiusMetalHip);      
 
-    fclose(fileID);          
+    fclose(fileID);   
+    
+vMetalHipAttachmemtsDimension = (pi/8)*(hipOuterDiameter^2 - hipInnerDiameter^2) * hipBeltThickness...
+    + lengthBackBar*heightOfAttachmentBar*(0.5*(hipOuterDiameter-hipInnerDiameter)) + heightOfAttachmentBar*radiusOfAttachmentBar*...
+    (lengthCenterlineToPlane-0.5*hipOuterDiameter) - 4* (pi/4)*(boltAttachmentDiameter^2)*(lengthCenterlineToPlane-0.5*hipOuterDiameter);     
 
     
 %% HipPadding.txt Variables 
@@ -365,194 +369,31 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
         fclose(fileID);
 %%  
 %%Sheldons Parts
+            % Dorsi  
+            dorsiTorsionSpringDiam = dorsiTorsionSpring.diameterNeededForShaft 
+            dorsiTorsionSpringLengthOnShaft = dorsiTorsionSpring.originalLengthOfSpringOnShaft 
+            dorsiTorsionSpringRadiusCam = dorsiTorsionSpring.rCam  
+            DorsiWireDiameter = dorsiTorsionSpring.wireDiameterSpring 
 
-% classdef Shaft_Length_Anthropometric
-%     properties
-%         %% Material Properties
-%         %Density of shaft material in kg/m^3
-%         DensityAl = 2700;
-%         DensitySt = 8050;
-%         
-%         %% Distances of force from 0 
-%         zShaftLength
-%         supportDist1
-%         
-%         % Distances corresponding to mass of components
-%         casingDist1
-%         retainingRingDist1
-%         keyDist
-%         springDist
-%         comOfShaftDist
-%         bearingDist
-%         exoLegDist
-%         retainingRingDist2
-%         casingDist2
-%         
-%         %% Forces acting at those distances
-%         % Weight of components
-%         Fg1
-%         Fg2
-%         Fg3
-%         Fg4
-%         Fg5
-%         Fg6
-%         Fg7
-%         Fg8
-%         Fg9
-%         
-%         % Reaction force
-%         Fy2
-%         
-%     end
-%     methods 
-%         function obj = Shaft_Length_Anthropometric(patientHeight, diameterHipTorsionSpring)
-%             %Total length of the shaft
-%             patientHeight = 1.1;
-%             zt = (0.069/1.78)*patientHeight;
-%             obj.zShaftLength = zt;
-%             
-%             % Different points along shaft based on a percentage
-%             z1 = 0;
-%             z2 = 0.07246376812*zt;
-%             obj.casingDist1 = (z1+z2)/2;
-%             
-%             z3 = 0.08695652174*zt;
-%             obj.retainingRingDist1 = (z2+z3)/2;
-%             
-%             z4 = 0.2318840580*zt;
-%             obj.keyDist = (z3+z4)/2;
-%             
-%             z5 = 0.2898550725*zt;
-%             obj.supportDist1 = (z3+z5)/2;
-%             
-%             z6 = 0.3188405797*zt;
-%             z7 = 0.6376811594*zt;
-%             z8 = 0.6666666667*zt;
-%             obj.springDist = (z8+z6)/2;
-%             
-%             z9 = 0.7391304348*zt;
-%             z10 = 0.768115942*zt;
-%             z11 = 0.9130434783*zt;
-%             obj.bearingDist = (z10+z11)/2;
-%             obj.exoLegDist = (z10+z11)/2;
-%             z12 = 0.9275362319*zt;
-%             obj.retainingRingDist2 = (z11+z12)/2;
-%             z13 = 1.0000000000*zt;
-%             obj.casingDist2 = (z12+z13)/2;
-%             
-%             %Different diameters along shaft based on a percentage
-%             dp1 = (0.02/1.78)*patientHeight;
-%             dp2 = (0.017/1.78)*patientHeight;
-%             dp3 = (0.02/1.78)*patientHeight;
-%             dp4 = (0.0282/1.78)*patientHeight;
-%             dp5 = (0.02/1.78)*patientHeight;
-%             dp6 = (0.017/1.78)*patientHeight;
-%             dp7 = (0.02/1.78)*patientHeight;
-%             
-%             distFromZ2_Z1 = z2-z1;
-%             distFromZ3_Z2 = z3-z2;
-%             distFromZ6_Z3 = z6-z3;
-%             %% We need stuff from torsion spring to build this -- from Em
-%             distFromZ6_Z9 = z9-z6;
-%             distFromZ9_Z11 = z11-z9;
-%             distFromZ11_Z12 = z12-z11;
-%             distFromZ12_Z13 = z13-z12;
-%             
-%             %% More calcs
-%             %Summation of masses and there centers of mass
-%             mizi = (obj.DensityAl*pi/4)*(((dp1.^2)*(distFromZ2_Z1)*(z1+((distFromZ2_Z1)/2)) + (dp2.^2)*(z3-z2)*(z2+((z3-z2)/2)) + (dp3.^2)*(z5-z3)*(z3+((z5-z3)/2))+ (dp4.^2)*(z9-z6)*(z6+((z9-z6)/2))+(dp5.^2)*(z11-z10)*(z10+((z11-z10)/2))+(dp6.^2)*(z12-z11)*(z11+((z12-z11)/2))+(dp7.^2)*(z13-z12)*(z12+((z13-z12)/2))));
-%             %total mass of the shaft
-%             mtot = (obj.DensityAl*pi/4)*((dp1.^2)*(distFromZ2_Z1) + (dp2.^2)*(z3-z2) + (dp3.^2)*(z5-z3)+ (dp4.^2)*(z9-z6)+ (dp5.^2)*(z11-z10)+ (dp6.^2)*(z12-z11)+ (dp7.^2)*(z13-z12));
-%             %volume of the shaft
-%             vtot = (pi/4) * ((dp1.^2)*(z2-z1) + (dp2.^2)*(z3-z2) + (dp3.^2)*(z5-z3)+ (dp4.^2)*(z9-z6)+ (dp5.^2)*(z11-z10)+ (dp6.^2)*(z12-z11)+ (dp7.^2)*(z13-z12));
-%             %Center of mass for entire shaft
-%             ztot = mizi/mtot;
-%             obj.comOfShaftDist = ztot;
-% 
-%             % dimensions of retaining rings
-%             lRetainingRing1 = (0.1/178)*patientHeight; % the thickness of the retaing ring in the z direction
-%             rRetainingRing1Out = 0.5*dp2 + (0.15/178)*patientHeight; % outer radius retaining ring 1 is 2mm larger than shaft radius
-%             vRetainingRing1 = lRetainingRing1 * pi * (rRetainingRing1Out.^2 - (0.5 * dp2).^2) % volume of retaining ring 1
-%             lRetainingRing2 = (0.1/178)*patientHeight; % the thickness of the retaing ring in the z direction
-%             rRetainingRing2Out = 0.5*dp6 + (0.15/178)*patientHeight; % outer radius retaining ring 2 is 2mm larger than shaft radius
-%             vRetainingRing2 = lRetainingRing2 * pi * (rRetainingRing2Out.^2 - (0.5 * dp6).^2) % volume of retaining ring 1
-%             mRetainingRing1 = vRetainingRing1 * obj.DensitySt; % mass of retaining ring 1
-%             mRetainingRing2 = vRetainingRing2 * obj.DensitySt; % mass of retaining ring 2
-%              % dimensions of the key
-%             lShaftKeyHip = z4 - z3; % the length of the key in the z direction along the shaft
-%             wShaftKeyHip = (0.5/178)*patientHeight; % the width of the key in the x direction
-%             hShaftKeyHip = (0.5/178)*patientHeight; % the height of the key in the y direction
-%             vShaftKeyHip = lShaftKeyHip * wShaftKeyHip * hShaftKeyHip; % volume of the key
-%             mShaftKeyHip = vShaftKeyHip * obj.DensitySt; % mass of the key
-% 
-%             % dimensions of the torsional hip spring
-%             mHipSpring = 0.059764821; % the mass of torsional hip spring
-%             ExoskeletonMassvar = Exoskeleton_Mass_Anthropometric(patientHeight);
-% 
-%             % acceleration caused by gravity 
-%             g = 9.81; 
-%             % forces acting on shaft
-%             Fg1 = - 0.5*ExoskeletonMassvar.MdiscCase * g; % the reaction force at the case support...this support holds up half the weight of case
-%             obj.Fg1 = Fg1;
-%             Fg2 = -mRetainingRing1 * g; % the downward force caused by the weight of the retaining ring
-%             obj.Fg2 = Fg2;
-%             Fg3 = -mShaftKeyHip * g; %the downward force caused by the weight of the key
-%             obj.Fg3 = Fg3;
-%             Fg4 = - mHipSpring * g; % the downward force on the shaft from the weight of the spring
-%             obj.Fg4 = Fg4;
-%             Fg5 = - mtot * g; % the downward force caused by the weight of the shaft itself
-%             obj.Fg5 = Fg5;
-%             Fg9 = - 0.5*ExoskeletonMassvar.MdiscCase * g; % the reaction force at the case support...this support holds up half the weight of case
-%             obj.Fg9 = Fg9;
-%             Fg7 = -ExoskeletonMassvar.mBelowDiscShaft * g; % the force on the shaft caused by the weight of the leg
-%             obj.Fg7 = Fg7;
-%             Fg8 = -mRetainingRing2 * g; % the downward force caused by the mass of the second retaining ring 
-%             obj.Fg8 = Fg8;
-%             Fg6 = -ExoskeletonMassvar.Mbearing1 * g; % the force on the shaft caused by the weight of the bearing
-%             obj.Fg6 = Fg6;
-%             % summation of forces
-%             Fy2 = (-Fg1 - Fg2 - Fg3 - Fg4 - Fg5 - Fg6 - Fg7 - Fg8 - Fg9);
-%             obj.Fy2 = Fy2;
-%             % check
-%             Rty = Fg1+ Fg2 + Fg3 + Fg4 +Fg5 + Fg6 + Fg7 + Fy2;
-% 
-%             % summation of moments and forces on 2 DOF pin joint
-%             r2DOFPin = 0.005; % the diameter of the 2DOF joint pin
-%             l2DOFPin = 0.03; % the length of the 2 DOF joint pin
-%             v2DOFPin = pi * r2DOFPin.^2 * l2DOFPin; % the volume of the 2 DOF joint pin
-%             m2DOFPin = obj.DensitySt * v2DOFPin; % the mass of the 2 DOF joint pin
-%             mBelow2DOFJoint = ExoskeletonMassvar.mBelow2DOFJoint;
-% 
-%             F1pin = ExoskeletonMassvar.mBelow2DOFJoint*g + m2DOFPin*g; % the reaction force on the 2 DOF pin joint
-% 
-% 
-%             % Plantarflexion cam design parameters
-%             lPlantarSpring = (5/178)*patientHeight; % the length of the plantarflexion spring
-%             lPlantarString = (27.59/178)*patientHeight - lPlantarSpring; % the length of the string minus the spring
-%             rPlantarString = (0.1/178)*patientHeight; % the radius of the plantar flexion string
-%             vPlantarString = lPlantarString*pi*rPlantarString.^2; % the volume of the plantar flexion string
-%             mPlantarString = vPlantarString * obj.DensitySt; % mass of the plantar flexion string
-% 
-%             rPlantarCamSpring = (0.05/178)*patientHeight; % the radius of the torsional spring wire
-%             RPlantarCamSpring = (2/178)*patientHeight; % the mean radius of the torsional spring coil
-%             nPlantarCamSpring = 2; % the number of body turns of the torsional spring
-%             vPlantarCamSpring = pi*rPlantarCamSpring.^2*2*pi*nPlantarCamSpring*RPlantarCamSpring; % the volume of the torsional spring
-%             mPlantarCamSpring = obj.DensitySt * vPlantarCamSpring; % the mass of the torsional spring
-
+            % Plantar    
+            plantarTorsionSpringDiam =  plantarTorsionSpring.diameterNeededForShaft 
+            plantarTorsionSpringLengthOnShaft = plantarTorsionSpring.originalLengthOfSpringOnShaft 
+            plantarTorsionSpringRadiusCam = plantarTorsionSpring.rCam 
             mPlantarCamCase = 0.005713; % the mass of the casing around the cam and cam shaft
-
             mPlantarCam = 0.0064341; % the mass of the plantar flexion cam
 
             PlantarCamZ1 = 0; % the beginning of the cam shaft
             PlantarCamZ2 = (.5/178)*patientHeight; % the distance to the first step down (circlip) of the the shaft
             PlantarCamZ3 = (.6/178)*patientHeight; % the distance to the first step up (bearing) after the circlip 
             PlantarCamZ4 = (1.1/178)*patientHeight; % the distance to the second step up after the bearing
-            PlantarCamZspring = PlantarCamZ4 + (2/178)*patientHeight;
+            PlantarCamZspring = PlantarCamZ4 + plantarTorsionSpringDiam;
             PlantarCamZ5 = PlantarCamZspring + (0.7/178)*patientHeight; % the distance to the edge of the cam
             PlantarCamZ6 = PlantarCamZ5 + (0.1/178)*patientHeight; % the distance to the end of the cam
             PlantarCamZ7 = PlantarCamZ6 + (0.5/178)*patientHeight; % the distance to the end of the shaft
-
-            PlantarCamDpSpring = (1.4/178)*patientHeight;
+            
+            
+            
+            PlantarCamDpSpring = plantarTorsionSpringDiam;
             PlantarCamDp1 = PlantarCamDpSpring-(0.4/178)*patientHeight; % the diamater of the shaft up to the circlip
             PlantarCamDp2 = PlantarCamDpSpring-(0.6/178)*patientHeight; % the diameter of the shaft at the circlip
             PlantarCamDp3 = PlantarCamDpSpring-(0.4/178)*patientHeight; % the diameter of the shaft after the circlip/diameter of inside of bearing
@@ -560,18 +401,7 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
             PlantarCamDp6 = PlantarCamDpSpring-(0.6/178)*patientHeight; 
             PlantarCamDp7 = PlantarCamDpSpring-(0.4/178)*patientHeight; 
 
-%             PlantarCamShaftMiZi = (obj.DensityAl*pi/4) * (PlantarCamDp1.^2 * (PlantarCamZ2-PlantarCamZ1)*((PlantarCamZ2+PlantarCamZ1)/2) + PlantarCamDp2.^2 * (PlantarCamZ3-PlantarCamZ2)*((PlantarCamZ3+PlantarCamZ2)/2) +PlantarCamDp3.^2 * (PlantarCamZ4-PlantarCamZ3)* ((PlantarCamZ4+PlantarCamZ3)/2) +PlantarCamDpSpring.^2 * (PlantarCamZspring-PlantarCamZ4)* ((PlantarCamZ4+PlantarCamZspring)/2) +PlantarCamDp5.^2 * (PlantarCamZ5-PlantarCamZspring)* ((PlantarCamZ5+PlantarCamZspring)/2) +PlantarCamDp6.^2 * (PlantarCamZ6-PlantarCamZ5)* ((PlantarCamZ6+PlantarCamZ5)/2) +PlantarCamDp7.^2 * (PlantarCamZ7-PlantarCamZ6)* ((PlantarCamZ6+PlantarCamZ7)/2) ); % the summation of masses and their centres of mass
-%             mPlantarCamShaft = (obj.DensityAl*pi/4) * (PlantarCamDp1.^2 * (PlantarCamZ2-PlantarCamZ1)+ PlantarCamDp2.^2 * (PlantarCamZ3-PlantarCamZ2) +PlantarCamDp3.^2 * (PlantarCamZ4-PlantarCamZ3) +PlantarCamDpSpring.^2 * (PlantarCamZspring-PlantarCamZ4) +PlantarCamDp5.^2 * (PlantarCamZ5-PlantarCamZspring) +PlantarCamDp6.^2 * (PlantarCamZ6-PlantarCamZ5) +PlantarCamDp7.^2 * (PlantarCamZ7-PlantarCamZ6) ); % the total mass of the plantar flexion cam shaft
-%             PlantarCamZtot = PlantarCamShaftMiZi/mPlantarCamShaft; % the center of mass of the plantar cam shaft
-% 
-%             Fy1 = g * (mPlantarCamShaft + mPlantarCam + mPlantarCamCase + mPlantarCamSpring);
-%                         
             
-%             distFromZ6_Z9 = z9-z6;
-%             distFromZ9_Z11 = z11-z9;
-%             distFromZ11_Z12 = z12-z11;
-%             distFromZ12_Z13 = z13-z12;
-%             
             % Bot bar dimensions 
             
             WbotBar = (0.04/1.78)*patientHeight;
@@ -596,7 +426,7 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
             HCutBotBarForFourBat = HbotBarKnee/2;
             WCutBotBarForFourBat = (0.025/1.78)*patientHeight;
             DistanceToPulley2 = (0.09926034/1.78)*patientHeight;
-            LengthToPlaneOfPulley=(0.025/1.78)*patientHeight; %needs to be driven off of dorsiflexion cam
+            LengthToPlaneOfPulley=(0.016/1.78)*patientHeight; %needs to be driven off of dorsiflexion cam
             
             % Link dimensions 
             
@@ -683,26 +513,110 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
             QuarterthighPaddingHeight = 0.5*HalfthighCaseHeight;
             PaddingFillet = (0.003/1.78)*patientHeight;
             
-            % dimensions of retaining ring
-%             retainingRingInnerDiameter = dp2; %dp2
-%             retainingRingOuterDiameter = dp2 + (0.003/1.78)*patientHeight; %dp2
-%             retainingRingThickness = distFromZ3_Z2;
-%             retainingRingArmLength = (0.005/1.78)*patientHeight;
-%             retainingRingArmWidth = (0.003/1.78)*patientHeight;
-%             retainingRingHolediameter = (0.002/1.78)*patientHeight;
-%             HoledistX = 0.5*retainingRingArmWidth;
-%             HoledistY = 0.5*retainingRingArmLength;
-%             CircleOffset = (0.0007/1.78)*patientHeight;
-%             radiusOfarms = (0.01039742/1.78)*patientHeight;
-%             distToHole = (0.00083077/1.78)*patientHeight;
-%             reatiningRingFillet = (0.0001/1.78)*patientHeight;
 
-            %%This needs to be done properly cause right now its cheated
+            % dorsiflexion torsional cam shaft dimensions 
+            
+            DorsiCamZ2 = (0.002/1.78)*patientHeight; 
+            DorsiCamZ3 = (0.003/1.78)*patientHeight; 
+            DorsiCamZ4 = DorsiCamZ3 + TtopBar; 
+            DorsiCamZ6 = DorsiCamZ4 + (0.01/1.78)*patientHeight + dorsiTorsionSpringLengthOnShaft; % Calls in dorsi torsional spring Length 
+            DorsiCamZ7 = DorsiCamZ6 + (0.001/1.78)*patientHeight; 
+            DorsiCamZ8 = DorsiCamZ7 + (0.002/1.78)*patientHeight; 
+            DorsiCamZ3_Z2 = DorsiCamZ3 - DorsiCamZ2; 
+            DorsiCamZ4_Z3 = TtopBar; 
+            DorsiCamZ6_Z4 = dorsiTorsionSpringLengthOnShaft + (0.01/1.78)*patientHeight + 2*DorsiWireDiameter; % Calls in torsional spring length 
+            DorsiCamZ6_Z5 = (0.01/1.78)*patientHeight; 
+            DorsiCamZ7_Z6 = (0.001/1.78)*patientHeight; 
+            DorsiCamZ8_Z7 = (0.002/1.78)*patientHeight; 
+            DorsiCamShaftDpSpring = dorsiTorsionSpringDiam; % Calls in torsional spring diameter 
+            DorsiCamShaftDp1 = DorsiCamShaftDpSpring - (0.002/1.78)*patientHeight; 
+            DorsiCamShaftDp2 = DorsiCamShaftDpSpring - (0.004/1.78)*patientHeight; 
+            DorsiCamShaftDp3 = DorsiCamShaftDpSpring - (0.002/1.78)*patientHeight; 
+            DorsiCamShaftDp5 = DorsiCamShaftDpSpring - (0.002/1.78)*patientHeight; 
+            DorsiCamShaftDp6 = DorsiCamShaftDpSpring; 
+            DorsiCamShaftBearingZ = 0.5*DorsiCamZ4_Z3; 
+
+            % dorsiflexion torsional cam dimensions  
+
+            InnerDorsiCamDiameter = DorsiCamShaftDpSpring; 
+            DorsiCamRadius = dorsiTorsionSpringRadiusCam; % radius to where the cable sits 
+            OuterDorsiCamRadius = DorsiCamRadius + (0.002/1.78)*patientHeight; 
+            DorsiCamWidth = (0.01/1.78)*patientHeight; 
+            DorsiCamCutDiam = 2*OuterDorsiCamRadius - (0.015/1.78)*patientHeight; 
+            DorsiCamCutDepth = (0.001/1.78)*patientHeight; 
+            DorsiKeyWidth = (0.0025/1.78)*patientHeight; 
+            DorsiKeyLength = DorsiCamZ4_Z3 - (0.002/1.78)*patientHeight; 
+            InnerCutDiameter = InnerDorsiCamDiameter + (0.005/1.78)*patientHeight; 
+            OuterCutDiameter = 2*DorsiCamRadius - (0.01/1.78)*patientHeight; 
+            CutLength = 0.5*(OuterCutDiameter-InnerCutDiameter); 
+            DorsiArm = OuterDorsiCamRadius + (0.003/1.78)*patientHeight; 
+            HorizantalDorsiCut = (0.00593904/1.78)*patientHeight; 
+            SpringArmCaseOffsetY = (0.005985253318492/1.99)*patientHeight; 
+            SpringArmCaseOffsetX = (0.0059779030723618/1.78)*patientHeight; 
+            SpringArmCaseWidth = DorsiWireDiameter + (0.001/1.78)*patientHeight; 
+            SpringArmCaseLength = (0.007846809662613/1.78)*patientHeight; 
+            SpringArmCaseBotThickness = (0.00357788944723618/1.78)*patientHeight; 
+            SpringArmCaseTopThickness = (0.0032834408007035/1.78)*patientHeight; 
+            SpringArmCaseHoleDiameter = DorsiWireDiameter + (0.0001/1.78)*patientHeight; 
+            SpringArmCaseDistToHole = (0.001918108044/1.78)*patientHeight; 
+
+
+ 
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\DorsiCamDimensions.txt','w'); 
+                fprintf(fileID, '"InnerDorsiCamDiameter"= %f\n', InnerDorsiCamDiameter); 
+                fprintf(fileID, '"DorsiCamRadius"= %f\n', DorsiCamRadius); 
+                fprintf(fileID, '"OuterDorsiCamRadius"= %f\n', OuterDorsiCamRadius); 
+                fprintf(fileID, '"DorsiCamWidth"= %f\n', DorsiCamWidth); 
+                fprintf(fileID, '"DorsiCamCutDiam"= %f\n', DorsiCamCutDiam); 
+                fprintf(fileID, '"DorsiCamCutDepth"= %f\n', DorsiCamCutDepth); 
+                fprintf(fileID, '"DorsiKeyWidth"= %f\n', DorsiKeyWidth); 
+                fprintf(fileID, '"DorsiKeyLength"= %f\n', DorsiKeyLength); 
+                fprintf(fileID, '"InnerCutDiameter"= %f\n', InnerCutDiameter); 
+                fprintf(fileID, '"OuterCutDiameter"= %f\n', OuterCutDiameter); 
+                fprintf(fileID, '"CutLength"= %f\n', CutLength); 
+                fprintf(fileID, '"DorsiArm"= %f\n', DorsiArm); 
+                fprintf(fileID, '"HorizantalDorsiCut"= %f\n', HorizantalDorsiCut); 
+                fprintf(fileID, '"SpringArmCaseOffsetY"= %f\n', SpringArmCaseOffsetY); 
+                fprintf(fileID, '"SpringArmCaseOffsetX"= %f\n', SpringArmCaseOffsetX); 
+                fprintf(fileID, '"SpringArmCaseWidth"= %f\n', SpringArmCaseWidth); 
+                fprintf(fileID, '"SpringArmCaseLength"= %f\n', SpringArmCaseLength); 
+                fprintf(fileID, '"SpringArmCaseBotThickness"= %f\n', SpringArmCaseBotThickness); 
+                fprintf(fileID, '"SpringArmCaseTopThickness"= %f\n', SpringArmCaseTopThickness); 
+                fprintf(fileID, '"SpringArmCaseHoleDiameter"= %f\n', SpringArmCaseHoleDiameter); 
+                fprintf(fileID, '"SpringArmCaseDistToHole"= %f\n', SpringArmCaseDistToHole); 
+            fclose(fileID); 
+
+
+             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\DorsiCamShaftDimensions.txt','w'); 
+                fprintf(fileID, '"DorsiCamZ2"= %f\n', DorsiCamZ2); 
+                fprintf(fileID, '"DorsiCamZ3"= %f\n', DorsiCamZ3); 
+                fprintf(fileID, '"DorsiCamZ4"= %f\n', DorsiCamZ4); 
+                fprintf(fileID, '"DorsiCamZ6"= %f\n', DorsiCamZ6); 
+                fprintf(fileID, '"DorsiCamZ7"= %f\n', DorsiCamZ7); 
+                fprintf(fileID, '"DorsiCamZ8"= %f\n', DorsiCamZ8); 
+                fprintf(fileID, '"DorsiCamZ3_Z2"= %f\n', DorsiCamZ3_Z2); 
+                fprintf(fileID, '"DorsiCamZ4_Z3"= %f\n', DorsiCamZ4_Z3); 
+                fprintf(fileID, '"DorsiCamZ6_Z4"= %f\n', DorsiCamZ6_Z4); 
+                fprintf(fileID, '"DorsiCamZ6_Z5"= %f\n', DorsiCamZ6_Z5); 
+                fprintf(fileID, '"DorsiCamZ7_Z6"= %f\n', DorsiCamZ7_Z6); 
+                fprintf(fileID, '"DorsiCamZ8_Z7"= %f\n', DorsiCamZ8_Z7); 
+                fprintf(fileID, '"DorsiCamShaftDpSpring"= %f\n', DorsiCamShaftDpSpring); 
+                fprintf(fileID, '"DorsiCamShaftDp1"= %f\n', DorsiCamShaftDp1); 
+                fprintf(fileID, '"DorsiCamShaftDp2"= %f\n', DorsiCamShaftDp2); 
+                fprintf(fileID, '"DorsiCamShaftDp3"= %f\n', DorsiCamShaftDp3); 
+                fprintf(fileID, '"DorsiCamShaftDp5"= %f\n', DorsiCamShaftDp5); 
+                fprintf(fileID, '"DorsiCamShaftDp6"= %f\n', DorsiCamShaftDp6); 
+                fprintf(fileID, '"DorsiKeyWidth"= %f\n', DorsiKeyWidth); 
+                fprintf(fileID, '"DorsiKeyLength"= %f\n', DorsiKeyLength); 
+                fprintf(fileID, '"DorsiCamShaftBearingZ"= %f\n', DorsiCamShaftBearingZ); 
+            fclose(fileID); 
+   
             % plantar cam shaft dimensions to print
             PlantarCamZ1_Z2 = PlantarCamZ2 - PlantarCamZ1;
             PlantarCamZ2_Z3 = PlantarCamZ3 - PlantarCamZ2;
             PlantarCamZ3_Z4 = PlantarCamZ4 - PlantarCamZ3;
-            PlantarCamZspring = PlantarCamZspring;
+            PlantarCamZspring = PlantarCamZ4 + plantarTorsionSpringLengthOnShaft; 
+            PlantarCamZspring_Z4 = PlantarCamZspring - PlantarCamZ4; 
             PlantarCamZ5_spring = PlantarCamZ5 - PlantarCamZspring;
             PlantarCamZ6_Z5 = PlantarCamZ6 - PlantarCamZ5;
             PlantarCamZ7_Z6 = PlantarCamZ7 - PlantarCamZ6;
@@ -711,8 +625,8 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
             CaseThicknessZ8 = (0.012/1.78)*patientHeight;
             CaseThicknessCam = (0.011/1.78)*patientHeight;
             CaseThicknessRing = (0.004/1.78)*patientHeight;
-            CaseThicknessZ1 = (0.006/1.78)*patientHeight;
-            CaseLength = (0.033/1.78)*patientHeight;
+            CaseThicknessZ1 = 0.5*PlantarCamDp1 + (0.001/1.78)*patientHeight;
+            CaseLength = (0.03825/1.78)*patientHeight;
             CaseHeight = (0.02/1.78)*patientHeight;
             CaseToCam = (0.028/1.78)*patientHeight;
             CaseCamToBearing = (0.018/1.78)*patientHeight;
@@ -721,25 +635,28 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
             Z1ToBearing = (0.013/1.78)*patientHeight;
             BoltCaseWidth = (0.003/1.78)*patientHeight;
             DistToCamCut = (0.016/1.78)*patientHeight;
+            CaseToZ6 = PlantarCamZ6 + (0.002/1.78)*patientHeight; 
             
             % plantar cam dimesnions
             PlantarCamInnerDiameter = PlantarCamDp5;
-            PlantarCamOuterDiameter = PlantarCamDp5 + (0.02/1.78)*patientHeight;
+            PlantarCamOuterDiameter = 2*plantarTorsionSpringRadiusCam;
             PlantarCamWidth = PlantarCamZ5_spring;
             PlantarCamEdges = (0.001/1.78)*patientHeight;
             PlantarCamCenter = (PlantarCamWidth - 2*PlantarCamEdges)/2;
             PlantarCamInnerRadius = 0.5*PlantarCamInnerDiameter;
             PlantarCamOuterRadius = 0.5*PlantarCamOuterDiameter;
-            CutInnerDimeter = PlantarCamInnerDiameter + (0.004/1.78)*patientHeight;
-            CutOuterDiameter = PlantarCamInnerDiameter + (0.012/1.78)*patientHeight;
+            CutInnerDimeter = PlantarCamInnerDiameter + (0.012/1.78)*patientHeight; 
+            CutOuterDiameter = PlantarCamInnerDiameter + (0.028/1.78)*patientHeight; 
             CutLength = (0.004/1.78)*patientHeight;
-            ShallowCutDiameter = (0.0255/1.78)*patientHeight;
+            ShallowCutDiameter = PlantarCamOuterRadius + (0.01/1.78)*patientHeight; 
             CutInnerRadius = 0.5*CutInnerDimeter;
             CutOuterRadius = 0.5*CutOuterDiameter;
             RadToArm = (0.01275/1.78)*patientHeight;
             CamFillet = (0.0003/1.78)*patientHeight;
-            
-            
+            PlantarCamGrooveRadius = (0.00606/1.78)*patientHeight 
+            PlantarCamGroove = PlantarCamGrooveRadius + PlantarCamOuterRadius; 
+            CaseHeight = PlantarCamGroove + (0.006/1.78)*patientHeight; 
+                 
             % dimensions of cam retaining ring
             CamretainingRingInnerDiameter = PlantarCamDp2;
             CamretainingRingOuterDiameter = PlantarCamDp2 + (0.002/1.78)*patientHeight;
@@ -756,15 +673,45 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
             ArmExtrude = (0.00480864/1.78)*patientHeight;
             ArmCutRadius = 0.5*CamretainingRingOuterDiameter;
             
+            % dimensions of dorsi cam retaining ring 
+            DorsiretainingRingInnerDiameter1 = DorsiCamShaftDp2; 
+            DorsiretainingRingOuterDiameter1 = DorsiCamShaftDp2 + (0.002/1.78)*patientHeight; 
+            DorsiretainingRingInnerDiameter2 = DorsiCamShaftDp5; 
+            DorsiretainingRingOuterDiameter2 = DorsiCamShaftDp5 + (0.002/1.78)*patientHeight; 
+            DorsiretainingRingThickness = DorsiCamZ3_Z2; 
+            DorsiretainingRingArmLength = (0.003/1.78)*patientHeight; 
+            DorsiretainingRingArmWidth = (0.002/1.78)*patientHeight; 
+            DorsiretainingRingHolediameter = (0.001/1.78)*patientHeight; 
+            DorsiHoledistX = 0.5*CamretainingRingArmWidth; 
+            DorsiHoledistY = 0.5*CamretainingRingArmLength; 
+            DorsiCircleOffset = (0.0005/1.78)*patientHeight; 
+            DorsiradiusOfarms = (0.006/1.78)*patientHeight; 
+            DorsidistToHole = (0.0007/1.78)*patientHeight; 
+            DorsireatiningRingFillet = (0.0001/1.78)*patientHeight; 
+            DorsiArmExtrude = (0.00480864/1.78)*patientHeight;  
+            DorsiArmCutRadius = 0.5*CamretainingRingOuterDiameter; 
+
                        %%
             %PlantarCamBearing.txt Variables 
-            notchLength1=(0.000016666666667/1.78)*patientHeight;
-            notchAngle1=(45.0);
-            revolve1Distance1=(0.00006837620297/1.78)*patientHeight;
-            cylindricalRevolveDistance=(0.001481480315/1.78)*patientHeight;
-            revolve1Length=(0.018888889/1.78)*patientHeight;
-            revolve1Length2=(0.01/1.78)*patientHeight;
-            revolve1Width1=(0.005/1.78)*patientHeight;
+           notchLength3=(0.000016666666667/1.78)*patientHeight; 
+            notchAngle3=(45.0); 
+            revolve1Distance3=(0.00006837620297/1.78)*patientHeight; 
+            cylindricalRevolveDistance3=(0.001481480315/1.78)*patientHeight; 
+            revolve3Length2=PlantarCamDp3; 
+            revolve3Length=PlantarCamDp3 + (0.0109888889/1.78)*patientHeight; 
+            revolve3Width=PlantarCamZ3_Z4;  
+           CaseBearingHeight = 0.5*(revolve3Length+(0.002/1.78)*patientHeight); 
+
+           %DorsiCamBearing dimensions 
+            notchLength4=(0.000016666666667/1.78)*patientHeight; 
+            notchAngle4=(45.0); 
+            revolve1Distance4=(0.00006837620297/1.78)*patientHeight; 
+            cylindricalRevolveDistance4=(0.001481480315/1.78)*patientHeight; 
+            revolve4Length2=DorsiCamShaftDp3; 
+            revolve4Length=DorsiCamShaftDp3 + (0.0109888889/1.78)*patientHeight; 
+            revolve4Width= 0.5*DorsiCamZ4_Z3; 
+            CaseBearingHeightDorsi = 0.5*(revolve3Length+(0.002/1.78)*patientHeight); 
+            InnerDorsiCamDiamaterInShaft= revolve4Length - ((0.005/1.78)*patientHeight);
             
              % dimensions of the calf strap case
             upperAttachmentDistFromCenterLine = plantarFlexionPosition.upperAttachmentDistFromCenterLine;
@@ -779,14 +726,24 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
             calfSupportRadius = upperAttachmentDistFromCenterLine - PlantarCamOuterDiameter ; %needs to define point in space of upper point plantarflexion
 
                 fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\PlantarCamBearing.txt','w');
-                    fprintf(fileID, '"notchLength1"= %f\n', notchLength1);
-                    fprintf(fileID, '"notchAngle1"= %f\n', notchAngle1);
-                    fprintf(fileID, '"revolve1Distance1"= %f\n', revolve1Distance1);
-                    fprintf(fileID, '"cylindricalRevolveDistance"= %f\n', cylindricalRevolveDistance);
-                    fprintf(fileID, '"revolve1Length"= %f\n', revolve1Length);
-                    fprintf(fileID, '"revolve1Length2"= %f\n', revolve1Length2);
-                    fprintf(fileID, '"revolve1Width1"= %f\n', revolve1Width1);
-                fclose(fileID);
+                    fprintf(fileID, '"notchLength3"= %f\n', notchLength3); 
+                    fprintf(fileID, '"notchAngle3"= %f\n', notchAngle3); 
+                    fprintf(fileID, '"revolve1Distance3"= %f\n', revolve1Distance3); 
+                    fprintf(fileID, '"cylindricalRevolveDistance3"= %f\n', cylindricalRevolveDistance3); 
+                    fprintf(fileID, '"revolve3Length"= %f\n', revolve3Length); 
+                    fprintf(fileID, '"revolve3Length2"= %f\n', revolve3Length2); 
+                    fprintf(fileID, '"revolve1Width3"= %f\n', revolve3Width); 
+                fclose(fileID); 
+
+                 fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\DorsiCamBearing.txt','w'); 
+                    fprintf(fileID, '"notchLength4"= %f\n', notchLength4); 
+                    fprintf(fileID, '"notchAngle4"= %f\n', notchAngle4); 
+                    fprintf(fileID, '"revolve1Distance4"= %f\n', revolve1Distance4); 
+                    fprintf(fileID, '"cylindricalRevolveDistance4"= %f\n', cylindricalRevolveDistance4); 
+                    fprintf(fileID, '"revolve4Length"= %f\n', revolve4Length); 
+                    fprintf(fileID, '"revolve4Length2"= %f\n', revolve4Length2); 
+                    fprintf(fileID, '"revolve1Width4"= %f\n', revolve4Width); 
+                fclose(fileID); 
             
             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\CamRetainingRingDimensions.txt','w');
                 fprintf(fileID, '"CamretainingRingInnerDiameter"= %f\n', CamretainingRingInnerDiameter);
@@ -804,6 +761,26 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
                 fprintf(fileID, '"ArmExtrude"= %f\n', ArmExtrude);
                 fprintf(fileID, '"ArmCutRadius"= %f\n', ArmCutRadius);
             fclose(fileID);
+            
+             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\DorsiRetainingRingDimensions.txt','w'); 
+
+                fprintf(fileID, '"DorsiretainingRingInnerDiameter1"= %f\n', DorsiretainingRingInnerDiameter1); 
+                fprintf(fileID, '"DorsiretainingRingOuterDiameter1"= %f\n', DorsiretainingRingOuterDiameter1); 
+                fprintf(fileID, '"DorsiretainingRingInnerDiameter2"= %f\n', DorsiretainingRingInnerDiameter2); 
+                fprintf(fileID, '"DorsiretainingRingOuterDiameter2"= %f\n', DorsiretainingRingOuterDiameter2); 
+                fprintf(fileID, '"DorsiretainingRingThickness"= %f\n', DorsiretainingRingThickness); 
+                fprintf(fileID, '"DorsiretainingRingArmLength"= %f\n', DorsiretainingRingArmLength); 
+                fprintf(fileID, '"DorsiretainingRingArmWidth"= %f\n', DorsiretainingRingArmWidth); 
+                fprintf(fileID, '"DorsiretainingRingHolediameter"= %f\n', DorsiretainingRingHolediameter); 
+                fprintf(fileID, '"DorsiHoledistX"= %f\n', DorsiHoledistX); 
+                fprintf(fileID, '"DorsiHoledistY"= %f\n', DorsiHoledistY); 
+                fprintf(fileID, '"DorsiCircleOffset"= %f\n', DorsiCircleOffset); 
+                fprintf(fileID, '"DorsiradiusOfarms"= %f\n', DorsiradiusOfarms); 
+                fprintf(fileID, '"DorsidistToHole"= %f\n', DorsidistToHole); 
+                fprintf(fileID, '"DorsireatiningRingFillet"= %f\n', DorsireatiningRingFillet); 
+                fprintf(fileID, '"DorsiArmExtrude"= %f\n', DorsiArmExtrude); 
+                fprintf(fileID, '"DorsiArmCutRadius"= %f\n', DorsiArmCutRadius); 
+            fclose(fileID); 
             
             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\PlantarCamDimensions.txt','w');
             fprintf(fileID, '"PlantarCamInnerDiameter"= %f\n', PlantarCamInnerDiameter);
@@ -823,6 +800,8 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
             fprintf(fileID, '"CutOuterRadius"= %f\n', CutOuterRadius);
             fprintf(fileID, '"RadToArm"= %f\n', RadToArm);
             fprintf(fileID, '"CamFillet"= %f\n', CamFillet);
+            fprintf(fileID, '"PlantarCamGrooveRadius"= %f\n', PlantarCamGrooveRadius); 
+            fprintf(fileID, '"PlantarCamGroove"= %f\n', PlantarCamGroove); 
             fclose(fileID);
             
             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\PlantarCamShaftDimensions.txt','w');
@@ -855,44 +834,34 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
                 fprintf(fileID, '"Z1ToBearing"= %f\n', Z1ToBearing);
                 fprintf(fileID, '"BoltCaseWidth"= %f\n', BoltCaseWidth);
                 fprintf(fileID, '"DistToCamCut"= %f\n', DistToCamCut);
+                fprintf(fileID, '"PlantarCamInnerDiameter"= %f\n', PlantarCamInnerDiameter); 
+            fprintf(fileID, '"PlantarCamOuterDiameter"= %f\n', PlantarCamOuterDiameter); 
+            fprintf(fileID, '"PlantarCamWidth"= %f\n', PlantarCamWidth); 
+            fprintf(fileID, '"PlantarCamEdges"= %f\n', PlantarCamEdges); 
+            fprintf(fileID, '"PlantarCamCenter"= %f\n', PlantarCamCenter); 
+            fprintf(fileID, '"PlantarCamInnerRadius"= %f\n', PlantarCamInnerRadius); 
+            fprintf(fileID, '"PlantarCamOuterRadius"= %f\n', PlantarCamOuterRadius); 
+            fprintf(fileID, '"CutInnerDimeter"= %f\n', CutInnerDimeter); 
+            fprintf(fileID, '"CutOuterDiameter"= %f\n', CutOuterDiameter); 
+            fprintf(fileID, '"CutLength"= %f\n', CutLength); 
+            fprintf(fileID, '"ShallowCutDiameter"= %f\n', ShallowCutDiameter); 
+            fprintf(fileID, '"CutInnerRadius"= %f\n', CutInnerRadius); 
+            fprintf(fileID, '"CutOuterRadius"= %f\n', CutOuterRadius); 
+            fprintf(fileID, '"RadToArm"= %f\n', RadToArm); 
+            fprintf(fileID, '"CamFillet"= %f\n', CamFillet); 
+            fprintf(fileID, '"PlantarCamGrooveRadius"= %f\n', PlantarCamGrooveRadius); 
+            fprintf(fileID, '"PlantarCamGroove"= %f\n', PlantarCamGroove); 
+            fprintf(fileID, '"PlantarCamZ1"= %f\n', PlantarCamZ1); 
+            fprintf(fileID, '"PlantarCamZ2"= %f\n', PlantarCamZ2); 
+            fprintf(fileID, '"PlantarCamZ3"= %f\n', PlantarCamZ3); 
+            fprintf(fileID, '"PlantarCamZ4"= %f\n', PlantarCamZ4); 
+            fprintf(fileID, '"PlantarCamZ5"= %f\n', PlantarCamZ5); 
+            fprintf(fileID, '"PlantarCamZ6"= %f\n', PlantarCamZ6); 
+            fprintf(fileID, '"PlantarCamZ7"= %f\n', PlantarCamZ7); 
+            fprintf(fileID, '"PlantarCamZspring_Z4"= %f\n', PlantarCamZspring_Z4); 
+            fprintf(fileID, '"CaseToZ6"= %f\n', CaseToZ6); 
             fclose(fileID);
             
-            
-%              fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\retainingRingDimensions.txt','w');
-%                 fprintf(fileID, '"retainingRingInnerDiameter"= %f\n', retainingRingInnerDiameter);
-%                 fprintf(fileID, '"retainingRingOuterDiameter"= %f\n', retainingRingOuterDiameter);
-%                 fprintf(fileID, '"retainingRingThickness"= %f\n', retainingRingThickness);
-%                 fprintf(fileID, '"retainingRingArmLength"= %f\n', retainingRingArmLength);
-%                 fprintf(fileID, '"retainingRingArmWidth"= %f\n', retainingRingArmWidth);
-%                 fprintf(fileID, '"retainingRingHolediameter"= %f\n', retainingRingHolediameter);
-%                 fprintf(fileID, '"HoledistX"= %f\n', HoledistX);
-%                 fprintf(fileID, '"HoledistY"= %f\n', HoledistY);
-%                 fprintf(fileID, '"CircleOffset"= %f\n', CircleOffset);
-%                 fprintf(fileID, '"radiusOfarms"= %f\n', radiusOfarms);
-%                 fprintf(fileID, '"distToHole"= %f\n', distToHole);
-%                 fprintf(fileID, '"reatiningRingFillet"= %f\n', reatiningRingFillet);
-%             fclose(fileID);
-            
-%             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\retainingRingDimensions.txt','w');
-%                 fprintf(fileID, '"retainingRingInnerDiameter"= %f\n', retainingRingInnerDiameter);
-%                 fprintf(fileID, '"retainingRingOuterDiameter"= %f\n', retainingRingOuterDiameter);
-%                 fprintf(fileID, '"retainingRingThickness"= %f\n', retainingRingThickness);
-%                 fprintf(fileID, '"retainingRingArmLength"= %f\n', retainingRingArmLength);
-%                 fprintf(fileID, '"retainingRingArmWidth"= %f\n', retainingRingArmWidth);
-%                 fprintf(fileID, '"retainingRingHolediameter"= %f\n', retainingRingHolediameter);
-%                 fprintf(fileID, '"HoledistX"= %f\n', HoledistX);
-%                 fprintf(fileID, '"HoledistY"= %f\n', HoledistY);
-%                 fprintf(fileID, '"CircleOffset"= %f\n', CircleOffset);
-%                 fprintf(fileID, '"radiusOfarms"= %f\n', radiusOfarms);
-%                 fprintf(fileID, '"distToHole"= %f\n', distToHole);
-%                 fprintf(fileID, '"reatiningRingFillet"= %f\n', reatiningRingFillet);
-%             fclose(fileID);
-            
-%             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\ShaftKeyDimensions.txt','w');
-%                 fprintf(fileID, '"lShaftKeyHip"= %f\n', lShaftKeyHip);
-%                 fprintf(fileID, '"wShaftKeyHip"= %f\n', wShaftKeyHip);
-%                 fprintf(fileID, '"hShaftKeyHip"= %f\n', hShaftKeyHip);
-%             fclose(fileID);
             
             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\botBarDimensions.txt','w');
             fprintf(fileID, '"WbotBar"= %f\n', WbotBar);
@@ -956,7 +925,10 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
             fprintf(fileID, '"DistanceToPulley1"= %f\n', DistanceToPulley1);
             fprintf(fileID, '"LengthToPlaneOfPulley"= %f\n', LengthToPlaneOfPulley);
             fprintf(fileID, '"PulleyFilletRadius1"= %f\n', PulleyFilletRadius1);
-            fprintf(fileID, '"PulleyFilletRadius2"= %f\n', PulleyFilletRadius2);            
+            fprintf(fileID, '"PulleyFilletRadius2"= %f\n', PulleyFilletRadius2);
+            fprintf(fileID, '"revolve4Length"= %f\n', revolve4Length);
+            fprintf(fileID, '"revolve1Width4"= %f\n', revolve4Width);
+            fprintf(fileID, '"InnerDorsiCamDiamaterInShaft"= %f\n', InnerDorsiCamDiamaterInShaft); 
             fclose(fileID);
             
             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\calfCaseDimensions.txt','w');
