@@ -12,7 +12,7 @@ classdef DorsiFlexionSpringPosition
         %% Percentages up and down the leg for the attachments       
         thighPulleyPercentDownThigh = 0.8;
         shankPullyPercentDownShank = 0.2;
-        camPullyPercentDownShank = 0.6; % its at the center line
+        camPullyPercentDownShank = 0.6226; % its at the center line
         radiusOfPulley = 0.01111;
         
         radiusOfThePulley = 0.0087305; % This is a constant value - redefine the sim off this
