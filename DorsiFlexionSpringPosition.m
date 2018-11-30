@@ -9,13 +9,20 @@ classdef DorsiFlexionSpringPosition
        
         Length
         
-        %% Percentages up and down the leg for the attachments
+        %% Percentages up and down the leg for the attachments       
         thighPulleyPercentDownThigh = 0.8;
         shankPullyPercentDownShank = 0.2;
+        camPullyPercentDownShank = 0.6; % its at the center line
         radiusOfPulley = 0.01111;
+        
+        radiusOfThePulley = 0.0087305; % This is a constant value - redefine the sim off this
+        % upper plus, lower minus
         
         %% Distance Off Toe -- change with param
         distAboveToe = 0.02;
+        
+        %% Values used in solidworks
+        pullyDistanceFromTheCenterLine
         
         %% Used to find moment contribution
         AppliedToeCableForceAngle
@@ -24,7 +31,7 @@ classdef DorsiFlexionSpringPosition
     end
     
     methods
-        function obj = DorsiFlexionSpringPosition(position, anthroDimensionMap, ...
+        function obj = DorsiFlexionSpringPosition(position, patientHeight, anthroDimensionMap, ...
                 hipAngleZ, kneeAngleZ, ankleAngleZ, footAngleZ)
         %% Setting up the variables to be used
         r = obj.radiusOfPulley; %radius of the pulley wheel
@@ -34,7 +41,9 @@ classdef DorsiFlexionSpringPosition
         hipAngleZRads = deg2rad(hipAngleZ);
         kneeAngleZRads = deg2rad(kneeAngleZ);
         footAngleZRads = deg2rad(footAngleZ);
-
+                
+        obj.pullyDistanceFromTheCenterLine = (0.06/1.78)*patientHeight;
+        
         %% Determining the coordinates of 4 points
         P1X =  position.ThighComXPoint + (0.05+r)*cos(hipAngleZRads);
         P1Y = position.ThighComYPoint + (0.05+r)*sin(hipAngleZRads);

@@ -67,6 +67,18 @@ classdef Shaft_Length_Anthropometric
             zt = (0.069/1.78)*patientHeight;
             obj.zShaftLength = zt;
             
+            %Different diameters along shaft based on a percentage
+             dp4 = diameterHipTorsionSpring; % Already param in HipTorsionSpring.m
+            
+            dp1 = dp4 - (0.0048/1.78)*patientHeight;
+            dp2 = dp4 - (0.0078/1.78)*patientHeight;
+            dp3 = dp4 - (0.0048/1.78)*patientHeight;
+            dp5 = dp4 - (0.0048/1.78)*patientHeight;
+            dp6 = dp4 - (0.0078/1.78)*patientHeight;
+            dp7 = dp4 - (0.0048/1.78)*patientHeight;
+            
+            filletDimension = 0.1*dp3;
+            
             % Different points along shaft based on a percentage
             z1 = 0;
             z2 = z1 + (0.005/1.78)*patientHeight;
@@ -81,14 +93,16 @@ classdef Shaft_Length_Anthropometric
             z5 = z4 + (0.004/1.78)*patientHeight;
             obj.supportDist1 = (z3+z5)/2;
             
-            z6 = z5 + (0.002/1.78)*patientHeight;
+            z6 = z5 + filletDimension;
             z7 = z6+lengthHipSpring;
             
             z8 = z7+wireDiameterSpring;
             obj.springDist = (z8+z6)/2;
             
+            z7Point5 = (z7+z8)/2;
+            
             z9 = z8 + (0.005/1.78)*patientHeight;
-            z10 = z9 + (0.002/1.78)*patientHeight;
+            z10 = z9 + filletDimension;
             z11 = z10 + (0.01/1.78)*patientHeight;
             obj.bearingDist = (z10+z11)/2;
             obj.exoLegDist = (z10+z11)/2;
@@ -96,16 +110,6 @@ classdef Shaft_Length_Anthropometric
             obj.retainingRingDist2 = (z11+z12)/2;
             z13 = z12 + (0.005/1.78)*patientHeight;
             obj.casingDist2 = (z12+z13)/2;
-            
-            %Different diameters along shaft based on a percentage
-             dp4 = diameterHipTorsionSpring; % Already param in HipTorsionSpring.m
-            
-            dp1 = dp4 - (0.0048/1.78)*patientHeight;
-            dp2 = dp4 - (0.0078/1.78)*patientHeight;
-            dp3 = dp4 - (0.0048/1.78)*patientHeight;
-            dp5 = dp4 - (0.0048/1.78)*patientHeight;
-            dp6 = dp4 - (0.0078/1.78)*patientHeight;
-            dp7 = dp4 - (0.0048/1.78)*patientHeight;
             
             distFromZ2_Z1 = z2-z1;
             distFromZ3_Z2 = z3-z2;
@@ -275,11 +279,11 @@ classdef Shaft_Length_Anthropometric
                 fprintf(fileID, '"hipShaftDiam6"= %f\n', dp6);
                 fprintf(fileID, '"distFromZ12_Z13"= %f\n', distFromZ12_Z13);
                 fprintf(fileID, '"hipShaftDiam7"= %f\n', dp7);
-                
                 fprintf(fileID, '"lShaftKeyHip"= %f\n', lShaftKeyHip);
                 fprintf(fileID, '"wShaftKeyHip"= %f\n', wShaftKeyHip);
                 fprintf(fileID, '"hShaftKeyHip"= %f\n', hShaftKeyHip);
                 fprintf(fileID, '"lengthSuppLeg"= %f\n', lengthSuppLeg);
+                fprintf(fileID, '"z7Point5"= %f\n', z7Point5);
             fclose(fileID);
         end
     end

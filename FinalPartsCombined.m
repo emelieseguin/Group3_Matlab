@@ -1,4 +1,4 @@
-function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition)
+function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantarFlexionPosition, plantarTorsionSpring, dorsiTorsionSpring)
 %% Set Up Equations for Length of Segments in final assembly 
  
  ThighLength= (0.245*patientHeight); %??read in from main?? 
@@ -8,8 +8,11 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition)
  percentDownThigh = dorsiCablePosition.thighPulleyPercentDownThigh;
  percentDownShank = dorsiCablePosition.shankPullyPercentDownShank;
  
- PulleyFromProximalHip = percentDownThigh*ThighLength;
- PulleyFromProximalKnee = percentDownShank*ShankLength;
+lowerAttachmentDistUpShank= plantarFlexionPosition.lowerAttachmentDistUpShank;
+lowerAttachmentDistFromCenterLine = plantarFlexionPosition.lowerAttachmentDistFromCenterLine;
+
+PulleyFromProximalHip = percentDownThigh*ThighLength;
+PulleyFromProximalKnee = percentDownShank*ShankLength;
 
 ThighCom =  0.433*ThighLength;
 ShankCom =  0.433*ShankLength;
@@ -32,7 +35,7 @@ hipOuterDiameter=hipInnerDiameter + ((0.02/1.78) * patientHeight);%
 hipInnerRadius=(0.17/1.78)* patientHeight;%
 hipBeltThickness=(0.06/1.78)* patientHeight;%
 lengthBackBar=(0.25/1.78)* patientHeight;%
-lengthCenterlineToPlane=(lengthBackBar/2) + (hipInnerRadius - ((0.04/1.78)*patientHeight));%
+lengthCenterlineToPlane=(lengthBackBar/2) + (hipInnerRadius - ((0.065/1.78)*patientHeight));%
 distanceToAttachmentBar= (hipBeltThickness/2);%
 radiusOfAttachmentBar= (0.03/1.78)*patientHeight;%
 heightOfAttachmentBar= (hipBeltThickness/3);%
@@ -146,6 +149,7 @@ cutHeight=(0.018/1.78)*patientHeight;
         fprintf(fileID, '"connectorLength"= %f\n', connectorLength);
         fprintf(fileID, '"cutHeight"= %f\n', cutHeight);       
     fclose(fileID);
+    
 %% Hip2DOFJointOutputShaft.txt Variables 
 outputShaftSupportWidth = hipShaft.distFromZ5_Z3; %+ ((0.012575)/1.78)*patientHeight;
 connectorLength=(cutlength/2);
@@ -213,7 +217,7 @@ revolveDistanceTOBearingProfile=revolve1Length/2;
 notchLength1=(0.00047625/1.78)*patientHeight;
 outerWidthToCenterline=revolve1Width1-notchLength1;
 taperLength2=(0.003/1.78)*patientHeight;
-distanceToPlane= (casingOuterDiameter/2) + ((0.03/1.78)*patientHeight);
+distanceToPlane= (casingOuterDiameter/2) + ((0.01/1.78)*patientHeight);
 distanceToHipAttachmentBolts=(casingExtrudeLength/2);
 heightOfAttachmentBar= (hipBeltThickness/3);
 
@@ -315,7 +319,8 @@ ExtrudetoGet4BarOffset = (0.00657866/1.78)*patientHeight;
     
     
 %% Paramaterized Pulley 
-
+WbotBar = (0.04/1.78)*patientHeight;
+pullyDistanceFromTheCenterLine= dorsiCablePosition.pullyDistanceFromTheCenterLine;
 PulleyRevolveWidth= (0.009525/1.78)*patientHeight;
 RopeDiameter = (0.004763/1.78)*patientHeight;
 PulleyRevolveLength = (0.04/1.78)*patientHeight;
@@ -330,7 +335,7 @@ PulleyExtrude2 = (0.009525/1.78)*patientHeight;
 PulleyFilletRadius3 = (0.000635/1.78)*patientHeight;
 PulleyExtrudeDiameter2 = (0.005715/1.78)*patientHeight;
 PulleyAttachWidth = (0.01778/1.78)*patientHeight; 
-PulleyAttachHeight=(0.02709747/1.78)*patientHeight;
+PulleyAttachHeight=pullyDistanceFromTheCenterLine - WbotBar;
 PulleyAttachmentAngle = 97.82997;
 PulleyAttachRadius=(0.0127/1.78)*patientHeight;
 PulleyLipThickness = (0.00192443/1.78)*patientHeight; 
@@ -356,7 +361,7 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
             fprintf(fileID, '"PulleyAttachRadius"= %f\n', PulleyAttachRadius);
             fprintf(fileID, '"PulleyLipThickness"= %f\n', PulleyLipThickness);
             fprintf(fileID, '"PulleyRevolveDistance"= %f\n', PulleyRevolveDistance);
-           
+            fprintf(fileID, '"pullyDistanceFromTheCenterLine"= %f\n', pullyDistanceFromTheCenterLine);          
         fclose(fileID);
 %%  
 %%Sheldons Parts
@@ -627,7 +632,8 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
             DistanceToPulley1= (0.160049/1.78)*patientHeight;
             
             % dimensions of the calf strap case
-            
+            upperAttachmentDistFromCenterLine = plantarFlexionPosition.upperAttachmentDistFromCenterLine;
+            lowerAttachmentDistFromCenterLine = plantarFlexionPosition.lowerAttachmentDistFromCenterLine;
             calfInnerCaseDiameter = (0.10/1.78)*patientHeight;
             calfOuterCaseDiameter = (0.12/1.78)*patientHeight;
             calfCaseThickness = (0.01/1.78)*patientHeight;
@@ -636,7 +642,7 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
             distToCutX = (0.01389195/1.78)*patientHeight;
             HalfcalfCaseHeight = 0.5*calfCaseHeight;
             QuartercalfCaseHeight = 0.5*HalfcalfCaseHeight;
-            calfSupportRadius = (0.1/1.78)*patientHeight;
+             
             
              % dimensions of the calf strap padding
             
@@ -650,7 +656,7 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
             QuartercalfPaddingHeight = 0.5*HalfcalfCaseHeight;
             PaddingFillet = (0.003/1.78)*patientHeight;
             DistanceToCalfPlane = (0.08/1.78)*patientHeight;
-            
+ 
              % dimensions of the thigh strap case
             
             thighInnerCaseDiameter = (0.16/1.78)*patientHeight;
@@ -759,6 +765,18 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
             revolve1Length=(0.018888889/1.78)*patientHeight;
             revolve1Length2=(0.01/1.78)*patientHeight;
             revolve1Width1=(0.005/1.78)*patientHeight;
+            
+             % dimensions of the calf strap case
+            upperAttachmentDistFromCenterLine = plantarFlexionPosition.upperAttachmentDistFromCenterLine;
+            calfInnerCaseDiameter = (0.10/1.78)*patientHeight;
+            calfOuterCaseDiameter = (0.12/1.78)*patientHeight;
+            calfCaseThickness = (0.01/1.78)*patientHeight;
+            calfCaseHeight = (0.12/1.78)*patientHeight;
+            distToCutZ = (0.07878462/1.78)*patientHeight;
+            distToCutX = (0.01389195/1.78)*patientHeight;
+            HalfcalfCaseHeight = 0.5*calfCaseHeight;
+            QuartercalfCaseHeight = 0.5*HalfcalfCaseHeight;
+            calfSupportRadius = upperAttachmentDistFromCenterLine - PlantarCamOuterDiameter ; %needs to define point in space of upper point plantarflexion
 
                 fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\PlantarCamBearing.txt','w');
                     fprintf(fileID, '"notchLength1"= %f\n', notchLength1);
@@ -903,6 +921,7 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
             fprintf(fileID, '"LengthToPlaneOfPulley"= %f\n', LengthToPlaneOfPulley);
             fprintf(fileID, '"PulleyFilletRadius1"= %f\n', PulleyFilletRadius1);
             fprintf(fileID, '"PulleyFilletRadius2"= %f\n', PulleyFilletRadius2);
+            fprintf(fileID, '"ShankLength"= %f\n', ShankLength);        
             fclose(fileID);
             
              fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\fourBarDimensions.txt','w');
@@ -950,7 +969,8 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
                 fprintf(fileID, '"HalfcalfCaseHeight"=%f\n', HalfcalfCaseHeight);
                 fprintf(fileID, '"QuartercalfCaseHeight"=%f\n', QuartercalfCaseHeight);
                 fprintf(fileID, '"calfSupportRadius"=%f\n', calfSupportRadius);
-                fprintf(fileID, '"DistanceToCalfPlane"=%f\n', DistanceToCalfPlane);  
+                fprintf(fileID, '"DistanceToCalfPlane"=%f\n', DistanceToCalfPlane);
+                fprintf(fileID, '"lowerAttachmentDistFromCenterLine"=%f\n', lowerAttachmentDistFromCenterLine);              
             fclose(fileID);
             
             fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\calfPaddingDimensions.txt','w');
@@ -995,223 +1015,375 @@ PulleyRevolveDistance = (0.015/1.78)*patientHeight;
             
  %% macks foot code
   
-            lFoot = round(0.152*patientHeight, 6);
-            wFoot = round(0.055*patientHeight, 6);
-            %heelToAnkle = 0.039*patientHeight;
-            
-            %% Inner Rigid Piece
-            dInnerHeel = wFoot;
-            rInnerHeel = wFoot/2;
-            dRigidHeel = wFoot+((0.01/1.78)*patientHeight);
-            rRigidHeel = dRigidHeel/2;
-            rHalfRigid = rRigidHeel/2;
-            loftingDimension1 = dRigidHeel-(0.01/1.78)*patientHeight;
-            hBackHeelPieceRigid = (0.05/1.78)*patientHeight;
-            hBackHeelPieceOuter = hBackHeelPieceRigid - 0.025;
-            
-            dFromZ1_Z6 = round(lFoot - rInnerHeel, 6);
-            dFromZ1_Z2 = ((0.15*dFromZ1_Z6)/1.78)*patientHeight;
-            dFromZ2_Z3 = ((0.25*dFromZ1_Z6)/1.78)*patientHeight;
-            dFromZ3_Z4 = ((0.25*dFromZ1_Z6)/1.78)*patientHeight;
-            dFromZ4_Z5 = ((0.25*dFromZ1_Z6)/1.78)*patientHeight;
-            dFromZ5_Z6 = ((0.10*dFromZ1_Z6)/1.78)*patientHeight;
-            
-            dFromZ2_Z4 = dFromZ2_Z3 + dFromZ3_Z4;
-            dFromZ2_Z4_wEdge = dFromZ2_Z4+0.0025;
-            dFromZ2_Z3_Over2 = dFromZ2_Z3/2;
-            
-            lWideRigidPiece = (0.05/1.78)*patientHeight;
-            lNarrowRigidPiece = (0.05/1.78)*patientHeight;
-            
-            strapWidth = dRigidHeel - 0.002;
-            
-            %% Soft Outer Piece
-            dSoftHeel = wFoot+((0.02/1.78)*patientHeight);
-            rSoftHeel = dSoftHeel/2;
-            loftingDimension2 = dSoftHeel-(0.01/1.78)*patientHeight;
-            
-            %% Often Used Dimensions
-            d1 = (0.0025/1.78)*patientHeight;
-            d2 = (0.005/1.78)*patientHeight;
-            d3 = (0.0075/1.78)*patientHeight;
-            d4 = (0.01/1.78)*patientHeight;
-            d5 = (0.015/1.78)*patientHeight;
-            d6 = (0.02/1.78)*patientHeight;
-            d7 = (0.05/1.78)*patientHeight;
-            d8 = (0.06/1.78)*patientHeight;
-            d9 = (0.00485/1.78)*patientHeight;
-            d10 = (0.0015/1.78)*patientHeight;
-            d11 = (0.0035/1.78)*patientHeight;
-            d12 = (0.002/1.78)*patientHeight;
-            d13 = (0.012/1.78)*patientHeight;
-            d14 = (0.035/1.78)*patientHeight;
-            d15 = (0.006/1.78)*patientHeight;
-            d16 = (0.04/1.78)*patientHeight;
-            d17 = (0.008/1.78)*patientHeight;
-            d18 = (0.1/1.78)*patientHeight;
-            d19 = (0.025/1.78)*patientHeight;
-            d20 = (0.15/1.78)*patientHeight;
-            d21 = (0.004/1.78)*patientHeight;
-            
-            %% Rigid Piece Volume Calculations
-%             v1 = (1/4)*(4/3)*pi*((rRigidHeel^3)-(rInnerHeel^3));
-%             v2 = (1/2)*pi*((rRigidHeel^2)-(rInnerHeel^2))*(hBackHeelPieceRigid);
-%             v3 = 0.005*dRigidHeel*dFromZ2_Z3;
-%             v4 = 2*0.005*(0.0025^2)+(1/2)*(loftingDimension1+0.01)*0.0075*0.0025;
-%             v5 = 0.005*rRigidHeel*dFromZ3_Z4;
-%             v6 = 2*0.01*0.0025*dFromZ2_Z3;
-%             v7 = 2*(0.005^2)*dFromZ2_Z3;
-%             v8 = 2*(0.015^2)*0.01;
-%             v9 = -2*0.005*0.015*0.02;
-%             v10 = -4*pi*(0.0025^2)*0.005;
-%             v11 = 2*(0.05^2)*0.005+(pi/2)*((rRigidHeel^2)-(rInnerHeel^2))*0.05;
-%             v12 = (1/4)*pi*((rRigidHeel^2)-(rInnerHeel^2));
-%             %v13 = 0.005*wPiece*0.001-(1/4)*pi*((rRigidHeel^2)-(rInnerHeel^2));
-%             v14 = 0; %volume of the loft, not sure how  to calculate yet
-%             
-%             %% Outer Piece Volume Calculations
-%             v15 = (1/4)*(4/3)*pi*((rSoftHeel^3)-(rInnerHeel^3));
-%             v16 = (1/2)*pi*((rSoftHeel^2)-(rRigidHeel^2))*hBackHeelPieceOuter;
-%             v17 = dSoftHeel*0.005*dFromZ2_Z4;
-%             v18 = 2*0.005*(0.0025^2)+(1/2)*(loftingDimension2+0.01)*0.0075*0.0025;
-%             v19 = 2*(0.005^2)*0.0025;
-%             v20 = 0.005*0.002;
-%             v21 = dFromZ2_Z4*dSoftHeel*0.05;
-%             v22 = -(dFromZ2_Z3*dRigidHeel+0.0025*dRigidHeel+dFromZ3_Z4*rRigidHeel)*0.0049;
-%             v23 = 0.01*dFromZ4_Z5*dSoftHeel;
-%             v24 = -0.015*0.005*dSoftHeel;
-%             v25 = -2*0.01*0.015*0.005;
-%             v26 = (1/2)*pi*dFromZ5_Z6^2*0.01;
-%             
-%             %% Strap Connector Piece Volume Calculations
-%             v27 = 0.005*0.015*0.35;
-%             v28 = -0.002*0.012*0.35;
-%             v29 = -2*pi*0.0015*0.0025^2;
-%             v30 = -2*0.0015*pi*0.001^2;
-%             
-%             %% Strap Insert Piece Volume Calculations
-%             v31 = 0.012*0.002*0.04;
-%             v32 = -0.002*pi*(0.0025^2);
-%             v33 = -7*0.002*pi*0.001^2;
-%             
-%             %% Strap Piece Volume Calculations
-%             v34 = 2*0.025*0.005+(pi/2)*0.005^2;
-%             v35 = 2*pi*0.005*0.0025^2;
-%             
-%             %% Toe Insert Piece Volume Calculations
-%             v36 = dSoftHeel*0.015*0.005;
-%             v37 = 2*0.002*0.01*0.015;
-%             v38 = -2*0.02*0.005*0.015;
-%             v39 = -2*0.005*pi*0.0025^2;
-%             
-%             %% Total Volume of the Foot Mechanism
-%             vTotal = v1+v2+v3+v4+v5+v6+v7+v8+v9+v10+v11+v12+v15+v16 ...
-%                 +v17+v18+v19+v20+v21+v22+v23+v24+v25+v26+v27+v28+v29+v30 ...
-%                 +v31+v32+v33+v34+v35+v36+v37+v38+v39; %missing v13
-            
-            %% Rigid Piece File
-            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footRigidPieceDimensions.txt', 'w');
-                fprintf(fileID, '"dInnerHeel" = %7.7f\n', dInnerHeel);
-                fprintf(fileID, '"rInnerHeel" = %7.7f\n', dInnerHeel/2);
-                fprintf(fileID, '"dRigidHeel" = %7.7f\n', dRigidHeel);
-                fprintf(fileID, '"rRigidHeel" = %7.7f\n', dRigidHeel/2);
-                fprintf(fileID, '"hBackHeelPieceRigid" = %7.7f\n', hBackHeelPieceRigid);
-                fprintf(fileID, '"loftingDimension1" = %7.7f\n', loftingDimension1);
-                fprintf(fileID, '"rHalfRigid" = %7.7f\n', rHalfRigid);
-                fprintf(fileID, '"dFromZ1_Z2" = %7.7f\n', dFromZ1_Z2);
-                fprintf(fileID, '"dFromZ2_Z3" = %7.7f\n', dFromZ2_Z3);
-                fprintf(fileID, '"dFromZ3_Z4" = %7.7f\n', dFromZ3_Z4);
-                fprintf(fileID, '"dFromZ4_Z5" = %7.7f\n', dFromZ4_Z5);
-                fprintf(fileID, '"dFromZ5_Z6" = %7.7f\n', dFromZ5_Z6);
-                fprintf(fileID, '"dFromZ2_Z3_Over2" = %7.7f\n', dFromZ2_Z3_Over2);
-                fprintf(fileID, '"dimension1" = %7.7f\n', d1);
-                fprintf(fileID, '"dimension2" = %7.7f\n', d2);
-                fprintf(fileID, '"dimension3" = %7.7f\n', d3);
-                fprintf(fileID, '"dimension4" = %7.7f\n', d4);
-                fprintf(fileID, '"dimension5" = %7.7f\n', d5);
-                fprintf(fileID, '"dimension6" = %7.7f\n', d6);
-                fprintf(fileID, '"dimension7" = %7.7f\n', d7);
-                fprintf(fileID, '"dimension8" = %7.7f\n', d8);
-            fclose(fileID);
-            
-            %% Outer Piece File
-            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footOuterPieceDimensions.txt', 'w');
-                fprintf(fileID, '"dSoftHeel" = %7.7f\n', dSoftHeel);
+    lFoot = round(0.152*patientHeight, 6);
+    wFoot = round(0.055*patientHeight, 6);
+    wShoe = 0; %a value of how much a shoe could
+    %increase the width of the foot
+
+ %% Rigid Foot Piece Dimensions 
+ % D1@Sketch2
+    dInnerHeel = wFoot + wShoe; %could be inside diameter of rigid heel cup
+    rInnerHeel = wFoot/2;
+    
+    dRigidHeel = wFoot+((0.01/1.78)*patientHeight); %outer diameter of rigid heel cup, set to 1cm at 1.78m
+    rRigidHeel = dRigidHeel/2;
+    
+    rHalfRigid = rRigidHeel/2; %used in sketch 10 as the width of the the smaller rigid extrusion
+  
+    hBackHeelPieceRigid = (0.02047/1.78)*patientHeight;
+    hBackHeelPieceOuter = hBackHeelPieceRigid - (0.005/1.78)*patientHeight;
+    
+    dFromZ1_Z6 = round(lFoot - rInnerHeel, 6); %
+    dFromZ1_Z2 = ((0.15*dFromZ1_Z6)/1.78)*patientHeight; %the horizonal distance for the loft, its between the heel cup and rectangular rigid piece
+    dFromZ2_Z3 = ((0.25*dFromZ1_Z6)/1.78)*patientHeight; %length of wider rectangular rigid piece
+    dFromZ3_Z4 = ((0.25*dFromZ1_Z6)/1.78)*patientHeight; %length of the narrower rectangular rigid piece
+    dFromZ4_Z5 = ((0.25*dFromZ1_Z6)/1.78)*patientHeight; %length from the end of the narrow piece to the flat edge at the end of the outer piece
+    dFromZ5_Z6 = ((0.10*dFromZ1_Z6)/1.78)*patientHeight; %length between flat edge and tip of curved edge at the front of the outer piece       
+    dFromZ2_Z4 = dFromZ2_Z3 + dFromZ3_Z4;
+    dFromZ2_Z4_wEdge = dFromZ2_Z4+(0.0025/1.78)*patientHeight;
+    
+    % Used in Sketch 7
+    rigidFootPlateThickness = (0.005/1.78)*patientHeight;
+    
+    % Used in Sketch 12, the sketch the heel cup lofts too
+    loftingDimension1 = dRigidHeel-(0.01/1.78)*patientHeight; %it's the distance between the two tips of the sketch used to create a shape the cup can loft too
+    wLoftingDimensionTip = (0.005/1.78)*patientHeight; % the dimensions of the tips between loftingDimension
+    lLoftingDimensionTip = (0.0025/1.78)*patientHeight;
+    dLoftingTipToSemiCircleApex = (0.0075/1.78)*patientHeight;
+    lExtrusion6 = (0.0025/1.78)*patientHeight;
+    
+    % Sketch 16 Extrusion dimensions
+    wExtrusion11 = (0.01/1.78)*patientHeight;
+    lExtrusion11 = dFromZ2_Z3;
+    
+    lExtrusion12 = (0.005/1.78)*patientHeight;
+    lExtrusion13 = (0.005/1.78)*patientHeight;
+    
+    % Rigid piece strap connector location (Extrude 14)
+    dFromZ2_Z3_Over2 = dFromZ2_Z3/2; %distance from edge of wide piece to centre of the extrusion
+    halfLStrapConnector = (0.0075/1.78)*patientHeight; %half the length of the strap connector extrusion
+    hStrapConnector = (0.015/1.78)*patientHeight; %height of the extrusion
+    
+    wConnectorCut = (0.005/1.78)*patientHeight;
+    wHalfConnectorCut = (0.0025/1.78)*patientHeight;
+    depthConnectorCut = (0.02/1.78)*patientHeight;
+    
+    % With regards to pin hole at the connector
+    depthPinHole = (0.0075/1.78)*patientHeight; %how far down the connect the centre of the pin hole is
+    dPinHole = (0.005/1.78)*patientHeight; %diamter of the pin hole
+    
+    % With regards to sketch23 and extrude15
+    lengthToOuterSemiCircle = (0.05/1.78)*patientHeight; %in sketch 23, this is the straight length up until the semicircle
+    lExtrusion15 = (0.02/1.78)*patientHeight; %extrusion length for extrusion15
+    
+    % With regards to sketch30 and extrusion20
+    lPlantarSpringAttachmentPiece = (0.05/1.78)*patientHeight; %length of the attachment piece
+    dExtrusion20 = (0.02/1.78)*patientHeight; %depth of the spring attachment piece
+    
+    % With regards to sketch 32
+    lPlantarAttachmentEdgeToHookCutEdge = (0.01/1.78)*patientHeight;
+    
+    % With regards to sketch33
+    rOuterHookCut = (0.01/1.78)*patientHeight;
+    rInnerHookCut = (0.0025/1.78)*patientHeight;
+    
+    % With regards to planes and fillets
+    dPlane8 = (0.05/1.78)*patientHeight;
+    rFillet1 = (0.01/1.78)*patientHeight;
+    distanceToLoftPlane= (0.0332415/1.78)*patientHeight;
+    %PlantarSpringAttachRadius
+    %LenghtOfSpringAttachmentBar = lowerAttachmentDistFromCenterLine - PlantarSpringAttachRadius; 
+    
+    
+    
+    fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footRigidPieceDimensionsUpdated.txt', 'w');
+         fprintf(fileID, '"dInnerHeel" = %7.7f\n', dInnerHeel);
+         fprintf(fileID, '"rInnerHeel" = %7.7f\n', dInnerHeel/2);
+         fprintf(fileID, '"dRigidHeel" = %7.7f\n', dRigidHeel);
+         fprintf(fileID, '"rRigidHeel" = %7.7f\n', dRigidHeel/2);
+         fprintf(fileID, '"hBackHeelPieceRigid" = %7.7f\n', hBackHeelPieceRigid);
+         fprintf(fileID, '"loftingDimension1" = %7.7f\n', loftingDimension1);
+         fprintf(fileID, '"rigidFootPlateThickness" = %7.7f\n', rigidFootPlateThickness);
+         fprintf(fileID, '"wLoftingDimensionTip" = %7.7f\n', wLoftingDimensionTip);
+         fprintf(fileID, '"lLoftingDimensionTip" = %7.7f\n', lLoftingDimensionTip);
+         fprintf(fileID, '"dLoftingTipToSemiCircle" = %7.7f\n', dLoftingTipToSemiCircleApex);
+         fprintf(fileID, '"lExtrusion6" = %7.7f\n', lExtrusion6);
+         fprintf(fileID, '"wExtrusion11" = %7.7f\n', wExtrusion11);
+         fprintf(fileID, '"lExtrusion12" = %7.7f\n', lExtrusion12);
+         fprintf(fileID, '"lExtrusion13" = %7.7f\n', lExtrusion13);
+         fprintf(fileID, '"halfLStrapConnector" = %7.7f\n', halfLStrapConnector);
+         fprintf(fileID, '"hStrapConnector" = %7.7f\n', hStrapConnector);
+         fprintf(fileID, '"wConnectorCut" = %7.7f\n', wConnectorCut);
+         fprintf(fileID, '"wHalfConnectorCut" = %7.7f\n', wHalfConnectorCut);
+         fprintf(fileID, '"depthConnectorCut" = %7.7f\n', depthConnectorCut);
+         fprintf(fileID, '"depthPinHole" = %7.7f\n', depthPinHole);
+         fprintf(fileID, '"dPinHole" = %7.7f\n', dPinHole);
+         fprintf(fileID, '"lengthToOuterSemiCircle" = %7.7f\n', lengthToOuterSemiCircle);
+         fprintf(fileID, '"lExtrusion15" = %7.7f\n', lExtrusion15);
+         fprintf(fileID, '"lPlantarSpringAttachmentPiece" = %7.7f\n', lPlantarSpringAttachmentPiece);
+         fprintf(fileID, '"dExtrusion20" = %7.7f\n', dExtrusion20);
+         fprintf(fileID, '"lPlantarAttachmentEdgeToHookCutEdge" = %7.7f\n', lPlantarAttachmentEdgeToHookCutEdge);
+         fprintf(fileID, '"rOuterHookCut" = %7.7f\n', rOuterHookCut);
+         fprintf(fileID, '"rInnerHookCut" = %7.7f\n', rInnerHookCut);
+         fprintf(fileID, '"rHalfRigid" = %7.7f\n', rHalfRigid);
+         fprintf(fileID, '"dFromZ1_Z2" = %7.7f\n', dFromZ1_Z2);
+         fprintf(fileID, '"dFromZ2_Z3" = %7.7f\n', dFromZ2_Z3);
+         fprintf(fileID, '"dFromZ3_Z4" = %7.7f\n', dFromZ3_Z4);
+         fprintf(fileID, '"dFromZ4_Z5" = %7.7f\n', dFromZ4_Z5);
+         fprintf(fileID, '"dFromZ5_Z6" = %7.7f\n', dFromZ5_Z6);
+         fprintf(fileID, '"dFromZ2_Z3_Over2" = %7.7f\n', dFromZ2_Z3_Over2);
+         fprintf(fileID, '"dPlane8" = %7.7f\n', dPlane8);
+         fprintf(fileID, '"rFillet1" = %7.7f\n', rFillet1);
+         fprintf(fileID, '"distanceToLoftPlane" = %7.7f\n', distanceToLoftPlane);
+         fprintf(fileID, '"lowerAttachmentDistUpShank" = %7.7f\n', lowerAttachmentDistUpShank);
+         fprintf(fileID, '"lowerAttachmentDistFromCenterLine" = %7.7f\n', lowerAttachmentDistFromCenterLine);       
+     fclose(fileID);
+     
+     %% Rigid Piece Volume Calculations
+            v1 = (1/4)*(4/3)*pi*((rRigidHeel^3)-(rInnerHeel^3));
+            v2 = (1/2)*pi*((rRigidHeel^2)-(rInnerHeel^2))*(hBackHeelPieceRigid);
+            v3 = rigidFootPlateThickness*dRigidHeel*dFromZ2_Z3;
+            %v4 = 2*wLoftingDimensionTip*lLoftingdimensionTip*lExtrude6+(1/2)*(loftingDimension1+(2*wLoftingDimensionTip)*(dLoftingTipToSemiCircle-wLoftingDimensionTip)*lExtrude6;
+            v5 = rigidFootPlateThickness*rRigidHeel*dFromZ3_Z4;
+            v6 = 2*wExtrusion11*(rigidFootPlateThickness/2)*dFromZ2_Z3;
+            v7 = 2*((wExtrusion11/2)^2)*dFromZ2_Z3;
+            v8 = 2*(wExtrusion11)*(halfLStrapConnector*2)*hStrapConnector;
+            v9 = -2*wConnectorCut*(halfLStrapConnector*2)*depthConnectorCut;
+            v10 = -4*pi*(dPinHole^2)*((0.005/1.78)*patientHeight);
+            v11 = 2*(lengthToOuterSemiCircle^2)*rigidFootPlateThickness+(pi/2)*((rRigidHeel^2)-(rInnerHeel^2))*0.05;
+            v12 = (1/4)*pi*((rRigidHeel^2)-(rInnerHeel^2));
+            %v13 = 0.005*wPiece*0.001-(1/4)*pi*((rRigidHeel^2)-(rInnerHeel^2));
+            v14 = 0; %volume of the loft, not sure how  to calculate yet
+            v40 = (1/2)*pi*((rOuterHookCut^2)-(rInnerHookCut^2))*((0.015/1.78)*patientHeight);
+     
+     %% Outer Foot Piece Dimensions
+     dSoftHeel = wFoot+((0.02/1.78)*patientHeight);
+     rSoftHeel = dSoftHeel/2;
+     
+     % sketch6 and Extrude3 - shape outer heel lofts to
+     outerFootPlateThickness = (0.01/1.78)*patientHeight;
+     halfOuterFootPlateThickness = outerFootPlateThickness/2;
+     loftingDimension2 = dSoftHeel-((0.01/1.78)*patientHeight);
+     outer_lExtrusion3 = (0.0025/1.78)*patientHeight;
+     
+     outer_lExtrusion4 = (0.005/1.78)*patientHeight;
+     outer_lExtrusion5and6 = (0.005/1.78)*patientHeight;
+     LengthOfExtrusion6= outer_lExtrusion4 + lLoftingDimensionTip;
+     
+     %outer_lCut5 = (0.00485/1.78)*patientHeight;
+     outer_lCut5 = outerFootPlateThickness/2;
+     
+     %With regards to sketch19, the toe piece cut through the side of the outer piece
+     wToePieceCut = (0.015/1.78)*patientHeight;
+     hToePieceCut = (0.005/1.78)*patientHeight;
+     dFromEdgetoToePieceCutEdge = (0.01/1.78)*patientHeight;
+     
+     % With regards to sketch21, the cut for the toe piece on the top of the outer piece
+     lToePieceCutTop = (0.015/1.78)*patientHeight;
+     wToePieceCutTop = (0.01/1.78)*patientHeight;
+     dFromEdgetoToePieceCutEdgeTop = (0.01/1.78)*patientHeight;
+     outer_lCut8 = (0.005/1.78)*patientHeight;
+     
+    
+     
+     fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footOuterPieceDimensionsUpdated.txt', 'w');
+      fprintf(fileID, '"dSoftHeel" = %7.7f\n', dSoftHeel);
                 fprintf(fileID, '"rSoftHeel" = %7.7f\n', dSoftHeel/2);
                 fprintf(fileID, '"dRigidHeel" = %7.7f\n', dRigidHeel);
                 fprintf(fileID, '"rRigidHeel" = %7.7f\n', dRigidHeel/2);
                 fprintf(fileID, '"hBackHeelPieceOuter" = %7.7f\n', hBackHeelPieceOuter);
                 fprintf(fileID, '"loftingDimension2" = %7.7f\n', loftingDimension2);
+                fprintf(fileID, '"outerFootPlateThickness" = %7.7f\n', outerFootPlateThickness);
+                fprintf(fileID, '"halfOuterFootPlateThickness" = %7.7f\n', outerFootPlateThickness/2);
+                fprintf(fileID, '"wLoftingDimensionTip" = %7.7f\n', wLoftingDimensionTip);
+                fprintf(fileID, '"lLoftingDimensionTip" = %7.7f\n', lLoftingDimensionTip);
+                fprintf(fileID, '"outer_lExtrusion3" = %7.7f\n', outer_lExtrusion3);
+                fprintf(fileID, '"outer_lExtrusion4" = %7.7f\n', outer_lExtrusion4);
+                fprintf(fileID, '"outer_lExtrusion5and6" = %7.7f\n', outer_lExtrusion5and6);
+                fprintf(fileID, '"outer_lCut5" = %7.7f\n', outer_lCut5);
+                fprintf(fileID, '"wToePieceCut" = %7.7f\n', wToePieceCut);
+                fprintf(fileID, '"hToePieceCut" = %7.7f\n', hToePieceCut);
+                fprintf(fileID, '"dFromEdgetoToePieceCutEdge" = %7.7f\n', dFromEdgetoToePieceCutEdge);
+                fprintf(fileID, '"wToePieceCutTop" = %7.7f\n', wToePieceCutTop);
+                fprintf(fileID, '"lToePieceCutTop" = %7.7f\n', lToePieceCutTop);
+                fprintf(fileID, '"dFromEdgetoToePieceCutEdgeTop" = %7.7f\n', dFromEdgetoToePieceCutEdgeTop);
+                fprintf(fileID, '"outer_lCut8" = %7.7f\n', outer_lCut8);
+                
                 fprintf(fileID, '"dFromZ1_Z2" = %7.7f\n', dFromZ1_Z2);
                 fprintf(fileID, '"dFromZ2_Z3" = %7.7f\n', dFromZ2_Z3);
                 fprintf(fileID, '"dFromZ3_Z4" = %7.7f\n', dFromZ3_Z4);
                 fprintf(fileID, '"dFromZ4_Z5" = %7.7f\n', dFromZ4_Z5);
                 fprintf(fileID, '"dFromZ5_Z6" = %7.7f\n', dFromZ5_Z6);
                 fprintf(fileID, '"dFromZ2_Z4" = %f\n', dFromZ2_Z4);
-                fprintf(fileID, '"dimension1" = %7.7f\n', d1);
-                fprintf(fileID, '"dimension2" = %7.7f\n', d2);
-                fprintf(fileID, '"dimension3" = %7.7f\n', d3);
-                fprintf(fileID, '"dimension4" = %7.7f\n', d4);
-                fprintf(fileID, '"dimension5" = %7.7f\n', d5);
-                fprintf(fileID, '"dimension6" = %7.7f\n', d6);
-                fprintf(fileID, '"dimension7" = %7.7f\n', d7);
-                fprintf(fileID, '"dimension8" = %7.7f\n', d8);
-                fprintf(fileID, '"dimension9" = %7.7f\n', d9);
+                fprintf(fileID, '"distanceToLoftPlane" = %f\n', distanceToLoftPlane);
+                fprintf(fileID, '"LengthOfExtrusion6" = %f\n', LengthOfExtrusion6);
+                
+                
+     fclose(fileID);
+     
+      %% Outer Piece Volume Calculations
+            v15 = (1/4)*(4/3)*pi*((rSoftHeel^3)-(rInnerHeel^3));
+            v16 = (1/2)*pi*((rSoftHeel^2)-(rRigidHeel^2))*hBackHeelPieceOuter;
+            v17 = dSoftHeel*halfOuterFootPlateThickness*dFromZ2_Z4;
+            %v18 = 2*wLoftingDimensionTip*lLoftingdimensionTip*lExtrude6+(1/2)*(loftingDimension2o+(2*wLoftingDimensionTip)*(dLoftingTipToSemiCircle-wLoftingDimensionTip)*lExtrude6;
+            v19 = 2*wLoftingDimensionTip*lLoftingDimensionTip*outer_lExtrusion4;
+            v20 = ((0.005/1.78)*patientHeight)*((0.002/1.78)*patientHeight);
+            v21 = dFromZ2_Z4*dSoftHeel*halfOuterFootPlateThickness;
+            v22 = -(dFromZ2_Z3*dRigidHeel+outer_lExtrusion3*dRigidHeel+dFromZ3_Z4*rRigidHeel)*outer_lCut5;
+            v23 = outerFootPlateThickness*dFromZ4_Z5*dSoftHeel;
+            v24 = -wToePieceCut*hToePieceCut*dSoftHeel;
+            v25 = -2*wToePieceCutTop*lToePieceCutTop*outer_lCut8;
+            v26 = (1/2)*pi*dFromZ5_Z6^2*outerFootPlateThickness;
+      
+    %% Side Piece Dimensions
+    lSidePiece = (0.005/1.78)*patientHeight;
+    wSidePiece = (0.015/1.78)*patientHeight;
+    hSidePiece = (0.035/1.78)*patientHeight;
+    dFromSidePieceOuterEdgeToInnerCutEdge= (0.0015/1.78)*patientHeight;
+    dLargePinHoleSidePiece = (0.005/1.78)*patientHeight;
+    dFromEdgeToLargePinHoleCentre = (0.005/1.78)*patientHeight;
+    dSmallPinHoleSidePiece = (0.002/1.78)*patientHeight;
+    dFromEdgeToSmallPinHoleCentre = (0.0035/1.78)*patientHeight;
+    LengthFromExtrude=(0.0035/1.78)*patientHeight;
+    
+    fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footSidePieceDimensionsUpdated.txt', 'w');
+                fprintf(fileID, '"lSidePiece" = %7.7f\n', lSidePiece);
+                fprintf(fileID, '"wSidePiece" = %7.7f\n', wSidePiece);
+                fprintf(fileID, '"hSidePiece" = %7.7f\n', hSidePiece);
+                fprintf(fileID, '"dFromSidePieceOuterEdgeToInnerCutEdge" = %7.7f\n', dFromSidePieceOuterEdgeToInnerCutEdge);
+                fprintf(fileID, '"dLargePinHoleSidePiece" = %7.7f\n', dLargePinHoleSidePiece);
+                fprintf(fileID, '"dFromEdgeToLargePinHoleCentre" = %7.7f\n', dFromEdgeToLargePinHoleCentre);
+                fprintf(fileID, '"dSmallPinHoleSidePiece" = %7.7f\n', dSmallPinHoleSidePiece);
+                fprintf(fileID, '"dFromEdgeToSmallPinHoleCentre" = %7.7f\n', dFromEdgeToSmallPinHoleCentre);
+                fprintf(fileID, '"LengthFromExtrude" = %7.7f\n', LengthFromExtrude);
+            fclose(fileID);
+      
+            %% Side Piece Piece Volume Calculations
+            v27 = lSidePiece*wSidePiece*hSidePiece;
+            v28 = -hSidePiece*(lSidePiece-(2*dFromSidePieceOuterEdgeToInnerCutEdge))*(wSidePiece-(2*dFromSidePieceOuterEdgeToInnerCutEdge));
+            v29 = -2*pi*dFromSidePieceOuterEdgeToInnerCutEdge*dLargePinHoleSidePiece^2;
+            v30 = -2*dFromSidePieceOuterEdgeToInnerCutEdge*pi*dSmallPinHoleSidePiece^2;
+            
+     %% Strap Insert Piece Dimensions
+     
+     lInsertPiece = (0.012/1.78)*patientHeight;
+     wInsertPiece = (0.002/1.78)*patientHeight;
+     hInsertPiece = (0.04/1.78)*patientHeight;
+     
+     dLargePinHoleInsertPiece = (0.005/1.78)*patientHeight;
+     dSmallPinHoleInsertPiece = (0.002/1.78)*patientHeight;
+     dFromEdgeToLargePinHoleCentre = (0.005/1.78)*patientHeight;
+     dBetweenSmallPinHoleCentres = (0.004/1.78)*patientHeight;
+     insertPiece_fillet1 = (0.0005/1.78)*patientHeight;
+     
+     fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footInsertPieceDimensionsUpdated.txt', 'w');
+                fprintf(fileID, '"lInsertPiece" = %7.7f\n', lInsertPiece);
+                fprintf(fileID, '"wInsertPiece" = %7.7f\n', wInsertPiece);
+                fprintf(fileID, '"hInsertPiece" = %7.7f\n', hInsertPiece);
+                fprintf(fileID, '"dLargePinHoleInsertPiece" = %7.7f\n', dLargePinHoleInsertPiece);
+                fprintf(fileID, '"dSmallPinHoleInsertPiece" = %7.7f\n', dSmallPinHoleInsertPiece);
+                fprintf(fileID, '"dFromEdgeToLargePinHoleCentre" = %7.7f\n', dFromEdgeToLargePinHoleCentre);
+                fprintf(fileID, '"dBetweenSmallPinHoleCentres" = %7.7f\n', dBetweenSmallPinHoleCentres);
+                fprintf(fileID, '"dBetweenSmallPinHoleCentresTimesTwo" = %7.7f\n', dBetweenSmallPinHoleCentres*2);
+                fprintf(fileID, '"insertPiece_fillet1" = %f\n', insertPiece_fillet1);
+     fclose(fileID);
+            
+           %% Strap Insert Piece Volume Calculations
+            v31 = wInsertPiece*hInsertPiece*lInsertPiece;
+            v32 = -wInsertPiece*pi*(dLargePinHoleInsertPiece^2);
+            v33 = -7*wInsertPiece*pi*dSmallPinHoleInsertPiece^2;
+            
+      %% Toe Insert Piece Dimensions
+      
+      lBase = dSoftHeel;
+      wBase = (0.015/1.78)*patientHeight;
+      hBase = (0.005/1.78)*patientHeight;
+      lToeStrapConnector = (0.01/1.78)*patientHeight;
+      hToeStrapConnector = (0.02/1.78)*patientHeight;
+      wToeStrapCut = (0.005/1.78)*patientHeight;
+      hToeStrapCut = (0.02/1.78)*patientHeight;
+      dLargePinHoleToePiece = (0.005/1.78)*patientHeight;
+      dFromEdgeToLargeHolePinCentreToePiece = (0.0075/1.78)*patientHeight;
+      
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footToeInsertPieceDimensionsUpdated.txt', 'w');
+                fprintf(fileID, '"lBase" = %7.7f\n', lBase);
+                fprintf(fileID, '"wBase" = %7.7f\n', wBase);
+                fprintf(fileID, '"hBase" = %7.7f\n', hBase);
+                fprintf(fileID, '"lToeStrapConnector" = %7.7f\n', lToeStrapConnector);
+                fprintf(fileID, '"hToeStrapConnector" = %7.7f\n', hToeStrapConnector);
+                fprintf(fileID, '"wToeStrapCut" = %7.7f\n', wToeStrapCut);
+                fprintf(fileID, '"wHalfToeStrapCut" = %7.7f\n', wToeStrapCut/2);
+                fprintf(fileID, '"hToeStrapCut" = %7.7f\n', hToeStrapCut);
+                fprintf(fileID, '"dLargePinHoleToePiece" = %7.7f\n', dLargePinHoleToePiece);
+                fprintf(fileID, '"dFromEdgeToLargeHolePinCentreToePiece" = %7.7f\n', dFromEdgeToLargeHolePinCentreToePiece);
             fclose(fileID);
             
-            %% Side Piece File
-            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footSidePieceDimensions.txt', 'w');
-                fprintf(fileID, '"dimension2" = %7.7f\n', d2);
-                fprintf(fileID, '"dimension5" = %7.7f\n', d5);
-                fprintf(fileID, '"dimension10" = %7.7f\n', d10);
-                fprintf(fileID, '"dimension11" = %7.7f\n', d11);
-                fprintf(fileID, '"dimension14" = %7.7f\n', d14);
+            %% Toe Insert Piece Volume Calculations
+            v36 = wBase*lBase*hBase;
+            v37 = 2*wBase*lToeStrapConnector*hToeStrapConnector;
+            v38 = -2*wToeStrapCut*lToeStrapConnector*hToeStrapCut;
+            v39 = -2*(wBase-wToeStrapCut)*pi*dLargePinHoleToePiece^2;
+            
+       %% Ankle Strap Piece Dimensions
+       
+        ankleStrapRadius = (0.1/1.78)*patientHeight;
+        ankleStrapInnerLength = (0.02/1.78)*patientHeight;
+        ankleStrapOuterLength = (0.025/1.78)*patientHeight;
+        ankleStrapWidth = dRigidHeel - (0.002/1.78)*patientHeight;
+        ankleStrapThickness = (0.005/1.78)*patientHeight;
+        ankleStrapExtrusion = (0.02/1.78)*patientHeight;
+        dLargePinHoleAnkleStrapPiece = (0.005/1.78)*patientHeight;
+        dFromEdgeToLargeHolePinCentreAnkleStrapPiece = (0.0075/1.78)*patientHeight;
+       
+        
+            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footAnkleStrapPieceDimensionsUpdated.txt', 'w');
+                fprintf(fileID, '"ankleStrapRadius" = %7.7f\n', ankleStrapRadius);
+                fprintf(fileID, '"ankleStrapInnerLength" = %7.7f\n', ankleStrapInnerLength);
+                fprintf(fileID, '"ankleStrapOuterLength" = %7.7f\n', ankleStrapOuterLength);
+                fprintf(fileID, '"ankleStrapWidth" = %7.7f\n', ankleStrapWidth);
+                fprintf(fileID, '"ankleStrapThickness" = %7.7f\n', ankleStrapThickness);
+                fprintf(fileID, '"ankleStrapExtrusion" = %7.7f\n', ankleStrapExtrusion);
+                fprintf(fileID, '"dLargePinHoleAnkleStrapPiece" = %7.7f\n', dLargePinHoleAnkleStrapPiece);
+                fprintf(fileID, '"dFromEdgeToLargeHolePinCentreAnkleStrapPiece" = %7.7f\n', dFromEdgeToLargeHolePinCentreAnkleStrapPiece);
+                
+          
             fclose(fileID);
             
-            %% Strap Insert Piece File
-            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footInsertPieceDimensions.txt', 'w');
-                fprintf(fileID, '"dimension2" = %7.7f\n', d2);
-                fprintf(fileID, '"dimension12" = %7.7f\n', d12);
-                fprintf(fileID, '"dimension13" = %7.7f\n', d13);
-                fprintf(fileID, '"dimension15" = %7.7f\n', d15);
-                fprintf(fileID, '"dimension16" = %7.7f\n', d16);
-                fprintf(fileID, '"dimension17" = %7.7f\n', d17);
-                fprintf(fileID, '"dimension21" = %7.7f\n', d21);
+            %% Ankle Strap Piece Volume Calculations
+            v34 = 2*ankleStrapInnerLength*ankleStrapThickness+(pi/2)*((ankleStrapRadius^2)-((ankleStrapRadius-(2*ankleStrapThickness))^2));
+            v35 = -2*pi*ankleStrapThickness*dLargePinHoleAnkleStrapPiece^2;
+            
+       %% Toe Strap Piece Dimensions
+       toeStrapRadius = (0.15/1.78)*patientHeight;
+       toeStrapExtrusion = (0.02/1.78)*patientHeight;
+       toeStrapWidth = dRigidHeel - (0.002/1.78)*patientHeight;
+       toeStrapThickness = (0.005/1.78)*patientHeight;
+       toeStrapInnerLength = (0.02/1.78)*patientHeight;
+       toeStrapOuterLength = (0.04/1.78)*patientHeight;
+       dLargePinHoleToeStrapPiece = (0.005/1.78)*patientHeight;
+       dFromEdgeToLargeHolePinCentreToeStrapPiece = (0.0075/1.78)*patientHeight;
+       rToeHookOuterCut = (0.01/1.78)*patientHeight;
+       rToeHookInnerCut = (0.0025/1.78)*patientHeight;
+       dToeHookCutExtrude = (0.015/1.78)*patientHeight;
+       rToeStrapFillet = (0.01/1.78)*patientHeight;
+       
+       fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footToeStrapPieceDimensionsUpdated.txt', 'w');
+                fprintf(fileID, '"toeStrapRadius" = %7.7f\n', toeStrapRadius);
+                fprintf(fileID, '"toeStrapInnerLength" = %7.7f\n', toeStrapInnerLength);
+                fprintf(fileID, '"toeStrapOuterLength" = %7.7f\n', toeStrapOuterLength);
+                fprintf(fileID, '"toeStrapWidth" = %7.7f\n', toeStrapWidth);
+                fprintf(fileID, '"toeStrapThickness" = %7.7f\n', toeStrapThickness);
+                fprintf(fileID, '"toeStrapExtrusion" = %7.7f\n', toeStrapExtrusion);
+                fprintf(fileID, '"dLargePinHoleToeStrapPiece" = %7.7f\n', dLargePinHoleToeStrapPiece);
+                fprintf(fileID, '"dFromEdgeToLargeHolePinCentreToeStrapPiece" = %7.7f\n', dFromEdgeToLargeHolePinCentreToeStrapPiece);
+                fprintf(fileID, '"rToeHookOuterCut" = %7.7f\n', rToeHookOuterCut);
+                fprintf(fileID, '"rToeHookInnerCut" = %7.7f\n', rToeHookInnerCut);
+                fprintf(fileID, '"dToeHookCutExtrude" = %7.7f\n', dToeHookCutExtrude);
+                fprintf(fileID, '"rToeStrapFillete" = %7.7f\n', rToeStrapFillet);
             fclose(fileID);
             
-            %% Ankle Strap Piece File
-            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footAnkleStrapPieceDimensions.txt', 'w');
-                fprintf(fileID, '"dimension2" = %7.7f\n', d2);
-                fprintf(fileID, '"dimension3" = %7.7f\n', d3);
-                fprintf(fileID, '"dimension6" = %7.7f\n', d6);
-                fprintf(fileID, '"dimension18" = %7.7f\n', d18);
-                fprintf(fileID, '"dimension19" = %7.7f\n', d19);
-                fprintf(fileID, '"strapWidth" = %7.7f\n', strapWidth);
-            fclose(fileID);
-            
-            %% Toe Strap Piece File
-            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footToeStrapPieceDimensions.txt', 'w');
-                fprintf(fileID, '"dimension1" = %7.7f\n', d1);
-                fprintf(fileID, '"dimension2" = %7.7f\n', d2);
-                fprintf(fileID, '"dimension3" = %7.7f\n', d3);
-                fprintf(fileID, '"dimension4" = %7.7f\n', d4);
-                fprintf(fileID, '"dimension5" = %7.7f\n', d5);
-                fprintf(fileID, '"dimension6" = %7.7f\n', d6);
-                fprintf(fileID, '"dimension16" = %7.7f\n', d16);
-                fprintf(fileID, '"dimension20" = %7.7f\n', d20);
-                fprintf(fileID, '"strapWidth" = %7.7f\n', strapWidth);
-            fclose(fileID);
-            
-            %% Toe Insert Piece
-            fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footToeInsertPieceDimensions.txt', 'w');
-                fprintf(fileID, '"dimension1" = %7.7f\n', d1);
-                fprintf(fileID, '"dimension2" = %7.7f\n', d2);
-                fprintf(fileID, '"dimension3" = %7.7f\n', d3);
-                fprintf(fileID, '"dimension4" = %7.7f\n', d4);
-                fprintf(fileID, '"dimension5" = %7.7f\n', d5);
-                fprintf(fileID, '"dimension6" = %7.7f\n', d6);
-                fprintf(fileID, '"dSoftHeel" = %7.7f\n', dSoftHeel);
-            fclose(fileID);          
+        %% Toe Strap Volume Calculations
+        v41 = toeStrapWidth*toeStrapExtrusion;
             
  
  

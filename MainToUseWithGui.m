@@ -109,7 +109,7 @@ classdef MainToUseWithGui
                 topLinkYMovement(item) = linkagePosition.TopBarMovementY;
 
                 %% Build dorsispring arrays
-                dorsiPosition = DorsiFlexionSpringPosition(position, model.dimensionMap,...
+                dorsiPosition = DorsiFlexionSpringPosition(position, personHeight, model.dimensionMap,...
                     hip, knee, ankle, foot);
                 dorsiFlexionArray = [dorsiFlexionArray dorsiPosition];
                 dorsiSpringAndCableLengthArray = [dorsiSpringAndCableLengthArray dorsiPosition.Length];
@@ -188,8 +188,8 @@ classdef MainToUseWithGui
 
             %% Plotting the 4Bar 
             % Plot the Intersection of the 4 bar linkage with respect to the knee joint position
-            % main.Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
-            %   intersectPointXArray, intersectPointYArray);
+             %main.Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
+             %  intersectPointXArray, intersectPointYArray);
              
             main.kneePointXArray = kneePointXArray;
             main.kneePointYArray = kneePointYArray;
@@ -197,7 +197,7 @@ classdef MainToUseWithGui
             main.intersectPointYArray = intersectPointYArray;
             main.fourBarPositionArray = fourBarArray;
              
-             %main.PlotTopBarLinkageChangeDistance(distanceChangeOfTopLink, distanceChangeOfBottomLink, ...
+             %main.Plot4BarLinkageDistanceChange(distanceChangeOfTopLink, distanceChangeOfBottomLink, ...
              %   topLinkXMovement, topLinkYMovement);
 
             %% Shaft Analysis Things
@@ -224,16 +224,16 @@ classdef MainToUseWithGui
                         {'CF',hipShaft.Fg8,hipShaft.retainingRingDist2}, ...
                         {'CF',hipShaft.Fg9, hipShaft.casingDist2});
             %ShearForceBendingMoment('Prob 200',[0.153,0.005,0.148],{'CF',-1.8161,0.005},{'CF',-0.0139,0.0165},{'CF',-0.0237,0.023},{'CF',0.8626905882,0.023},{'CF',-0.5863,0.0525},{'CF',-1.4834,0.0759},{'CF',4.895709412,0.0825},{'CF',-0.0189,0.0915},{'CF',-1.8161,0.148});
-            disp(['Max Shear Force: ', num2str(max(ShearF)), 'N,   Min Shear Force: ',  num2str(min(ShearF)), 'N']);
-            disp(['Max Bending Moment Force: ', num2str(max(BendM)), 'N*m,   Min Bending Moment Force: ',  num2str(min(BendM)), 'N*m']);
+            %disp(['Max Shear Force: ', num2str(max(ShearF)), 'N,   Min Shear Force: ',  num2str(min(ShearF)), 'N']);
+            %disp(['Max Bending Moment Force: ', num2str(max(BendM)), 'N*m,   Min Bending Moment Force: ',  num2str(min(BendM)), 'N*m']);
 
             % Shaft shoulder Analysis
             ShoulderCalcs(personHeight, main.GetAbsMaxValueFromArray(BendM), hipTorsionSpring.maxTorsionFromSpring,...
                 hipTorsionSpring.shaftDiameter, hipShaft);
             
             %% Print the value for all of the components
-            %FinalPartsCombined(personHeight, hipShaft, dorsiPosition, plantarFlexionArray(1), ...
-            %plantarTorsionSpring, dorsiTorsionSpring);
+            FinalPartsCombined(personHeight, hipShaft, dorsiPosition, plantarFlexionArray(1), ...
+            plantarTorsionSpring, dorsiTorsionSpring);
             %footMechanism(personHeight);
 
             %% Others Calcs - Bolts, Bearings, whatever else
@@ -265,24 +265,36 @@ classdef MainToUseWithGui
                 %angularAccel.PlotVelocityInterpolationCurves();
                 %angularAccel.PlotAccelerationCurves();
                 %angularAccel.PlotAvgAccelerationCurves();
-
-            %% Calculate the Velocity and Acceleration of the 4Bar
-%             for i=(1:(length(fourBarArray)-1)) % Only minus one since using average velocity currently
-%                 xScaleTime = linspace(0, timeForGaitCycle, (length(positionArray)));
-%                 % Thigh angular
-%                 angVelThigh = angularAccel.angularVelocityThigh(i);
-%                 angAccelThigh = subs(angularAccel.angularAccelThigh, xScaleTime(i));
-%                 angAccelThigh = double(angAccelThigh);
-%                 % Shank angular
-%                 angVelShank = angularAccel.angularVelocityShank(i);
-%                 angAccelShank =  subs(angularAccel.angularAccelShank, xScaleTime(i));
-%                 angAccelShank = double(angAccelShank);                
+            
+             %% Calculate the Angular Velocity and Acceleration of the 4Bar
+%                 angularVelocityLink2 = zeros(1,100);
+%                 angularVelocityLink4 = zeros(1,100);
+%                 angularAccelLink2 = zeros(1,100);
+%                 angularAccelLink4 = zeros(1,100);
+%            
+%              for i=(1:(length(fourBarArray)-1)) % Only minus one since using average velocity currently
+%                  xScaleTime = linspace(0, timeForGaitCycle, (length(positionArray)));
+%                  % Thigh angular
+%                  angVelThigh = angularAccel.angularVelocityThigh(i);
+%                  angAccelThigh = subs(angularAccel.angularAccelThigh, xScaleTime(i));
+%                  angAccelThigh = double(angAccelThigh);
+%                  % Shank angular
+%                  angVelShank = angularAccel.angularVelocityShank(i);
+%                  angAccelShank =  subs(angularAccel.angularAccelShank, xScaleTime(i));
+%                  angAccelShank = double(angAccelShank);                
+%  
+%                  % Do Calcs
+%                  fourBarCalcs = FourBarCalculations(fourBarArray(i), angVelThigh, angAccelThigh, ...
+%                  angVelShank, angAccelShank);
+%                 angularVelocityLink2(i) = fourBarCalcs.wL2;
+%                 angularVelocityLink4(i) = fourBarCalcs.wL4;
+%                 
+%                 angularAccelLink2(i) = fourBarCalcs.alphaL2;
+%                 angularAccelLink4(i) = fourBarCalcs.alphaL4;
+%              end
 % 
-%                 % Do Calcs
-%                 FourBarCalculations(fourBarArray(i), angVelThigh, angAccelThigh, ...
-%                 angVelShank, angAccelShank);
-%             end
-
+%              main.plot4BarVelocityAcceleration(angularVelocityLink2, angularVelocityLink4, ...
+%                  angularAccelLink2, angularAccelLink4);
             %% Inverse Dynamics
             inverseDynamics = InverseDynamics(model, positionArray, linearAccel, ...
                 angularAccel, patient29Forces, normCopData, timeForGaitCycle);    
@@ -551,7 +563,7 @@ end
     %PlotPatientGaitAngles(patient29Angles);
     %PlotPatientGaitForces(patient29Forces);
 
-    function PlotTopBarLinkageChangeDistance(topLinkageDistanceChangeArray, bottomLinkageDistanceChangeArray, ...
+    function Plot4BarLinkageDistanceChange(topLinkageDistanceChangeArray, bottomLinkageDistanceChangeArray, ...
     topLinkXMovement, topLinkYMovement)
         figure
         % Plot the translation distance change of the top link
@@ -560,11 +572,11 @@ end
         hold on
         plot(top, 1:length(bottomLinkageDistanceChangeArray), bottomLinkageDistanceChangeArray, 'LineWidth',2);
         grid on
-        title('Distance from Center of Limb to Pin');
+        title('Translation Magnitude of Pins from Centerlines');
         ylabel('Length (m)')
         xlabel('Gait Cycle (%)') 
         set(top, 'LineWidth',1)
-        legend(top, 'Thigh Linkage', 'Bottom Linkage')
+        legend(top, 'Thigh Bar', 'Shank Bar')
         axis(top, [0 length(topLinkageDistanceChangeArray) (min(bottomLinkageDistanceChangeArray)-0.005) (max(topLinkageDistanceChangeArray)+0.005)])
 
 
@@ -573,11 +585,11 @@ end
         hold on
         plot(bottom, 1:length(topLinkYMovement), topLinkYMovement, 'LineWidth',2);
         grid on
-        title('Distance from Thigh to Pin');
+        title('Distance from Thigh Centerline to Pin');
         ylabel('Length (m)')
         xlabel('Gait Cycle (%)') 
         set(bottom, 'LineWidth',1)
-        legend(bottom, 'Thigh X Mov.', 'Thigh Y Mov.')
+        legend(bottom, 'X Distance', 'Y Distance')
         axis(bottom, [0 length(topLinkXMovement) (min(topLinkXMovement)-0.005) (max(topLinkYMovement)+0.005)])
     end
 
@@ -624,26 +636,24 @@ end
         hold on
         grid on
         plot(top, 1:length(intersectPointXArray), intersectPointXArray, 'LineWidth',2);
-        title('Position of the Knee and Linkage Intersection');
+        title('Position of the Knee and Linkage Intersection - X Plane');
         ylabel('X Coordinates (m)')
         xlabel('Gait Cycle (%)') 
         set(top, 'LineWidth',1)
         legend(top, 'Knee Center','Linkage Intersection')
-
-        axis(top, [0 100 -0.2 0.3])
+        axis(top, [0 100 min(intersectPointXArray)-0.02 max(kneePointXArray)+0.02])
 
         bottom = subplot(2,1,2);
         plot(bottom, 1:length(kneePointYArray), kneePointYArray, 'LineWidth',2);
         hold on
         grid on
         plot(bottom, 1:length(intersectPointYArray), intersectPointYArray, 'LineWidth',2);
-        title('Position of the Knee and Linkage Intersection');
+        title('Position of the Knee and Linkage Intersection - Y Plane');
         xlabel('Gait Cycle (%)') 
         ylabel('Y Coordinates (m)') 
         set(bottom, 'LineWidth',1)
-
         legend(bottom, 'Knee Center','Linkage Intersection')
-        axis(bottom, [0 100 -0.45 -0.3])
+        axis(bottom, [0 100 (min(kneePointYArray)-0.02) max(intersectPointYArray)+0.02])
     end
 
     function Plot4BarLinkageOverRangeOfMotion(intersectPointXArray, intersectPointYArray)
@@ -713,6 +723,34 @@ end
         scatter(topModel, patientForces.Time, patientForces.LGRFZ);
         title(topModel,'Ground Reaction Force Z');
         grid(topModel,'on');
+    end
+    
+    function plot4BarVelocityAcceleration(angularVelocityLink2, angularVelocityLink4, ...
+                 angularAccelLink2, angularAccelLink4)
+            figure
+            top = subplot(2,1,1);
+            plot(top, 1:length(angularVelocityLink2), angularVelocityLink2, 'LineWidth',2);
+            hold on
+            grid on
+            plot(top, 1:length(angularVelocityLink4), angularVelocityLink4, 'LineWidth',2);
+            title('Angular Velocity of the Crossing Links');
+            ylabel('Angular Velocity (rad/s)')
+            xlabel('Gait Cycle (%)') 
+            set(top, 'LineWidth',1)
+            legend(top, 'Link 2','Link 4')
+            %axis(top, [0 100 min()])
+
+            bottom = subplot(2,1,2);
+            plot(bottom, 1:length(angularAccelLink2), angularAccelLink2, 'LineWidth',2);
+            hold on
+            grid on
+            plot(bottom, 1:length(angularAccelLink4), angularAccelLink4, 'LineWidth',2);
+            title('Angular Acceleration of the Crossing Links');
+            xlabel('Gait Cycle (%)') 
+            ylabel('Angular Acceleration (rad/s^2)') 
+            set(bottom, 'LineWidth',1)
+            legend(bottom, 'Link 2','Link 4')
+            %axis(bottom, [0 100 -0.45 -0.3]) 
     end
 
     end

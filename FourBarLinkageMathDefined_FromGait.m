@@ -59,17 +59,17 @@ classdef FourBarLinkageMathDefined_FromGait
             %Ltopbar = .061798*personHeight; % Percentage of height, Can change value - in m (~0.11 for 1.78m)
             %Lbotbar = .230337*personHeight; % Percentage of height, Can change value - in m (~0.41 for 1.78m)
             
-            %Lbot4BarFromKnee = shankLength - Lbotbar;
+            Lbot4BarFromKnee = (0.01110937/1.78)*personHeight;
             
             % Try an equal distance above and below knee joint - 4 cm
             %distanceMeters = (0.0090/1.78)*personHeight;
-            distanceMeters = (0.01110937/1.78)*personHeight; % ----- Update
+            %distanceMeters = (0.01110937/1.78)*personHeight;
             
-            Lbot4BarFromKnee = distanceMeters;
-            LToThighBar = thighLength- distanceMeters;
+            %Lbot4BarFromKnee = distanceMeters;
+            %LToThighBar = thighLength- distanceMeters;
             
-            L1 = 0.025*personHeight; % Percentage of height, Can change value - in m (~0.0445 for 1.78m)
-            L3 = 0.02298*personHeight; % Percentage of height, Can change value - in m (~0.0409 for 1.78m)
+            %L1 = 0.025*personHeight; % Percentage of height, Can change value - in m (~0.0445 for 1.78m)
+            %L3 = 0.02298*personHeight; % Percentage of height, Can change value - in m (~0.0409 for 1.78m)
             %Theta2 = 27.5; %manually change value
             %    Theta2Rads = deg2rad(Theta2);
             %Theta3 = 90 - Theta2;
@@ -117,7 +117,7 @@ classdef FourBarLinkageMathDefined_FromGait
                 kneeAngleZRads, kneeJointXPos, kneeJointYPos);
             
             % Give length of shank bar from center to B
-            xBProj = xR2+((0.01000034/1.78)*personHeight);  % ----- update             %((1/4)*L1);
+            xBProj = xR2+((0.01000034/1.78)*personHeight);
             yBProj = yR2;
             
             % Find point B in space rotate by - theta4, hip, knee
@@ -129,18 +129,18 @@ classdef FourBarLinkageMathDefined_FromGait
                 (-1)*Theta4Rads, xR2, yR2);
             
             % Give length of shank bar from center to A
-            xAProj = xR2+((2/3)*L1);
-            yAProj = yR2;
-            
-            % Find point A in space rotate by - theta4, hip, knee, flip (180)
-            [xA, yA] = obj.RotatePointsAroundPoint(xAProj, yAProj, ...
-                hipAngleZRads, xR2, yR2);
-            [xA, yA] = obj.RotatePointsAroundPoint(xA, yA, ...
-                kneeAngleZRads, xR2, yR2);
-            [xA, yA] = obj.RotatePointsAroundPoint(xA, yA, ...
-                (-1)*Theta4Rads, xR2, yR2);
-            [xA, yA] = obj.RotatePointsAroundPoint(xA, yA, ...
-                deg2rad(180), xR2, yR2);
+%             xAProj = xR2+((2/3)*L1);
+%             yAProj = yR2;
+%             
+%             % Find point A in space rotate by - theta4, hip, knee, flip (180)
+%             [xA, yA] = obj.RotatePointsAroundPoint(xAProj, yAProj, ...
+%                 hipAngleZRads, xR2, yR2);
+%             [xA, yA] = obj.RotatePointsAroundPoint(xA, yA, ...
+%                 kneeAngleZRads, xR2, yR2);
+%             [xA, yA] = obj.RotatePointsAroundPoint(xA, yA, ...
+%                 (-1)*Theta4Rads, xR2, yR2);
+%             [xA, yA] = obj.RotatePointsAroundPoint(xA, yA, ...
+%                 deg2rad(180), xR2, yR2);
             
             %% Create the linkages in space using math - dynamics
             L1 = ((44.5/1000)/1.78)*personHeight;

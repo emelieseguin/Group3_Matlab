@@ -1,6 +1,9 @@
 classdef FourBarCalculations
     properties
-        
+        wL2
+        wL4
+        alphaL2
+        alphaL4
     end
     methods
         function obj = FourBarCalculations(fourBarPosition, angularVelocityThigh, ...
@@ -49,11 +52,13 @@ classdef FourBarCalculations
                 disp('No solution found');
             end
             
+            obj.wL2 = w1;
+            obj.wL4 = w2;
+            
             % Test check to make sure the values approximately equal 0
             checkAngVelEqn1 = -L2*omega(1)*sin(theta1) - L3*wL3*sin(thetaL3) - L4*omega(2)*sin(theta2) - L1*wL1*sin(thetaL1);
             checkAngVelEqn2 = L2*omega(1)*cos(theta1) + L3*wL3*cos(thetaL3) + L4*omega(2)*cos(theta2) + L1*wL1*cos(thetaL1);
-            
-            
+              
             %% Find the angular acceleration
             function F = acceleration(alpha)
                 F(1) = - L2*alpha(1)*sin(theta1) - L2*(w1.^2)*cos(theta1) - L3*alphaL3*sin(thetaL3) - L3*(wL3.^2)*cos(thetaL3) - L4*alpha(2)*sin(theta2) - L4*(w2.^2)*cos(theta2) - L1*(alphaL1)*sin(thetaL1) - L1*(wL1.^2)*cos(thetaL1);
@@ -75,6 +80,9 @@ classdef FourBarCalculations
             else 
                 disp('No solution found');
             end
+            
+            obj.alphaL2 = alpha1;
+            obj.alphaL4 = alpha2;
             
             % Test check to make sure the values approximately equal 0
             checkAngAccelEqn1 = - L2*alpha(1)*sin(theta1) - L2*(w1^2)*cos(theta1) - L3*alphaL3*sin(thetaL3) - L3*(wL3^2)*cos(thetaL3) - L4*alpha(2)*sin(theta2) - L4*(w2^2)*cos(theta2) - L1*(alphaL1)*sin(thetaL1) - L1*(wL1^2)*cos(thetaL1);

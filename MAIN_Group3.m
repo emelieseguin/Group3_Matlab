@@ -1008,7 +1008,7 @@ if(isWeightWithinBounds && isHeightWithinBounds)
      %%%%%%%% Where to call main and stuff here -- it will be validated here
     %MainToUseWithGui(numHeight, numWeight);
     
-    try
+    %try
     SetPanelVariablesFromMain(hObject, eventdata, handles);
     
     % Once the code has ran, then make the buttons visible
@@ -1022,10 +1022,10 @@ if(isWeightWithinBounds && isHeightWithinBounds)
     % Update and read out the log once the CAD has been run
     logFileText = fileread('C:\MCG4322B\Group3\Log\group3_LOG.txt');
     set(handles.LogFileText, 'String', logFileText);
-    catch e
-        set(handles.LogFileText, 'String', ['An error occured while trying to process the inputted data.', ...
-            ' Please try another set of dimensions.', newline, 'The error was: ', e.message])
-    end
+    %catch e
+    %    set(handles.LogFileText, 'String', ['An error occured while trying to process the inputted data.', ...
+    %        ' Please try another set of dimensions.', newline, 'The error was: ', e.message])
+    %end
 else
     AppendToLog(logFilePath, [newline,'Please enter valid dimensions to begin the build.', newline, ...
         'Click the "More info on dimensions" button for more details on the allowed ranges of dimensions.']);
