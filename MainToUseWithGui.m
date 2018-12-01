@@ -42,6 +42,8 @@ classdef MainToUseWithGui
     methods
         function main = MainToUseWithGui(personHeight, personMass)
             global thighLength rightShankLength;
+            global logFilePath;
+            logFilePath = 'C:\MCG4322B\Group3\Log\group3_LOG.txt';
             %% Initialize databases to use throughout the code
             SetAnthropometricNames(); % Run this to initialize all global naming variables
 
@@ -132,7 +134,7 @@ classdef MainToUseWithGui
             %% Plotting Graphs for Spring Length - wrt to height
             % Plot the plantarflexion and dorsiflexion spring
             %main.PlotDorsiSpringLength(dorsiSpringAndCableLengthArray);
-            %main.PlotPlantarSpringLength(plantarSpringLengthArray);
+            %main.PlotPlantarSpringLength(plantarSpringAndCableLengthArray);
 
             % Plot the shank spring
             % main.PlotShankSpringLength(springLengthArray);	 

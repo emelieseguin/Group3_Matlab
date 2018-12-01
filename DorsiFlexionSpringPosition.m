@@ -76,9 +76,13 @@ classdef DorsiFlexionSpringPosition
         obj.distanceFromAnkle2ToeCableX = P4X - position.AnkleJointX;
         obj.distanceFromAnkle2ToeCableY =  position.AnkleJointY -  P4Y;
         
-        % Angle that the force is applied to the toe at
-        AppliedForceAngleFromXAxis = 120;
-        obj.AppliedToeCableForceAngle = AppliedForceAngleFromXAxis+footAngleZ;
+        % Calculate the angle of the applied force vector from horiz       
+        if(P3X > P4X)
+            AppliedForceAngleFromXAxis = rad2deg(atan(abs(P3Y-P4Y)/abs(P3X-P4X)));
+        else
+            AppliedForceAngleFromXAxis = 180 - rad2deg(atan(abs(P3Y-P4Y)/abs(P3X-P4X)));
+        end
+        obj.AppliedToeCableForceAngle = AppliedForceAngleFromXAxis;
 
         %% Determining overall length of the system
         obj.Length = sqrt(((P2X-P1X)^2)+((P2Y-P1Y)^2)) + sqrt(((P3X-P2X)^2)+((P3Y-P2Y)^2))+ ...
