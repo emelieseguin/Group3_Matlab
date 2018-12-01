@@ -12,18 +12,17 @@ classdef DorsiFlexionSpringPosition
         %% Percentages up and down the leg for the attachments       
         thighPulleyPercentDownThigh = 0.8;
         shankPullyPercentDownShank = 0.2;
-        camPullyPercentDownShank = 0.6226; % its at the center line
-        radiusOfPulley = 0.01111;
-        
-        radiusOfThePulley = 0.0087305; % This is a constant value - redefine the sim off this
-        % upper plus, lower minus
+        camPullyPercentDownThigh = 0.6226; % its at the center line
+        radiusOfThePulley = 0.0087305;
         
         %% Distance Off Toe -- change with param
-        distAboveToe = 0.02;
+        distAboveToe = 0.065; % in [m] approximated
+        percentageFromHeelToFootAttch = 0.8;
+        
         
         %% Values used in solidworks
         pullyDistanceFromTheCenterLine
-        
+       
         %% Used to find moment contribution
         AppliedToeCableForceAngle
         distanceFromAnkle2ToeCableX
@@ -34,43 +33,46 @@ classdef DorsiFlexionSpringPosition
         function obj = DorsiFlexionSpringPosition(position, patientHeight, anthroDimensionMap, ...
                 hipAngleZ, kneeAngleZ, ankleAngleZ, footAngleZ)
         %% Setting up the variables to be used
-        r = obj.radiusOfPulley; %radius of the pulley wheel
-        global leftShankLength thighLength;
+        global leftShankLength thighLength footLength;
         lThigh = anthroDimensionMap(thighLength);
         lShank = anthroDimensionMap(leftShankLength);
+        lFoot = anthroDimensionMap(footLength);
         hipAngleZRads = deg2rad(hipAngleZ);
         kneeAngleZRads = deg2rad(kneeAngleZ);
         footAngleZRads = deg2rad(footAngleZ);
                 
-        obj.pullyDistanceFromTheCenterLine = (0.06/1.78)*patientHeight;
+        obj.pullyDistanceFromTheCenterLine = (0.06/1.78)*patientHeight;       
         
-        %% Determining the coordinates of 4 points
-        P1X =  position.ThighComXPoint + (0.05+r)*cos(hipAngleZRads);
-        P1Y = position.ThighComYPoint + (0.05+r)*sin(hipAngleZRads);
+        %% Thigh Cam Attachment
+        camPositionProjX = 0;
+        camPositionProjY = 0 - lThigh*obj.camPullyPercentDownThigh;
+        
+        [P1X, P1Y] = obj.RotatePointsAroundPoint(camPositionProjX, camPositionProjY, ...
+                hipAngleZRads, 0, 0);
 
-        P2X = obj.thighPulleyPercentDownThigh*lThigh*sin(hipAngleZRads) + (0.05+r)*cos(hipAngleZRads);
-        P2Y = -obj.thighPulleyPercentDownThigh*lThigh*cos(hipAngleZRads) + (0.05+r)*sin(hipAngleZRads);
-
+        %% Thigh Pulley Attachment
+        pulleyDistFromCenterline = obj.pullyDistanceFromTheCenterLine + obj.radiusOfThePulley; % Top is distance + pulley radius
+        P2X = obj.thighPulleyPercentDownThigh*lThigh*sin(hipAngleZRads) + pulleyDistFromCenterline*cos(hipAngleZRads);
+        P2Y = -obj.thighPulleyPercentDownThigh*lThigh*cos(hipAngleZRads) + pulleyDistFromCenterline*sin(hipAngleZRads);
+        
+        %% Shank Pulley Attachment
+        pulleyDistFromCenterline = obj.pullyDistanceFromTheCenterLine - obj.radiusOfThePulley; % Top is distance - pulley radius
         if (kneeAngleZRads>hipAngleZRads)
-            P3X = position.KneeJointX - obj.shankPullyPercentDownShank*lShank*sin(kneeAngleZRads-hipAngleZRads) + (0.05+r)*cos(kneeAngleZRads-hipAngleZRads);
-            P3Y = position.KneeJointY - obj.shankPullyPercentDownShank*lShank*cos(kneeAngleZRads-hipAngleZRads) - (0.05+r)*sin(kneeAngleZRads-hipAngleZRads);
+            P3X = position.KneeJointX - obj.shankPullyPercentDownShank*lShank*sin(kneeAngleZRads-hipAngleZRads) + pulleyDistFromCenterline*cos(kneeAngleZRads-hipAngleZRads);
+            P3Y = position.KneeJointY - obj.shankPullyPercentDownShank*lShank*cos(kneeAngleZRads-hipAngleZRads) - pulleyDistFromCenterline*sin(kneeAngleZRads-hipAngleZRads);
         elseif (kneeAngleZRads<hipAngleZRads)
-            P3X = position.KneeJointX + obj.shankPullyPercentDownShank*lShank*sin(hipAngleZRads-kneeAngleZRads) + (0.05+r)*cos(hipAngleZRads-kneeAngleZRads);
-            P3Y = position.KneeJointY - obj.shankPullyPercentDownShank*lShank*cos(kneeAngleZRads-hipAngleZRads) + (0.05+r)*sin(kneeAngleZRads-hipAngleZRads);
+            P3X = position.KneeJointX + obj.shankPullyPercentDownShank*lShank*sin(hipAngleZRads-kneeAngleZRads) + pulleyDistFromCenterline*cos(hipAngleZRads-kneeAngleZRads);
+            P3Y = position.KneeJointY - obj.shankPullyPercentDownShank*lShank*cos(kneeAngleZRads-hipAngleZRads) + pulleyDistFromCenterline*sin(kneeAngleZRads-hipAngleZRads);
         end
         
-        %P3X = position.ShankComXPoint;
-        %P3Y = position.ShankComYPoint;
-        
-        
         %% Foot Pulley Position
-        footPulleyXProj = position.ToeX;
-        footPulleyYProj = position.ToeY + obj.distAboveToe;
+        toeAttachmentPosX = position.HeelX  + lFoot*obj.percentageFromHeelToFootAttch;
+        toeAttachmentPosY = position.HeelY + obj.distAboveToe;
+            
+        [P4X, P4Y] = obj.RotatePointsAroundPoint(toeAttachmentPosX, toeAttachmentPosY, ...
+                footAngleZRads, position.HeelX, position.HeelY);
         
-        [P4X, P4Y] = obj.RotatePointsAroundPoint(footPulleyXProj, footPulleyYProj, ...
-                footAngleZRads, position.ToeX, position.ToeY);
-        
-        %% Attachment of Cable
+        %% Attachment of Cable on Foot
         obj.distanceFromAnkle2ToeCableX = P4X - position.AnkleJointX;
         obj.distanceFromAnkle2ToeCableY =  position.AnkleJointY -  P4Y;
         
