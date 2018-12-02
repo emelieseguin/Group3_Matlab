@@ -1208,7 +1208,9 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
     %PlantarSpringAttachRadius
     %LenghtOfSpringAttachmentBar = lowerAttachmentDistFromCenterLine - PlantarSpringAttachRadius; 
     
-    
+    dLargePinHoleToePiece = (0.005/1.78)*patientHeight;
+    dLargePinHead = dLargePinHoleToePiece+(0.0025/1.78)*patientHeight;
+    lLargePin = (0.00125/1.78)*patientHeight;
     
     fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footRigidPieceDimensionsUpdated.txt', 'w');
          fprintf(fileID, '"dInnerHeel" = %7.7f\n', dInnerHeel);
@@ -1251,7 +1253,9 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
          fprintf(fileID, '"distanceToLoftPlane" = %7.7f\n', distanceToLoftPlane);
          fprintf(fileID, '"lowerAttachmentDistUpShank" = %7.7f\n', lowerAttachmentDistUpShank);
          fprintf(fileID, '"lowerAttachmentDistFromCenterLine" = %7.7f\n', lowerAttachmentDistFromCenterLine);       
-     fclose(fileID);
+         fprintf(fileID, '"dLargePinHead" = %7.7f\n', dLargePinHead);
+         fprintf(fileID, '"lLargePin" = %7.7f\n', lLargePin);
+    fclose(fileID);
      
      %% Rigid Piece Volume Calculations
 	v1 = (1/4)*(4/3)*pi*((rRigidHeel^3)-(rInnerHeel^3));
@@ -1327,7 +1331,7 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
         fprintf(fileID, '"dFromZ5_Z6" = %7.7f\n', dFromZ5_Z6);
      	fprintf(fileID, '"dFromZ2_Z4" = %f\n', dFromZ2_Z4);
         fprintf(fileID, '"distanceToLoftPlane" = %f\n', distanceToLoftPlane);
-     	fprintf(fileID, '"LengthOfExtrusion6" = %f\n', LengthOfExtrusion6);            
+     	fprintf(fileID, '"LengthOfExtrusion6" = %f\n', LengthOfExtrusion6);
      fclose(fileID);
      
 %% Outer Piece Volume Calculations
@@ -1354,6 +1358,9 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
     dSmallPinHoleSidePiece = (0.002/1.78)*patientHeight;
     dFromEdgeToSmallPinHoleCentre = (0.0035/1.78)*patientHeight;
     LengthFromExtrude=(0.0035/1.78)*patientHeight;
+    dSmallPinHoleInsertPiece = (0.002/1.78)*patientHeight;
+    dSmallPin = dSmallPinHoleInsertPiece + (0.00075/1.78)*patientHeight;
+    lSmallPin = (0.00075/1.78)*patientHeight;
     
     fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footSidePieceDimensionsUpdated.txt', 'w');
         fprintf(fileID, '"lSidePiece" = %7.7f\n', lSidePiece);
@@ -1365,6 +1372,8 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
         fprintf(fileID, '"dSmallPinHoleSidePiece" = %7.7f\n', dSmallPinHoleSidePiece);
         fprintf(fileID, '"dFromEdgeToSmallPinHoleCentre" = %7.7f\n', dFromEdgeToSmallPinHoleCentre);
         fprintf(fileID, '"LengthFromExtrude" = %7.7f\n', LengthFromExtrude);
+        fprintf(fileID, '"dSmallPin" = %f\n', dSmallPin);
+        fprintf(fileID, '"lSmallPin" = %f\n', lSmallPin);
     fclose(fileID);
       
 %% Side Piece Piece Volume Calculations
@@ -1412,6 +1421,8 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
  	hToeStrapCut = (0.02/1.78)*patientHeight;
   	dLargePinHoleToePiece = (0.005/1.78)*patientHeight;
 	dFromEdgeToLargeHolePinCentreToePiece = (0.0075/1.78)*patientHeight;
+    dLargePinHead = dLargePinHoleToePiece+(0.0025/1.78)*patientHeight;
+    lLargePin = (0.00125/1.78)*patientHeight;
       
 	fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footToeInsertPieceDimensionsUpdated.txt', 'w');
         fprintf(fileID, '"lBase" = %7.7f\n', lBase);
@@ -1424,7 +1435,9 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
      	fprintf(fileID, '"hToeStrapCut" = %7.7f\n', hToeStrapCut);
      	fprintf(fileID, '"dLargePinHoleToePiece" = %7.7f\n', dLargePinHoleToePiece);
      	fprintf(fileID, '"dFromEdgeToLargeHolePinCentreToePiece" = %7.7f\n', dFromEdgeToLargeHolePinCentreToePiece);
-	fclose(fileID);
+        fprintf(fileID, '"dLargePinHead" = %7.7f\n', dLargePinHead);
+        fprintf(fileID, '"lLargePin" = %7.7f\n', lLargePin);
+    fclose(fileID);
             
 %% Toe Insert Piece Volume Calculations
             v36 = wBase*lBase*hBase;
@@ -1453,7 +1466,9 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
        	fprintf(fileID, '"ankleStrapExtrusion" = %7.7f\n', ankleStrapExtrusion);
       	fprintf(fileID, '"dLargePinHoleAnkleStrapPiece" = %7.7f\n', dLargePinHoleAnkleStrapPiece);
        	fprintf(fileID, '"dFromEdgeToLargeHolePinCentreAnkleStrapPiece" = %7.7f\n', dFromEdgeToLargeHolePinCentreAnkleStrapPiece);     
-  	fclose(fileID);
+        fprintf(fileID, '"dLargePinHead" = %7.7f\n', dLargePinHead);
+        fprintf(fileID, '"lLargePin" = %7.7f\n', lLargePin);
+    fclose(fileID);
             
 %% Ankle Strap Piece Volume Calculations
             v34 = 2*ankleStrapInnerLength*ankleStrapThickness+(pi/2)*((ankleStrapRadius^2)-((ankleStrapRadius-(2*ankleStrapThickness))^2));
@@ -1486,11 +1501,29 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
        fprintf(fileID, '"rToeHookInnerCut" = %7.7f\n', rToeHookInnerCut);
        fprintf(fileID, '"dToeHookCutExtrude" = %7.7f\n', dToeHookCutExtrude);
        fprintf(fileID, '"rToeStrapFillete" = %7.7f\n', rToeStrapFillet);
+       fprintf(fileID, '"dLargePinHead" = %7.7f\n', dLargePinHead);
+       fprintf(fileID, '"lLargePin" = %7.7f\n', lLargePin);
     fclose(fileID);
             
         %% Toe Strap Volume Calculations
         v41 = toeStrapWidth*toeStrapExtrusion;
-            
+    
+    largePinBodyLength = lToeStrapConnector;
+    smallPinBodyLength = lSidePiece - lSmallPin;
+    largeStrapPinBodyLength = wInsertPiece + toeStrapThickness;
+    
+    
+    fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footPinDimensions.txt', 'w');
+        fprintf(fileID, '"dLargePinHead" = %7.7f\n', dLargePinHead);
+        fprintf(fileID, '"lLargePin" = %7.7f\n', lLargePin);
+        fprintf(fileID, '"dSmallPin" = %7.7f\n', dSmallPin);
+        fprintf(fileID, '"lSmallPin" = %7.7f\n', lSmallPin);
+        fprintf(fileID, '"largePinBodyLength" = %7.7f\n', largePinBodyLength);
+        fprintf(fileID, '"smallPinBodyLength" = %7.7f\n', smallPinBodyLength);
+        fprintf(fileID, '"largeStrapPinBodyLength" = %7.7f\n', largeStrapPinBodyLength);
+        fprintf(fileID, '"dLargePinHoleToeStrapPiece" = %7.7f\n', dLargePinHoleToeStrapPiece);
+        fprintf(fileID, '"dSmallPinHoleInsertPiece" = %7.7f\n', dSmallPinHoleInsertPiece);
+    fclose(fileID);
  
  
 
