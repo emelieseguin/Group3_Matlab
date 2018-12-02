@@ -133,8 +133,8 @@ classdef MainToUseWithGui
 
             %% Plotting Graphs for Spring Length - wrt to height
             % Plot the plantarflexion and dorsiflexion spring
-            main.PlotDorsiSpringLength(dorsiSpringAndCableLengthArray);
-            main.PlotPlantarSpringLength(plantarSpringAndCableLengthArray);
+            %main.PlotDorsiSpringLength(dorsiSpringAndCableLengthArray);
+            %main.PlotPlantarSpringLength(plantarSpringAndCableLengthArray);
 
             % Plot the shank spring
             % main.PlotShankSpringLength(springLengthArray);	 
@@ -148,7 +148,7 @@ classdef MainToUseWithGui
             plantarSpringLengthArray = [];  %% make sure this is right - dim is wrong right now - previous version correct
             for i=1:length(plantarFlexionArray)
                 planatarPosition = plantarFlexionArray(i);
-                springLength = planatarPosition.Length + plantarSpring.totalLengthUnstrechedSpring - plantarSpring.neutralLengthValue;
+                springLength = planatarPosition.Length - plantarSpring.extensionCableLength;
                 if(springLength < plantarSpring.totalLengthUnstrechedSpring) % Assume cam will pick up the slack
                     springLength = plantarSpring.totalLengthUnstrechedSpring;
                 end
@@ -168,10 +168,10 @@ classdef MainToUseWithGui
             %% Extension spring for Dorsiflexion
             dorsiSpring = DorsiSpringCalcs(personHeight, dorsiSpringAndCableLengthArray);
 
-            dorsiSpringLengthArray = []; %% make sure this is right - dim is wrong right now - previous version right
+            dorsiSpringLengthArray = [];
             for i=1:length(dorsiFlexionArray)
                 dorsiPosition = dorsiFlexionArray(i);
-                springLength = dorsiPosition.Length + dorsiSpring.totalLengthUnstrechedSpring - dorsiSpring.neutralLengthValue;
+                springLength = dorsiPosition.Length  - dorsiSpring.extensionCableLength;
                 if(springLength < dorsiSpring.totalLengthUnstrechedSpring) % Assume cam will pick up the slack
                     springLength = dorsiSpring.totalLengthUnstrechedSpring;
                 end

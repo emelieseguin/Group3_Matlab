@@ -74,7 +74,13 @@ classdef PlantarFlexionSpringPosition
             %% Find moment contribution distances            
             xDist = x3Prime - x2Prime;
             yDist = y3Prime - y2Prime;
-            obj.AppliedHeelCableForceAngle = rad2deg(atan(yDist/xDist));
+            
+            % Calculate the angle of the applied force vector from horiz       
+            if(x3Prime > x2Prime)
+                obj.AppliedHeelCableForceAngle = rad2deg(atan(abs(yDist)/abs(xDist)));
+            else
+                obj.AppliedHeelCableForceAngle = 180 - rad2deg(atan(abs(yDist)/abs(xDist)));
+            end            
             
             obj.distanceFromAnkle2LowAttachmentX = x2Prime - position.AnkleJointX;
             obj.distanceFromAnkle2LowAttachmentY = position.AnkleJointY - y2Prime; 

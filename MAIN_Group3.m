@@ -226,11 +226,11 @@ end
 function DrawLeg(gaitPositionArray, axesToDrawOn, handles)
     gaitIndex = getappdata(handles.patientGaitPanel, 'gaitIndex');
     
-    ThighLine = animatedline(gaitPositionArray(gaitIndex).ThighPositionX, gaitPositionArray(gaitIndex).ThighPositionY,'Parent', axesToDrawOn, 'Color','r','LineWidth',1.5);
-    ShankLine = animatedline(gaitPositionArray(gaitIndex).ShankPositionX, gaitPositionArray(gaitIndex).ShankPositionY,'Parent', axesToDrawOn,'Color','r','LineWidth',1.5);
-    AnkleToCalcLine = animatedline(gaitPositionArray(gaitIndex).AnkleToCalcX, gaitPositionArray(gaitIndex).AnkleToCalcY,'Parent', axesToDrawOn,'Color','r','LineWidth',1.5);
-    AnkleToMetaLine = animatedline(gaitPositionArray(gaitIndex).AnkleToMetaX, gaitPositionArray(gaitIndex).AnkleToMetaY,'Parent', axesToDrawOn,'Color','r','LineWidth',1.5);
-    CalcToToeLine = animatedline(gaitPositionArray(gaitIndex).CalcToToeX, gaitPositionArray(gaitIndex).CalcToToeY,'Parent', axesToDrawOn,'Color','r','LineWidth',1.5);
+    ThighLine = animatedline(gaitPositionArray(gaitIndex).ThighPositionX, gaitPositionArray(gaitIndex).ThighPositionY,'Parent', axesToDrawOn, 'Color','r','LineWidth',2.5);
+    ShankLine = animatedline(gaitPositionArray(gaitIndex).ShankPositionX, gaitPositionArray(gaitIndex).ShankPositionY,'Parent', axesToDrawOn,'Color','r','LineWidth',2.5);
+    AnkleToCalcLine = animatedline(gaitPositionArray(gaitIndex).AnkleToCalcX, gaitPositionArray(gaitIndex).AnkleToCalcY,'Parent', axesToDrawOn,'Color','r','LineWidth',2.5);
+    AnkleToMetaLine = animatedline(gaitPositionArray(gaitIndex).AnkleToMetaX, gaitPositionArray(gaitIndex).AnkleToMetaY,'Parent', axesToDrawOn,'Color','r','LineWidth',2.5);
+    CalcToToeLine = animatedline(gaitPositionArray(gaitIndex).CalcToToeX, gaitPositionArray(gaitIndex).CalcToToeY,'Parent', axesToDrawOn,'Color','r','LineWidth',2.5);
     
     set(axesToDrawOn,'XColor','none', 'YColor', 'none')
     axesToDrawOn.XLim = [-0.5 1];
@@ -242,11 +242,11 @@ function DrawLeg(gaitPositionArray, axesToDrawOn, handles)
     setappdata(handles.patientGaitPanel, 'CalcToToeLine', CalcToToeLine)
     
 function DrawLegWithIndex(gaitPositionArray, axesToDrawOn, index, handles)
-ThighLine = animatedline(gaitPositionArray(index).ThighPositionX, gaitPositionArray(index).ThighPositionY,'Parent', axesToDrawOn, 'Color','r','LineWidth',1.5);
-ShankLine = animatedline(gaitPositionArray(index).ShankPositionX, gaitPositionArray(index).ShankPositionY,'Parent', axesToDrawOn,'Color','r','LineWidth',1.5);
-AnkleToCalcLine = animatedline(gaitPositionArray(index).AnkleToCalcX, gaitPositionArray(index).AnkleToCalcY,'Parent', axesToDrawOn,'Color','r','LineWidth',1.5);
-AnkleToMetaLine = animatedline(gaitPositionArray(index).AnkleToMetaX, gaitPositionArray(index).AnkleToMetaY,'Parent', axesToDrawOn,'Color','r','LineWidth',1.5);
-CalcToToeLine = animatedline(gaitPositionArray(index).CalcToToeX, gaitPositionArray(index).CalcToToeY,'Parent', axesToDrawOn,'Color','r','LineWidth',1.5);
+ThighLine = animatedline(gaitPositionArray(index).ThighPositionX, gaitPositionArray(index).ThighPositionY,'Parent', axesToDrawOn, 'Color','r','LineWidth',2.5);
+ShankLine = animatedline(gaitPositionArray(index).ShankPositionX, gaitPositionArray(index).ShankPositionY,'Parent', axesToDrawOn,'Color','r','LineWidth',2.5);
+AnkleToCalcLine = animatedline(gaitPositionArray(index).AnkleToCalcX, gaitPositionArray(index).AnkleToCalcY,'Parent', axesToDrawOn,'Color','r','LineWidth',2.5);
+AnkleToMetaLine = animatedline(gaitPositionArray(index).AnkleToMetaX, gaitPositionArray(index).AnkleToMetaY,'Parent', axesToDrawOn,'Color','r','LineWidth',2.5);
+CalcToToeLine = animatedline(gaitPositionArray(index).CalcToToeX, gaitPositionArray(index).CalcToToeY,'Parent', axesToDrawOn,'Color','r','LineWidth',2.5);
 
 set(axesToDrawOn,'XColor','none', 'YColor', 'none')
 axesToDrawOn.XLim = [-0.5 1];
@@ -295,7 +295,6 @@ xlabel('Percent Gait (%)');
 legend('Knee Center','4Bar Intersect')
 
 %% Code to implement sims
-
 axes(handles.fourBarSimAxes);
 cla reset; 
 
@@ -391,18 +390,6 @@ function DrawFourBar(fourBarArray, axesToDrawOn, handles)
     setappdata(handles.fourBarPanel, 'fourBarLine2', fourBarLine2)
     setappdata(handles.fourBarPanel, 'fourBarLine3', fourBarLine3)
     setappdata(handles.fourBarPanel, 'fourBarLine4', fourBarLine4)     
-    
-%function RemoveFourBarDrawing(handles)
-
-%    fourBarLine1 = getappdata(handles.fourBarPanel, 'fourBarLine1');
-%    fourBarLine2 = getappdata(handles.fourBarPanel, 'fourBarLine2');
-%    fourBarLine3 = getappdata(handles.fourBarPanel, 'fourBarLine3');
-%    fourBarLine4 = getappdata(handles.fourBarPanel, 'fourBarLine4');
-%    clearpoints(fourBarLine1);
-%    clearpoints(fourBarLine2);
-%    clearpoints(fourBarLine3); 
-%    clearpoints(fourBarLine4); 
-
 
 
 %% ------------------------------ Dorsiflexion Panel ----------------------%
@@ -428,26 +415,101 @@ axes(handles.dorsiSpringExtensionAxes);
 ylabel('Length (m)');
 grid on
 % Array used for the sim
-gaitPositionArray = getappdata(handles.patientGaitPanel, 'gaitPositionArray');
-dorsiSpringAndCablePosition = getappdata(handles.dorsiflexionPanel, 'dorsiSpringAndCablePosition')
-
-DrawLegWithIndex(gaitPositionArray, handles.plantarSpringSimAxes, 1, handles);
 setappdata(handles.dorsiflexionPanel, 'dorsiIndex', 1);
-set(handles.dorsiSpringExtensionLabel, 'String', round(dorsiSpringLengthArray(1), 2));
+axes(handles.dorsiSpringSimAxes);
+set(handles.dorsiSpringSimAxes,'XColor','none', 'YColor', 'none')
+cla reset;
 
+gaitPositionArray = getappdata(handles.patientGaitPanel, 'gaitPositionArray');
+dorsiSpringAndCablePosition = getappdata(handles.dorsiflexionPanel, 'dorsiSpringAndCablePosition');
+
+DrawLegWithIndex(gaitPositionArray, handles.dorsiSpringSimAxes, 1, handles);
+DrawDorsiStringAttachment(dorsiSpringAndCablePosition, handles.dorsiSpringSimAxes, handles)
+set(handles.dorsiSpringExtensionLabel, 'String', round(dorsiSpringLengthArray(1), 3));
 
 
 % --- Executes on button press in simDorsiSpringPrev.
 function simDorsiSpringPrev_Callback(hObject, eventdata, handles)
+gaitPositionArray = getappdata(handles.patientGaitPanel, 'gaitPositionArray');
+dorsiSpringAndCablePosition = getappdata(handles.dorsiflexionPanel, 'dorsiSpringAndCablePosition');
+dorsiSpringLengthArray = getappdata(handles.dorsiflexionPanel, 'dorsiSpringLengthArray');
 
+dorsiIndex = getappdata(handles.dorsiflexionPanel, 'dorsiIndex');
+axes(handles.dorsiSpringSimAxes);
+cla reset;
+
+if(dorsiIndex == 1)
+    setappdata(handles.dorsiflexionPanel, 'dorsiIndex', length(dorsiSpringAndCablePosition));
+else
+    setappdata(handles.dorsiflexionPanel, 'dorsiIndex', dorsiIndex-1);
+end
+
+dorsiIndex = getappdata(handles.dorsiflexionPanel, 'dorsiIndex');
+DrawLegWithIndex(gaitPositionArray, handles.dorsiSpringSimAxes, dorsiIndex, handles);
+DrawDorsiStringAttachment(dorsiSpringAndCablePosition, handles.dorsiSpringSimAxes, handles)
+set(handles.dorsiSpringExtensionLabel, 'String', round(dorsiSpringLengthArray(dorsiIndex), 3));
 
 % --- Executes on button press in simDorsiSpringNext.
 function simDorsiSpringNext_Callback(hObject, eventdata, handles)
+gaitPositionArray = getappdata(handles.patientGaitPanel, 'gaitPositionArray');
+dorsiSpringAndCablePosition = getappdata(handles.dorsiflexionPanel, 'dorsiSpringAndCablePosition');
+dorsiSpringLengthArray = getappdata(handles.dorsiflexionPanel, 'dorsiSpringLengthArray');
+
+dorsiIndex = getappdata(handles.dorsiflexionPanel, 'dorsiIndex');
+axes(handles.dorsiSpringSimAxes);
+cla reset;
+
+if(dorsiIndex == length(dorsiSpringAndCablePosition))
+    setappdata(handles.dorsiflexionPanel, 'dorsiIndex', 1);
+else
+    setappdata(handles.dorsiflexionPanel, 'dorsiIndex', dorsiIndex+1);
+end
+
+dorsiIndex = getappdata(handles.dorsiflexionPanel, 'dorsiIndex');
+DrawLegWithIndex(gaitPositionArray, handles.dorsiSpringSimAxes, dorsiIndex, handles);
+DrawDorsiStringAttachment(dorsiSpringAndCablePosition, handles.dorsiSpringSimAxes, handles)
+set(handles.dorsiSpringExtensionLabel, 'String', round(dorsiSpringLengthArray(dorsiIndex), 3));
 
 
 % --- Executes on button press in simDorsiSpringFull.
 function simDorsiSpringFull_Callback(hObject, eventdata, handles)
+gaitPositionArray = getappdata(handles.patientGaitPanel, 'gaitPositionArray');
+dorsiSpringAndCablePosition = getappdata(handles.dorsiflexionPanel, 'dorsiSpringAndCablePosition');
+dorsiSpringLengthArray = getappdata(handles.dorsiflexionPanel, 'dorsiSpringLengthArray');
 
+previousIndex = getappdata(handles.dorsiflexionPanel, 'dorsiIndex');
+setappdata(handles.dorsiflexionPanel, 'dorsiIndex', 1);
+axes(handles.dorsiSpringSimAxes);
+cla reset;
+
+    for num = 1:(length(dorsiSpringAndCablePosition))
+        DrawLegWithIndex(gaitPositionArray, handles.dorsiSpringSimAxes, num, handles);
+        DrawDorsiStringAttachment(dorsiSpringAndCablePosition, handles.dorsiSpringSimAxes, handles)
+        pause(0.02);
+        
+        cla reset;
+        dorsiIndex = getappdata(handles.dorsiflexionPanel, 'dorsiIndex');
+        setappdata(handles.dorsiflexionPanel, 'dorsiIndex', dorsiIndex + 1);
+        set(handles.dorsiSpringExtensionLabel, 'String', round(dorsiSpringLengthArray(num), 3));
+    end
+    
+    setappdata(handles.dorsiflexionPanel, 'dorsiIndex', previousIndex);
+    set(handles.dorsiSpringExtensionLabel, 'String', round(dorsiSpringLengthArray(previousIndex), 3));
+    DrawLegWithIndex(gaitPositionArray, handles.dorsiSpringSimAxes, previousIndex, handles);
+    DrawDorsiStringAttachment(dorsiSpringAndCablePosition, handles.dorsiSpringSimAxes, handles)
+
+
+function DrawDorsiStringAttachment(dorsiFlexionArray, axesToDrawOn, handles)
+dorsiIndex = getappdata(handles.dorsiflexionPanel, 'dorsiIndex');
+dorsiFlexionLine1 = animatedline(dorsiFlexionArray(dorsiIndex).Link1X, dorsiFlexionArray(dorsiIndex).Link1Y,'Parent', axesToDrawOn,'Color','b','LineWidth',1);
+dorsiFlexionLine2 = animatedline(dorsiFlexionArray(dorsiIndex).Link2X, dorsiFlexionArray(dorsiIndex).Link2Y,'Parent', axesToDrawOn,'Color','b','LineWidth',1); 
+dorsiFlexionLine3 = animatedline(dorsiFlexionArray(dorsiIndex).Link3X, dorsiFlexionArray(dorsiIndex).Link3Y,'Parent', axesToDrawOn,'Color','b','LineWidth',1);
+set(axesToDrawOn,'XColor','none', 'YColor', 'none')
+%axesToDrawOn.XLim = [-0.25 1];
+%axesToDrawOn.YLim = [-1 0.25];
+setappdata(handles.dorsiflexionPanel, 'plantarFlexionLine1', dorsiFlexionLine1)
+setappdata(handles.dorsiflexionPanel, 'plantarFlexionLine2', dorsiFlexionLine2)
+setappdata(handles.dorsiflexionPanel, 'plantarFlexionLine3', dorsiFlexionLine3)
 
 
 %% --------------------------- Plantarflexion Panel -----------------------%
@@ -461,46 +523,116 @@ set(handles.plantarflexionPanel, 'visible', 'on');
 set(handles.inversePanel, 'visible', 'off');
 set(handles.exoinversePanel, 'visible', 'off');
 % Show Spring and Cable Length
-plantarSpringAndCableLengthArray = getappdata(handles.plantarflexionPanel, 'plantarSpringAndCableLengthArray')
+plantarSpringAndCableLengthArray = getappdata(handles.plantarflexionPanel, 'plantarSpringAndCableLengthArray');
 plot(handles.plantarSpringCableLengthAxes, 0:length(plantarSpringAndCableLengthArray)-1, plantarSpringAndCableLengthArray, 'LineWidth',2);
 axes(handles.plantarSpringCableLengthAxes);
 ylabel('Length (m)');
 grid on
 % Show just the spring length
-plantarSpringLengthArray = getappdata(handles.plantarflexionPanel, 'plantarSpringLengthArray')
+plantarSpringLengthArray = getappdata(handles.plantarflexionPanel, 'plantarSpringLengthArray');
 plot(handles.plantarSpringExtensionAxes, 0:length(plantarSpringLengthArray)-1, plantarSpringLengthArray, 'LineWidth',2);
 axes(handles.plantarSpringExtensionAxes);
 ylabel('Length (m)');
 grid on
-% Array used for the sim
-gaitPositionArray = getappdata(handles.patientGaitPanel, 'gaitPositionArray');
-plantarSpringAndCablePosition = getappdata(handles.plantarflexionPanel, 'plantarSpringAndCablePosition')
 
-DrawLegWithIndex(gaitPositionArray, handles.plantarSpringSimAxes, 1, handles);
+% Array used for the sim
 setappdata(handles.plantarflexionPanel, 'plantarIndex', 1);
-set(handles.plantarSpringExtensionLabel, 'String', round(plantarSpringLengthArray(1), 2));
+axes(handles.plantarSpringSimAxes);
+set(handles.plantarSpringSimAxes,'XColor','none', 'YColor', 'none')
+cla reset;
+
+gaitPositionArray = getappdata(handles.patientGaitPanel, 'gaitPositionArray');
+plantarSpringAndCablePosition = getappdata(handles.plantarflexionPanel, 'plantarSpringAndCablePosition');
+DrawLegWithIndex(gaitPositionArray, handles.plantarSpringSimAxes, 1, handles);
+DrawPlantarStringAttachment(plantarSpringAndCablePosition, handles.plantarSpringSimAxes, handles)
+set(handles.plantarSpringExtensionLabel, 'String', round(plantarSpringLengthArray(1), 3));
 
 
 % --- Executes on button press in simPlantarSpringFull.
 function simPlantarSpringFull_Callback(hObject, eventdata, handles)
-plantarSpringAndCablePosition = getappdata(handles.plantarflexionPanel, 'plantarSpringAndCablePosition')
-plantarIndex = getappdata(handles.fourBarPanel, 'plantarIndex');
+gaitPositionArray = getappdata(handles.patientGaitPanel, 'gaitPositionArray');
+plantarSpringAndCablePosition = getappdata(handles.plantarflexionPanel, 'plantarSpringAndCablePosition');
+plantarSpringLengthArray = getappdata(handles.plantarflexionPanel, 'plantarSpringLengthArray');
 
+previousIndex = getappdata(handles.plantarflexionPanel, 'plantarIndex');
+setappdata(handles.plantarflexionPanel, 'plantarIndex', 1);
+axes(handles.plantarSpringSimAxes);
+cla reset;
+
+    for num = 1:(length(plantarSpringAndCablePosition))
+        DrawLegWithIndex(gaitPositionArray, handles.plantarSpringSimAxes, num, handles);
+        DrawPlantarStringAttachment(plantarSpringAndCablePosition, handles.plantarSpringSimAxes, handles)
+        pause(0.02);
+        
+        cla reset;
+        plantarIndex = getappdata(handles.plantarflexionPanel, 'plantarIndex');
+        setappdata(handles.plantarflexionPanel, 'plantarIndex', plantarIndex + 1);
+        set(handles.plantarSpringExtensionLabel, 'String', round(plantarSpringLengthArray(num), 3));
+    end
+    
+    setappdata(handles.plantarflexionPanel, 'plantarIndex', previousIndex);
+    set(handles.plantarSpringExtensionLabel, 'String', round(plantarSpringLengthArray(previousIndex), 3));
+    DrawLegWithIndex(gaitPositionArray, handles.plantarSpringSimAxes, previousIndex, handles);
+    DrawPlantarStringAttachment(plantarSpringAndCablePosition, handles.plantarSpringSimAxes, handles)
 
 % --- Executes on button press in simPlantarSpringNext.
 function simPlantarSpringNext_Callback(hObject, eventdata, handles)
-plantarSpringAndCablePosition = getappdata(handles.plantarflexionPanel, 'plantarSpringAndCablePosition')
-plantarIndex = getappdata(handles.fourBarPanel, 'plantarIndex');
+gaitPositionArray = getappdata(handles.patientGaitPanel, 'gaitPositionArray');
+plantarSpringAndCablePosition = getappdata(handles.plantarflexionPanel, 'plantarSpringAndCablePosition');
+plantarSpringLengthArray = getappdata(handles.plantarflexionPanel, 'plantarSpringLengthArray');
+
+plantarIndex = getappdata(handles.plantarflexionPanel, 'plantarIndex');
+axes(handles.plantarSpringSimAxes);
+cla reset;
+
+if(plantarIndex == length(plantarSpringAndCablePosition))
+    setappdata(handles.plantarflexionPanel, 'plantarIndex', 1);
+else
+    setappdata(handles.plantarflexionPanel, 'plantarIndex', plantarIndex+1);
+end
+
+plantarIndex = getappdata(handles.plantarflexionPanel, 'plantarIndex');
+DrawLegWithIndex(gaitPositionArray, handles.plantarSpringSimAxes, plantarIndex, handles);
+DrawPlantarStringAttachment(plantarSpringAndCablePosition, handles.plantarSpringSimAxes, handles)
+set(handles.plantarSpringExtensionLabel, 'String', round(plantarSpringLengthArray(plantarIndex), 3));
 
 
 % --- Executes on button press in simPlantarSpringPrev.
 function simPlantarSpringPrev_Callback(hObject, eventdata, handles)
-plantarSpringAndCablePosition = getappdata(handles.plantarflexionPanel, 'plantarSpringAndCablePosition')
-    plantarIndex = getappdata(handles.fourBarPanel, 'plantarIndex');
+gaitPositionArray = getappdata(handles.patientGaitPanel, 'gaitPositionArray');
+plantarSpringAndCablePosition = getappdata(handles.plantarflexionPanel, 'plantarSpringAndCablePosition');
+plantarSpringLengthArray = getappdata(handles.plantarflexionPanel, 'plantarSpringLengthArray');
+
+plantarIndex = getappdata(handles.plantarflexionPanel, 'plantarIndex');
+axes(handles.plantarSpringSimAxes);
+cla reset;
+
+if(plantarIndex == 1)
+    setappdata(handles.plantarflexionPanel, 'plantarIndex', length(plantarSpringAndCablePosition));
+else
+    setappdata(handles.plantarflexionPanel, 'plantarIndex', plantarIndex-1);
+end
+
+plantarIndex = getappdata(handles.plantarflexionPanel, 'plantarIndex');
+DrawLegWithIndex(gaitPositionArray, handles.plantarSpringSimAxes, plantarIndex, handles);
+DrawPlantarStringAttachment(plantarSpringAndCablePosition, handles.plantarSpringSimAxes, handles)
+set(handles.plantarSpringExtensionLabel, 'String', round(plantarSpringLengthArray(plantarIndex), 3));
 
 
+function DrawPlantarStringAttachment(plantarFlexionArray, axesToDrawOn, handles)
+plantarIndex = getappdata(handles.plantarflexionPanel, 'plantarIndex');
+plantarFlexionLine1 = animatedline(plantarFlexionArray(plantarIndex).Link1X, plantarFlexionArray(plantarIndex).Link1Y,'Parent', axesToDrawOn,'Color','black','LineWidth',1);
+plantarFlexionLine2 = animatedline(plantarFlexionArray(plantarIndex).Link2X, plantarFlexionArray(plantarIndex).Link2Y,'Parent', axesToDrawOn,'Color','b','LineWidth',1); 
+plantarFlexionLine3 = animatedline(plantarFlexionArray(plantarIndex).Link3X, plantarFlexionArray(plantarIndex).Link3Y,'Parent', axesToDrawOn,'Color','black','LineWidth',1);
+set(axesToDrawOn,'XColor','none', 'YColor', 'none')
+%axesToDrawOn.XLim = [-0.25 1];
+%axesToDrawOn.YLim = [-1 0.25];
+setappdata(handles.plantarflexionPanel, 'plantarFlexionLine1', plantarFlexionLine1)
+setappdata(handles.plantarflexionPanel, 'plantarFlexionLine2', plantarFlexionLine2)
+setappdata(handles.plantarflexionPanel, 'plantarFlexionLine3', plantarFlexionLine3)
+    
 
-%%------------------------ Inverse TAB ------------------------------------%
+%% ------------------------ Inverse TAB ------------------------------------%
 % --- Executes on button press in Gait_Inverse_Button.
 function Gait_Inverse_Button_Callback(hObject, eventdata, handles)
 set(handles.mainContent_panel, 'visible', 'off');
