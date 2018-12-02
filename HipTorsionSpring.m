@@ -3,7 +3,7 @@ classdef HipTorsionSpring
         % Hard Drawn Steel
         YoungsModulus = 200000000000; % Young's Modulus [Pa]
         Density = 7850; % kg/m^3
-        A = 140000; % Area from Shigley table 10-4
+        A = 140000; % Area from Shigley table 10-4 -> equivalent to 1.783 GPa mm^m
         m = 0.19; % Constant from Shigley table 10-4        
         
         % Spring dimensions - can put more

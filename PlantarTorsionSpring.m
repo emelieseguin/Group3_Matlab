@@ -6,7 +6,7 @@ classdef PlantarTorsionSpring
         A = 140000; % Area from Shigley table 10-4
         m = 0.19; % Constant from Shigley table 10-4
         
-        % Spring dimensions - can put more
+        % Spring dimensions
         NumberBodyTurns = 3.5;
         wireDiameterSpring
         meanDiameterCoil
@@ -113,7 +113,7 @@ classdef PlantarTorsionSpring
             %Find Sr 
                 Sr = 0.5*Sut;        
             %Find Se 
-                 Se = (Sr/2)/(1-(((Sr/2)/Sut).^2)); 
+                Se = (Sr/2)/(1-(((Sr/2)/Sut).^2)); 
             %Find Sa 
                 Sa = ((Sut.^2)/(2*Se))*(-1+((1+((2*Se/Sut)^.2)).^(1/2))); 
             %Calculate original length of spring [m] 
