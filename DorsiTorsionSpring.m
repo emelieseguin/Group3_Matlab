@@ -15,7 +15,7 @@ classdef DorsiTorsionSpring
         lengthWorkingLeg
         
         % Additional Torque
-        additionalTorquePercentage = 0.2;
+        additionalTorquePercentage = 0.20;
         
         % Moment Contribution
         firstValueIndex
@@ -53,9 +53,9 @@ classdef DorsiTorsionSpring
             obj.firstValueIndex = 1;
             obj.neutralValueIndex = 9; 
             obj.min1ValueIndex = 48;
-            obj.max2ValueIndex = 66;
-            obj.min2ValueIndex = 87;
-            obj.max3ValueIndex = 92;
+            obj.max2ValueIndex = 65;
+            obj.min2ValueIndex = 88;
+            obj.max3ValueIndex = 90;
             obj.min3ValueIndex = 100;
             
             obj.firstValue = dorsiSpringLengthArray(obj.firstValueIndex);
@@ -78,7 +78,7 @@ classdef DorsiTorsionSpring
              obj.wireDiameterSpring = (0.0011/1.78)*patientHeight; % Diameter of wire[m]
              d = UnitConversion.Meters2Inches(obj.wireDiameterSpring);
 
-             obj.meanDiameterCoil = (0.012/1.78)*patientHeight; % Mean diameter of coil[m]  
+             obj.meanDiameterCoil = (0.013/1.78)*patientHeight; % Mean diameter of coil[m]  
              D = UnitConversion.Meters2Inches(obj.meanDiameterCoil);  
              % MUST HAVE D>(Dp+Delta+d) 
              E = UnitConversion.Pa2Psi(obj.YoungsModulus); % Young's Modulus [Pa]
@@ -156,7 +156,19 @@ classdef DorsiTorsionSpring
                 fprintf(fileID, '"LWorkDorsiTorsionSpring" = %f\n', Lwork);
                 fprintf(fileID, '"LSuppDorsiTorsionSpring" = %f\n', Lsupp);
             fclose(fileID);
-            weightDorsiTorsionSpring = obj.GetWeightTorsion(d, Lwork, Lsupp);
+            obj.weightDorsiTorsionSpring = obj.GetWeightTorsion(Lwork, Lsupp);
+            
+            global logFilePath;
+            logFile = fopen(logFilePath, 'a+');
+                fprintf(logFile, '\n\n****   Dorsiflexion Cam Spring  ****\n\n');
+                fprintf(logFile, '    Wire Diameter = %4.4f m\n', round(obj.wireDiameterSpring, 4));
+                fprintf(logFile, '    Mean Coil Diameter = %4.4f m\n', round(obj.meanDiameterCoil,4));
+                fprintf(logFile, '    Spring Index = %4.2f\n', round(c,2));
+                fprintf(logFile, '    Number of Body Turns = %4.1f\n', round(obj.NumberBodyTurns,1));
+                fprintf(logFile, '    Mass of Spring = %4.4f kg\n\n', round(obj.weightDorsiTorsionSpring,4));
+                fprintf(logFile, '    Safety Factor = %3.2f\n', n);
+                fprintf(logFile, '\n');
+            fclose(logFile);
         end
         
         function MomentSI = GetMomentOnCam(obj, currentSpringCableLength, previousSpringCableLength, extensionCableLength, ...
@@ -217,17 +229,7 @@ classdef DorsiTorsionSpring
                 MomentSI = (obj.effectiveWDorsiPull)*Si/angleI; %[Nm]
                 %MomentSI = (obj.effectiveWDorsiPull-obj.wDorsiPull)*obj.S/angleI; %[Nm]
                 disp(rad2deg(angleI));
-            end
-            
-%             function MomentSI = GetMomentContribution(obj, currentPlantarFlexionSpringPosition)
-%             forceOnFoot = obj.effectiveWPlantarPull-obj.wPlantarPull;
-%             currentFy = forceOnFoot*sin(deg2rad(currentPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
-%             currentFx = forceOnFoot*cos(deg2rad(currentPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
-%             currentMoment = currentFy*currentPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentX + currentFx*currentPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentY;
-%             MomentSI = (-1)*currentMoment;%nextMoment - currentMoment;
-%         end
-            
-            
+            end            
         end
         
         function MomentSI = GetMomentContribution(obj, currentDorsiFlexionSpringPosition)
@@ -240,8 +242,8 @@ classdef DorsiTorsionSpring
             MomentSI = (-1)*currentMoment;
         end
         
-        function weight = GetWeightTorsion(obj, d, Lwork, Lsupp)
-            V = pi*(d.^2)/4*(obj.NumberBodyTurns+Lwork+Lsupp);%Units in meters
+        function weight = GetWeightTorsion(obj, Lwork, Lsupp)
+            V = pi*(obj.wireDiameterSpring.^2)/4*(obj.NumberBodyTurns+Lwork+Lsupp);%Units in meters
             weight = V*obj.Density; %Units in Kg
         end
     end

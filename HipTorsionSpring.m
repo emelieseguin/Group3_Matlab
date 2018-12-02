@@ -3,7 +3,7 @@ classdef HipTorsionSpring
         % Hard Drawn Steel
         YoungsModulus = 200000000000; % Young's Modulus [Pa]
         Density = 7850; % kg/m^3
-        A = 140000; % Area from Shigley table 10-4
+        A = 140000; % Area from Shigley table 10-4 -> equivalent to 1.783 GPa mm^m
         m = 0.19; % Constant from Shigley table 10-4        
         
         % Spring dimensions - can put more
@@ -108,7 +108,19 @@ classdef HipTorsionSpring
                  fprintf(fileID, '"supportArmSmallExtension" = %f\n', supportArmSmallExtension);
             fclose(fileID);
 
-            obj.weightHipTorsionSpring = obj.GetWeightTorsion(d, Lwork, Lsupp);
+            obj.weightHipTorsionSpring = obj.GetWeightTorsion(Lwork, Lsupp);
+            
+            global logFilePath;
+            logFile = fopen(logFilePath, 'a+');
+                fprintf(logFile, '\n\n****   Hip Torsion Spring  ****\n\n');
+                fprintf(logFile, '    Wire Diameter = %4.4f m\n', round(obj.wireDiameterSpring, 4));
+                fprintf(logFile, '    Mean Coil Diameter = %4.4f m\n', round(obj.meanDiameterCoil,4));
+                fprintf(logFile, '    Spring Index = %4.2f\n', round(c,2));
+                fprintf(logFile, '    Number of Body Turns = %4.1f\n', round(obj.NumberBodyTurns,1));
+                fprintf(logFile, '    Mass of Spring = %4.4f kg\n\n', round(obj.weightHipTorsionSpring,4));
+                fprintf(logFile, '    Safety Factor = %3.2f\n', n);
+                fprintf(logFile, '\n');
+            fclose(logFile);
         end
         
         function MomentSI = GetMomentContribution(obj, currentHipAngle, i)
@@ -136,9 +148,11 @@ classdef HipTorsionSpring
             end 
         end
         
-        function weight = GetWeightTorsion(obj, d, Lwork, Lsupp)
-            V = pi*(d.^2)/4*(obj.NumberBodyTurns+Lwork+Lsupp);%Units in meters
+        function weight = GetWeightTorsion(obj, Lwork, Lsupp)
+            V = ((pi*(obj.wireDiameterSpring.^2))/4)*(obj.NumberBodyTurns+Lwork+Lsupp);%Units in meters
             weight = V*obj.Density; %Units in Kg
+            
+
         end
     end
 end

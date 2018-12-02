@@ -8,7 +8,7 @@ classdef DorsiSpringCalcs
         m = 0.19; % Constant from Shigley table 10-4
         
         % Spring dimensions
-        NumberBodyTurns = 15;
+        NumberBodyTurns = 8;
         wireDiameterSpring
         meanDiameterCoil
         
@@ -32,10 +32,10 @@ classdef DorsiSpringCalcs
         
         function obj = DorsiSpringCalcs(personHeight, dorsiSpringLengthArray)
             %% Design variables
-            obj.wireDiameterSpring = 0.0012/1.78*personHeight; % Diameter of wire
+            obj.wireDiameterSpring = 0.003/1.78*personHeight; % Diameter of wire
             d = UnitConversion.Meters2Inches(obj.wireDiameterSpring); 
             
-            obj.meanDiameterCoil = 0.007/1.78*personHeight; % Mean diameter of coil
+            obj.meanDiameterCoil = 0.035/1.78*personHeight; % Mean diameter of coil
             D = UnitConversion.Meters2Inches(obj.meanDiameterCoil); 
             
             E = UnitConversion.Pa2Psi(obj.YoungsModulus);
@@ -169,7 +169,7 @@ classdef DorsiSpringCalcs
             TauAB = UnitConversion.Psi2Pa(TauAB);
             TauMB = UnitConversion.Psi2Pa(TauMB);
 
-            obj.weightExtensionSpring = GetWeightExtension(obj, d, R1);
+            obj.weightExtensionSpring = GetWeightExtension(obj, R1);
             obj.extensionCableLength = CL;
             
             
@@ -182,6 +182,23 @@ classdef DorsiSpringCalcs
                 fprintf(fileID, '"numBodyTurnsDorsiSpring"= %f\n', obj.NumberBodyTurns);
             fclose(fileID);
             
+            
+            global logFilePath;
+            logFile = fopen(logFilePath, 'a+');
+                fprintf(logFile, '\n\n****   Dorsiflexion Extension Spring  ****\n\n');
+                fprintf(logFile, '    Wire Diameter = %4.4f m\n', round(obj.wireDiameterSpring, 4));
+                fprintf(logFile, '    Mean Coil Diameter = %4.4f m\n', round(obj.meanDiameterCoil,4));
+                fprintf(logFile, '    Spring Index = %4.2f\n', round(c,2));
+                fprintf(logFile, '    Number of Body Turns = %4.1f\n', round(obj.NumberBodyTurns,1));
+                fprintf(logFile, '    Mass of Spring = %4.4f kg\n\n', round(obj.weightExtensionSpring,4));
+                fprintf(logFile, '    Safety Factors:\n');
+                fprintf(logFile, '        Case 1 = %3.2f\n', round(nCase1,2));
+                fprintf(logFile, '        Case 2 = %3.2f\n', round(nCase2,2));
+                fprintf(logFile, '        Case 3 = %3.2f\n', round(nCase3,2));
+                fprintf(logFile, '        Case 4 = %3.2f\n', round(nCase4,2));
+                fprintf(logFile, '\n');
+                fprintf(logFile, '    Dorsiflexion Cable Length = %4.4f m\n', round(obj.extensionCableLength,4));
+            fclose(logFile);
             
         end
         
@@ -219,8 +236,8 @@ classdef DorsiSpringCalcs
             end
         end
         
-        function weight = GetWeightExtension(obj, d, R1)
-            V = pi*(d.^2)/4*(obj.NumberBodyTurns+2*obj.curlAngle*R1);%Units in meters and rads
+        function weight = GetWeightExtension(obj, R1)
+            V = ((pi*(obj.wireDiameterSpring.^2))/4)*(obj.NumberBodyTurns+2*deg2rad(obj.curlAngle)*R1);%Units in meters and rads
             weight = V*obj.Density; %Units in Kg
         end 
     end

@@ -1,18 +1,12 @@
 classdef PlantarTorsionSpring
-    properties
-        % Material Properties
-        %YoungsModulus = 103400000000; % Young's Modulus [Pa]
-        %Density = 8800; % kg/m^3
-        %A = 145000; % Area from Shigley table 10-4
-        %m = 0; % Constant from Shigley table 10-4
-        
+    properties       
         % Hard Drawn
         YoungsModulus = 200000000000; % Young's Modulus [Pa]
         Density = 7850; % kg/m^3
         A = 140000; % Area from Shigley table 10-4
         m = 0.19; % Constant from Shigley table 10-4
         
-        % Spring dimensions - can put more
+        % Spring dimensions
         NumberBodyTurns = 3.5;
         wireDiameterSpring
         meanDiameterCoil
@@ -24,12 +18,12 @@ classdef PlantarTorsionSpring
         weightPlantarTorsionSpring
         
         % Additional Torque
-        additionalTorquePercentage = 0.2;
+        additionalTorquePercentage = 0.20;
         
         % Peaks of the Curve Indexes -- Constant
-        neutralValueIndex = 1;
+        neutralValueIndex = 85;
         min1Index = 8
-        max1Index = 48
+        max1Index = 49
         min2Index = 65
         max2Index = 85
         min3Index = 94
@@ -76,10 +70,10 @@ classdef PlantarTorsionSpring
             S = rCam*2; %Vertical translation of cam-cable attachment point for one cam rotation
             obj.S = S;
              
-            obj.wireDiameterSpring = (0.0012/1.78)*patientHeight; % Diameter of wire[m]
+            obj.wireDiameterSpring = (0.0011/1.78)*patientHeight; % Diameter of wire[m]
             d = UnitConversion.Meters2Inches(obj.wireDiameterSpring);
             
-            obj.meanDiameterCoil = (0.014/1.78)*patientHeight; % Mean diameter of coil[m]  
+            obj.meanDiameterCoil = (0.013/1.78)*patientHeight; % Mean diameter of coil[m]  
             D = UnitConversion.Meters2Inches(obj.meanDiameterCoil);  
             % MUST HAVE D>(Dp+Delta+d) 
             E = UnitConversion.Pa2Psi(obj.YoungsModulus); % Young's Modulus [Pa]
@@ -119,7 +113,7 @@ classdef PlantarTorsionSpring
             %Find Sr 
                 Sr = 0.5*Sut;        
             %Find Se 
-                 Se = (Sr/2)/(1-(((Sr/2)/Sut).^2)); 
+                Se = (Sr/2)/(1-(((Sr/2)/Sut).^2)); 
             %Find Sa 
                 Sa = ((Sut.^2)/(2*Se))*(-1+((1+((2*Se/Sut)^.2)).^(1/2))); 
             %Calculate original length of spring [m] 
@@ -160,7 +154,19 @@ classdef PlantarTorsionSpring
                 fprintf(fileID, '"LSuppPlantarTorsionSpring" = %f\n', Lsupp);
             fclose(fileID);            
 
-            obj.weightPlantarTorsionSpring = obj.GetWeightTorsion(d, Lwork, Lsupp);
+            obj.weightPlantarTorsionSpring = obj.GetWeightTorsion(Lwork, Lsupp);
+            
+            global logFilePath;
+            logFile = fopen(logFilePath, 'a+');
+                fprintf(logFile, '\n\n****   Plantarflexion Cam Spring  ****\n\n');
+                fprintf(logFile, '    Wire Diameter = %4.4f m\n', round(obj.wireDiameterSpring, 4));
+                fprintf(logFile, '    Mean Coil Diameter = %4.4f m\n', round(obj.meanDiameterCoil,4));
+                fprintf(logFile, '    Spring Index = %4.2f\n', round(c,2));
+                fprintf(logFile, '    Number of Body Turns = %4.1f\n', round(obj.NumberBodyTurns,1));
+                fprintf(logFile, '    Mass of Spring = %4.4f kg\n\n', round(obj.weightPlantarTorsionSpring,4));
+                fprintf(logFile, '    Safety Factor = %3.2f\n', n);
+                fprintf(logFile, '\n');
+            fclose(logFile);
         end
 
         function MomentSI = GetMomentOnCam(obj, currentSpringCableLength, previousSpringCableLength, extensionCableLength, ...
@@ -243,8 +249,8 @@ classdef PlantarTorsionSpring
             MomentSI = (-1)*currentMoment;%nextMoment - currentMoment;
         end
         
-        function weight = GetWeightTorsion(obj, d, Lwork, Lsupp)
-            V = pi*(d.^2)/4*(obj.NumberBodyTurns+Lwork+Lsupp); %Units in meters
+        function weight = GetWeightTorsion(obj, Lwork, Lsupp)
+            V = pi*(obj.wireDiameterSpring.^2)/4*(obj.NumberBodyTurns+Lwork+Lsupp); %Units in meters
             weight = V*obj.Density; %Units in Kg
         end
     end

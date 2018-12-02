@@ -962,10 +962,9 @@ set(handles.Gait_Inverse_Button,'visible','off');
 set(handles.ExoInverseButton, 'visible', 'off');
 
 logFilePath = 'C:\MCG4322B\Group3\Log\group3_LOG.txt';
-% New trial - delete the old log file
-if exist(logFilePath, 'file')==2
-  delete(logFilePath);
-end
+% New trial - clear the old log file
+f = fopen(logFilePath,'w'); 
+fclose(f);
 
 %% Read in the input variables from the user, check if they are numbers
 readMass = get(handles.weightEditTextBox,'String');

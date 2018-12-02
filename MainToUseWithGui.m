@@ -42,6 +42,8 @@ classdef MainToUseWithGui
     methods
         function main = MainToUseWithGui(personHeight, personMass)
             global thighLength rightShankLength;
+            global logFilePath;
+            logFilePath = 'C:\MCG4322B\Group3\Log\group3_LOG.txt';
             %% Initialize databases to use throughout the code
             SetAnthropometricNames(); % Run this to initialize all global naming variables
 
@@ -131,8 +133,8 @@ classdef MainToUseWithGui
 
             %% Plotting Graphs for Spring Length - wrt to height
             % Plot the plantarflexion and dorsiflexion spring
-            %main.PlotDorsiSpringLength(dorsiSpringAndCableLengthArray);
-            %main.PlotPlantarSpringLength(plantarSpringLengthArray);
+            main.PlotDorsiSpringLength(dorsiSpringAndCableLengthArray);
+            main.PlotPlantarSpringLength(plantarSpringAndCableLengthArray);
 
             % Plot the shank spring
             % main.PlotShankSpringLength(springLengthArray);	 
@@ -601,7 +603,7 @@ end
         figure
         % Plot the plantarflexion cable and spring length graph
         top = subplot(1,1,1);
-        plot(top, 1:length(springLengthArray), springLengthArray, 'LineWidth',2);
+        plot(top, 0:length(springLengthArray)-1, springLengthArray, 'LineWidth',2);
         hold on
         grid on
         title('Plantarflexion Spring and Cable Length vs. Percent Gait Cycle');
@@ -616,7 +618,7 @@ end
         figure
         % Plot the Hip moment graph
         top = subplot(1,1,1);
-        plot(top, 1:length(dorsiSpringLengthArray), dorsiSpringLengthArray, 'LineWidth',2);
+        plot(top, 0:length(dorsiSpringLengthArray)-1, dorsiSpringLengthArray, 'LineWidth',2);
         hold on
         grid on
         title('Dorsiflexion Spring and Cable Length vs. Percent Gait Cycle');
