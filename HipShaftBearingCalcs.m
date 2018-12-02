@@ -1,26 +1,49 @@
-function ShaftBearingCalcs(fRadial, fThrust, thighAngularVelocity, chosenC)
+function HipShaftBearingCalcs(fRadial, fThrust, thighAngularVelocity, patientHeight)
 
-shaftRPM = thighAngularVelocity * 9.5493; %converting rads/sec to rpm
-Ka = 1.5; %Light impact application, picked value at top of range for safety
-designLife = 40000; %Inbetween 8-hour service every working day (30000 hours) and continuous 24-hour service (50000 hours)
-life = shaftRPM*designLife*60;
-Kr = 1; %from standard 90% reliability
-Lr = (9.6)*10^6; %life corresponding to rated capacity
+    %% Initial Constants
+    shaftRPM = thighAngularVelocity * 9.5493; %converting rads/sec to rpm
+    Ka = 1.5; %Light impact application, picked value at top of range for safety
+    designLife = 40000; %Inbetween 8-hour service every working day (30000 hours) and continuous 24-hour service (50000 hours)
+    life = shaftRPM*designLife*60;
+    Kr = 1; %from standard 90% reliability
+    Lr = (9.6)*10^6; %life corresponding to rated capacity
+    i = 1.0; %number of rows of balls in bearing, should be constant
+    alpha = 0; %nominal contact angle of the balls, is 0 for radial bearings, should be constant
+    Z = 12; %number of balls per row, shoud be constant
+    
+    %% Parametrized Geometry
+    ballDiameter = (0.00576114/1.78)*patientHeight;
+    innerSmallRingDiameter = (0.015912/1.78)*patientHeight;
+    innerLargeRingDiameter = (0.0383755/1.78)*patientHeight;
+    
+    %% Determining fEquivalent based on fRadial and fThrust
+    if ((fThrust/fRadial)<=0.35)
+        fEquivalent = fRadial;
+    elseif ((fThrust/fRadial)>0.35 && (fThrust/fRadial)<10)
+        fEquivalent = fRadial * ((1+1.115)*((fThrust/fRadial)-0.35));
+    elseif ((fThrust/fRadial)>=10)
+        fEquivalent = 1.176*fThrust;
 
-% the fEquivalent formulas below are for radial ball bearing since,
-% equation can be updated if we use an angular bearing instead
-if ((fThrust/fRadial)<=0.35)
-    fEquivalent = fRadial;
-elseif ((fThrust/fRadial)>0.35 && (fThrust/fRadial)<10)
-    fEquivalent = fRadial * ((1+1.115)*((fThrust/fRadial)-0.35));
-elseif ((fThrust/fRadial)>=10)
-    fEquivalent = 1.176*fThrust;
-end
+    %% Rated Capacity Calculations
+    requiredC = fEquivalent*Ka*((life/(Kr*Lr))^0.3);
+    
+    dm = (innerLargeRingDiameter+innerSmallRingDiameter)/2;
+    fc = (ballDiameter*cos(alpha))/dm;
 
-requiredC = fEquivalent*Ka*((life/(Kr*Lr))^0.3); %calculate the requiredC to be compared with the chosenC of the bearing
-% doing so ensures the bearings we picked actually worked
+    calcC = fc*((i*cos(alpha))^0.7)*(Z^(2/3))*(ballDiameter^1.8);
 
-radialLoadLife = Kr*Lr*((chosenC/(fEquivalent*Ka))^3.33); % we can further prove our bearings work by determining it's life based on radial load
-% doing so can show that the life of our bearing will be long enough
+    %% Bearing Life Calculations
+    L10 = (calcC/fRadial); %rating life - life at which 10 percent of bearings have failed and 90 percent of them are still good. 
+
+    radialLoadLife = Kr*Lr*((calcC/(fEquivalent*Ka))^3.33);
+    
+    %% Petroff's Equation
+    frictionCoefficient = 2*(pi^2)*((dynamicViscosity*shaftRPM)/(fRadial/(shaftRadius*bearingLength)))*(shaftRadius/radialClearance);
+
+    %% Friction Torque
+    frictionTorque = frictionCoefficient*fRadial*shaftRadius;
+
+    %% Energy Lost due to Friction
+    energyLoss = ((2*pi*shaftRPM)/60)*frictionTorque;
 
 end
