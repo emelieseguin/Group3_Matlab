@@ -234,11 +234,12 @@ classdef MainToUseWithGui
                 hipTorsionSpring.shaftDiameter, hipShaft);
             
             %% Print the value for all of the components
-            FinalPartsCombined(personHeight, hipShaft, dorsiPosition, plantarFlexionArray(1), ...
+            finalParts = FinalPartsCombined(personHeight, hipShaft, dorsiPosition, plantarFlexionArray(1), ...
             plantarTorsionSpring, dorsiTorsionSpring);
+            finalParts = finalParts.SetAllMassesOfComponents(); 
             %footMechanism(personHeight);
 
-            %% Others Calcs - Bolts, Bearings, whatever else
+            %% Others Calcs - Bolts, Bearings
             
             
             %% Run Simulations - for different components
@@ -304,14 +305,17 @@ classdef MainToUseWithGui
             
             main.basicInverseDynamics = inverseDynamics;
 
-            %% With Dynamics with the exoskeleton - need volume calcs
-             totalMassOfExoskelton = 10; % in kg
-             thighExoMass = 4; % in kg
-             shankExoMass = 3.5;
-             footExoMass = 2.5;
+            %% With Dynamics with the exoskeleton
+             totalMassOfExoskelton = finalParts.totalMassOfExoskeleton; % in kg
+             thighExoMass = finalParts.thighExoMass + hipTorsionSpring.weightHipTorsionSpring; % in kg
+             shankExoMass = finalParts.shankExoMass + plantarSpring.weightExtensionSpring + ...
+                 dorsiSpring.weightExtensionSpring + plantarTorsionSpring.weightPlantarTorsionSpring + ...
+                 dorsiTorsionSpring.weightDorsiTorsionSpring + mPlantarCable + mDorsiCable;
+             footExoMass = finalParts.footExoMass;
+             
              inverseDynamicsExo = InverseDynamicsWithExoskeleton(model, positionArray, linearAccel, ...
                  angularAccel, patient29Forces, normCopData, timeForGaitCycle, totalMassOfExoskelton, ...
-                 thighExoMass, shankExoMass, footExoMass);
+                 thighExoMass, shankExoMass, footExoMass);             
              %inverseDynamicsExo.PlotMomentGraphs();
 
             %% Moment Contribution
