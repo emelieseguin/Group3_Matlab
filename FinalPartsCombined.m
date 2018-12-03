@@ -1208,7 +1208,9 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
     %PlantarSpringAttachRadius
     %LenghtOfSpringAttachmentBar = lowerAttachmentDistFromCenterLine - PlantarSpringAttachRadius; 
     
-    
+    dLargePinHoleToePiece = (0.005/1.78)*patientHeight;
+    dLargePinHead = dLargePinHoleToePiece+(0.0025/1.78)*patientHeight;
+    lLargePin = (0.00125/1.78)*patientHeight;
     
     fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footRigidPieceDimensionsUpdated.txt', 'w');
          fprintf(fileID, '"dInnerHeel" = %7.7f\n', dInnerHeel);
@@ -1251,24 +1253,25 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
          fprintf(fileID, '"distanceToLoftPlane" = %7.7f\n', distanceToLoftPlane);
          fprintf(fileID, '"lowerAttachmentDistUpShank" = %7.7f\n', lowerAttachmentDistUpShank);
          fprintf(fileID, '"lowerAttachmentDistFromCenterLine" = %7.7f\n', lowerAttachmentDistFromCenterLine);       
-     fclose(fileID);
+         fprintf(fileID, '"dLargePinHead" = %7.7f\n', dLargePinHead);
+         fprintf(fileID, '"lLargePin" = %7.7f\n', lLargePin);
+    fclose(fileID);
      
      %% Rigid Piece Volume Calculations
-	v1 = (1/4)*(4/3)*pi*((rRigidHeel^3)-(rInnerHeel^3));
-	v2 = (1/2)*pi*((rRigidHeel^2)-(rInnerHeel^2))*(hBackHeelPieceRigid);
-	v3 = rigidFootPlateThickness*dRigidHeel*dFromZ2_Z3;
-            %v4 = 2*wLoftingDimensionTip*lLoftingdimensionTip*lExtrude6+(1/2)*(loftingDimension1+(2*wLoftingDimensionTip)*(dLoftingTipToSemiCircle-wLoftingDimensionTip)*lExtrude6;
-            v5 = rigidFootPlateThickness*rRigidHeel*dFromZ3_Z4;
-            v6 = 2*wExtrusion11*(rigidFootPlateThickness/2)*dFromZ2_Z3;
-            v7 = 2*((wExtrusion11/2)^2)*dFromZ2_Z3;
-            v8 = 2*(wExtrusion11)*(halfLStrapConnector*2)*hStrapConnector;
-            v9 = -2*wConnectorCut*(halfLStrapConnector*2)*depthConnectorCut;
-            v10 = -4*pi*(dPinHole^2)*((0.005/1.78)*patientHeight);
-            v11 = 2*(lengthToOuterSemiCircle^2)*rigidFootPlateThickness+(pi/2)*((rRigidHeel^2)-(rInnerHeel^2))*0.05;
-            v12 = (1/4)*pi*((rRigidHeel^2)-(rInnerHeel^2));
-            %v13 = 0.005*wPiece*0.001-(1/4)*pi*((rRigidHeel^2)-(rInnerHeel^2));
-            v14 = 0; %volume of the loft, not sure how  to calculate yet
-            v40 = (1/2)*pi*((rOuterHookCut^2)-(rInnerHookCut^2))*((0.015/1.78)*patientHeight);
+	vRigidPiece = (1/4)*(4/3)*pi*((rRigidHeel^3)-(rInnerHeel^3)) + ...
+        (1/2)*pi*((rRigidHeel^2)-(rInnerHeel^2))*(hBackHeelPieceRigid) + ...
+        rigidFootPlateThickness*dRigidHeel*dFromZ2_Z3 + ...
+        2*wLoftingDimensionTip*lLoftingDimensionTip*lExtrusion6+(1/2)*(loftingDimension1+(2*wLoftingDimensionTip)*(dLoftingTipToSemiCircleApex-wLoftingDimensionTip))*lExtrusion6 + ...
+        rigidFootPlateThickness*rRigidHeel*dFromZ3_Z4 + ...
+        2*wExtrusion11*(rigidFootPlateThickness/2)*dFromZ2_Z3 + ...
+        2*((wExtrusion11/2)^2)*dFromZ2_Z3 + ...
+        2*(wExtrusion11)*(halfLStrapConnector*2)*hStrapConnector - ...
+        2*wConnectorCut*(halfLStrapConnector*2)*depthConnectorCut - ...
+        4*pi*(dPinHole^2)*((0.005/1.78)*patientHeight) + ...
+        2*(lengthToOuterSemiCircle^2)*rigidFootPlateThickness+(pi/2)*((rRigidHeel^2)-(rInnerHeel^2))*0.05 + ...
+        (1/4)*pi*((rRigidHeel^2)-(rInnerHeel^2)) + ...
+        0.005*0.001^2-(1/4)*pi*((rRigidHeel^2)-(rInnerHeel^2)) + ...
+        (1/2)*pi*((rOuterHookCut^2)-(rInnerHookCut^2))*((0.015/1.78)*patientHeight);
      
      %% Outer Foot Piece Dimensions
      dSoftHeel = wFoot+((0.02/1.78)*patientHeight);
@@ -1327,22 +1330,22 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
         fprintf(fileID, '"dFromZ5_Z6" = %7.7f\n', dFromZ5_Z6);
      	fprintf(fileID, '"dFromZ2_Z4" = %f\n', dFromZ2_Z4);
         fprintf(fileID, '"distanceToLoftPlane" = %f\n', distanceToLoftPlane);
-     	fprintf(fileID, '"LengthOfExtrusion6" = %f\n', LengthOfExtrusion6);            
+     	fprintf(fileID, '"LengthOfExtrusion6" = %f\n', LengthOfExtrusion6);
      fclose(fileID);
      
 %% Outer Piece Volume Calculations
-            v15 = (1/4)*(4/3)*pi*((rSoftHeel^3)-(rInnerHeel^3));
-            v16 = (1/2)*pi*((rSoftHeel^2)-(rRigidHeel^2))*hBackHeelPieceOuter;
-            v17 = dSoftHeel*halfOuterFootPlateThickness*dFromZ2_Z4;
-            %v18 = 2*wLoftingDimensionTip*lLoftingdimensionTip*lExtrude6+(1/2)*(loftingDimension2o+(2*wLoftingDimensionTip)*(dLoftingTipToSemiCircle-wLoftingDimensionTip)*lExtrude6;
-            v19 = 2*wLoftingDimensionTip*lLoftingDimensionTip*outer_lExtrusion4;
-            v20 = ((0.005/1.78)*patientHeight)*((0.002/1.78)*patientHeight);
-            v21 = dFromZ2_Z4*dSoftHeel*halfOuterFootPlateThickness;
-            v22 = -(dFromZ2_Z3*dRigidHeel+outer_lExtrusion3*dRigidHeel+dFromZ3_Z4*rRigidHeel)*outer_lCut5;
-            v23 = outerFootPlateThickness*dFromZ4_Z5*dSoftHeel;
-            v24 = -wToePieceCut*hToePieceCut*dSoftHeel;
-            v25 = -2*wToePieceCutTop*lToePieceCutTop*outer_lCut8;
-            v26 = (1/2)*pi*dFromZ5_Z6^2*outerFootPlateThickness;
+     vOuterPiece = (1/4)*(4/3)*pi*((rSoftHeel^3)-(rInnerHeel^3)) + ...
+    	(1/2)*pi*((rSoftHeel^2)-(rRigidHeel^2))*hBackHeelPieceOuter + ...
+     	dSoftHeel*halfOuterFootPlateThickness*dFromZ2_Z4 + ...
+        2*wLoftingDimensionTip*lLoftingDimensionTip*lExtrusion6+(1/2)*(loftingDimension2+(2*wLoftingDimensionTip)*(dLoftingTipToSemiCircleApex-wLoftingDimensionTip)*lExtrusion6 + ...
+      	2*wLoftingDimensionTip*lLoftingDimensionTip*outer_lExtrusion4 + ...
+       	((0.005/1.78)*patientHeight)*((0.002/1.78)*patientHeight) + ...
+       	dFromZ2_Z4*dSoftHeel*halfOuterFootPlateThickness - ...
+       	dFromZ2_Z3*dRigidHeel+outer_lExtrusion3*dRigidHeel+dFromZ3_Z4*rRigidHeel)*outer_lCut5 + ...
+       	outerFootPlateThickness*dFromZ4_Z5*dSoftHeel - ...
+       	wToePieceCut*hToePieceCut*dSoftHeel - ...
+       	2*wToePieceCutTop*lToePieceCutTop*outer_lCut8 + ...
+      	(1/2)*pi*dFromZ5_Z6^2*outerFootPlateThickness;
       
 %% Side Piece Dimensions
     lSidePiece = (0.005/1.78)*patientHeight;
@@ -1354,6 +1357,9 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
     dSmallPinHoleSidePiece = (0.002/1.78)*patientHeight;
     dFromEdgeToSmallPinHoleCentre = (0.0035/1.78)*patientHeight;
     LengthFromExtrude=(0.0035/1.78)*patientHeight;
+    dSmallPinHoleInsertPiece = (0.002/1.78)*patientHeight;
+    dSmallPin = dSmallPinHoleInsertPiece + (0.00075/1.78)*patientHeight;
+    lSmallPin = (0.00075/1.78)*patientHeight;
     
     fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footSidePieceDimensionsUpdated.txt', 'w');
         fprintf(fileID, '"lSidePiece" = %7.7f\n', lSidePiece);
@@ -1365,13 +1371,15 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
         fprintf(fileID, '"dSmallPinHoleSidePiece" = %7.7f\n', dSmallPinHoleSidePiece);
         fprintf(fileID, '"dFromEdgeToSmallPinHoleCentre" = %7.7f\n', dFromEdgeToSmallPinHoleCentre);
         fprintf(fileID, '"LengthFromExtrude" = %7.7f\n', LengthFromExtrude);
+        fprintf(fileID, '"dSmallPin" = %f\n', dSmallPin);
+        fprintf(fileID, '"lSmallPin" = %f\n', lSmallPin);
     fclose(fileID);
       
 %% Side Piece Piece Volume Calculations
-            v27 = lSidePiece*wSidePiece*hSidePiece;
-            v28 = -hSidePiece*(lSidePiece-(2*dFromSidePieceOuterEdgeToInnerCutEdge))*(wSidePiece-(2*dFromSidePieceOuterEdgeToInnerCutEdge));
-            v29 = -2*pi*dFromSidePieceOuterEdgeToInnerCutEdge*dLargePinHoleSidePiece^2;
-            v30 = -2*dFromSidePieceOuterEdgeToInnerCutEdge*pi*dSmallPinHoleSidePiece^2;
+    vSidePiece = lSidePiece*wSidePiece*hSidePiece - ...
+        hSidePiece*(lSidePiece-(2*dFromSidePieceOuterEdgeToInnerCutEdge))*(wSidePiece-(2*dFromSidePieceOuterEdgeToInnerCutEdge)) - ...
+        2*pi*dFromSidePieceOuterEdgeToInnerCutEdge*dLargePinHoleSidePiece^2 - ...
+        2*dFromSidePieceOuterEdgeToInnerCutEdge*pi*dSmallPinHoleSidePiece^2;
             
 %% Strap Insert Piece Dimensions
      
@@ -1398,9 +1406,9 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
      fclose(fileID);
             
 %% Strap Insert Piece Volume Calculations
-            v31 = wInsertPiece*hInsertPiece*lInsertPiece;
-            v32 = -wInsertPiece*pi*(dLargePinHoleInsertPiece^2);
-            v33 = -7*wInsertPiece*pi*dSmallPinHoleInsertPiece^2;
+     vStrapInsertPiece = wInsertPiece*hInsertPiece*lInsertPiece - ...
+        wInsertPiece*pi*(dLargePinHoleInsertPiece^2) - ...
+        7*wInsertPiece*pi*dSmallPinHoleInsertPiece^2;
             
 %% Toe Insert Piece Dimensions
    	lBase = dSoftHeel;
@@ -1412,6 +1420,8 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
  	hToeStrapCut = (0.02/1.78)*patientHeight;
   	dLargePinHoleToePiece = (0.005/1.78)*patientHeight;
 	dFromEdgeToLargeHolePinCentreToePiece = (0.0075/1.78)*patientHeight;
+    dLargePinHead = dLargePinHoleToePiece+(0.0025/1.78)*patientHeight;
+    lLargePin = (0.00125/1.78)*patientHeight;
       
 	fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footToeInsertPieceDimensionsUpdated.txt', 'w');
         fprintf(fileID, '"lBase" = %7.7f\n', lBase);
@@ -1424,16 +1434,17 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
      	fprintf(fileID, '"hToeStrapCut" = %7.7f\n', hToeStrapCut);
      	fprintf(fileID, '"dLargePinHoleToePiece" = %7.7f\n', dLargePinHoleToePiece);
      	fprintf(fileID, '"dFromEdgeToLargeHolePinCentreToePiece" = %7.7f\n', dFromEdgeToLargeHolePinCentreToePiece);
-	fclose(fileID);
+        fprintf(fileID, '"dLargePinHead" = %7.7f\n', dLargePinHead);
+        fprintf(fileID, '"lLargePin" = %7.7f\n', lLargePin);
+    fclose(fileID);
             
 %% Toe Insert Piece Volume Calculations
-            v36 = wBase*lBase*hBase;
-            v37 = 2*wBase*lToeStrapConnector*hToeStrapConnector;
-            v38 = -2*wToeStrapCut*lToeStrapConnector*hToeStrapCut;
-            v39 = -2*(wBase-wToeStrapCut)*pi*dLargePinHoleToePiece^2;
+    vToeInsertPiece = wBase*lBase*hBase + ...
+        2*wBase*lToeStrapConnector*hToeStrapConnector - ...
+        2*wToeStrapCut*lToeStrapConnector*hToeStrapCut - ...
+        2*(wBase-wToeStrapCut)*pi*dLargePinHoleToePiece^2;
             
 %% Ankle Strap Piece Dimensions
-       
 	ankleStrapRadius = (0.1/1.78)*patientHeight;
 	ankleStrapInnerLength = (0.02/1.78)*patientHeight;
 	ankleStrapOuterLength = (0.025/1.78)*patientHeight;
@@ -1453,11 +1464,13 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
        	fprintf(fileID, '"ankleStrapExtrusion" = %7.7f\n', ankleStrapExtrusion);
       	fprintf(fileID, '"dLargePinHoleAnkleStrapPiece" = %7.7f\n', dLargePinHoleAnkleStrapPiece);
        	fprintf(fileID, '"dFromEdgeToLargeHolePinCentreAnkleStrapPiece" = %7.7f\n', dFromEdgeToLargeHolePinCentreAnkleStrapPiece);     
-  	fclose(fileID);
+        fprintf(fileID, '"dLargePinHead" = %7.7f\n', dLargePinHead);
+        fprintf(fileID, '"lLargePin" = %7.7f\n', lLargePin);
+    fclose(fileID);
             
 %% Ankle Strap Piece Volume Calculations
-            v34 = 2*ankleStrapInnerLength*ankleStrapThickness+(pi/2)*((ankleStrapRadius^2)-((ankleStrapRadius-(2*ankleStrapThickness))^2));
-            v35 = -2*pi*ankleStrapThickness*dLargePinHoleAnkleStrapPiece^2;
+    vAnkleStrapPiece = 2*ankleStrapInnerLength*ankleStrapThickness+(pi/2)*((ankleStrapRadius^2)-((ankleStrapRadius-(2*ankleStrapThickness))^2)) - ...
+        2*pi*ankleStrapThickness*dLargePinHoleAnkleStrapPiece^2;
             
 %% Toe Strap Piece Dimensions
     toeStrapRadius = (0.15/1.78)*patientHeight;
@@ -1486,13 +1499,33 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
        fprintf(fileID, '"rToeHookInnerCut" = %7.7f\n', rToeHookInnerCut);
        fprintf(fileID, '"dToeHookCutExtrude" = %7.7f\n', dToeHookCutExtrude);
        fprintf(fileID, '"rToeStrapFillete" = %7.7f\n', rToeStrapFillet);
+       fprintf(fileID, '"dLargePinHead" = %7.7f\n', dLargePinHead);
+       fprintf(fileID, '"lLargePin" = %7.7f\n', lLargePin);
     fclose(fileID);
             
-        %% Toe Strap Volume Calculations
-        v41 = toeStrapWidth*toeStrapExtrusion;
-            
+%% Toe Strap Volume Calculations
+    vToeStrapPiece = 2*ankleStrapInnerLength*ankleStrapThickness+(pi/2)*((ankleStrapRadius^2)-((ankleStrapRadius-(2*ankleStrapThickness))^2)) - ...
+        2*pi*ankleStrapThickness*dLargePinHoleAnkleStrapPiece^2;
+    
+    largePinBodyLength = lToeStrapConnector;
+    smallPinBodyLength = lSidePiece - lSmallPin;
+    largeStrapPinBodyLength = wInsertPiece + toeStrapThickness;
+    
+    
+    fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footPinDimensions.txt', 'w');
+        fprintf(fileID, '"dLargePinHead" = %7.7f\n', dLargePinHead);
+        fprintf(fileID, '"lLargePin" = %7.7f\n', lLargePin);
+        fprintf(fileID, '"dSmallPin" = %7.7f\n', dSmallPin);
+        fprintf(fileID, '"lSmallPin" = %7.7f\n', lSmallPin);
+        fprintf(fileID, '"largePinBodyLength" = %7.7f\n', largePinBodyLength);
+        fprintf(fileID, '"smallPinBodyLength" = %7.7f\n', smallPinBodyLength);
+        fprintf(fileID, '"largeStrapPinBodyLength" = %7.7f\n', largeStrapPinBodyLength);
+        fprintf(fileID, '"dLargePinHoleToeStrapPiece" = %7.7f\n', dLargePinHoleToeStrapPiece);
+        fprintf(fileID, '"dSmallPinHoleInsertPiece" = %7.7f\n', dSmallPinHoleInsertPiece);
+    fclose(fileID);
  
- 
-
+    vFootPins = 4*pi*(dLargePinHead/2)^2*lLargePin + 4*pi*(dLargePinHoleToeStrapPiece/1)^2*largePinBodyLength + ...
+        4*pi*(dLargePinHead/2)^2*lLargePin + 4*pi*(dLargePinHoleToeStrapPiece/1)^2*largeStrapPinBodyLength + ...
+        4*pi*(dSmallPin/2)^2*lSmallPin + 4*pi*(dSmallPinHoleInsertPiece/2)^2*smallPinBodyLength;
 end
 
