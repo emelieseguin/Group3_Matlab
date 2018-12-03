@@ -1258,21 +1258,20 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
     fclose(fileID);
      
      %% Rigid Piece Volume Calculations
-	v1 = (1/4)*(4/3)*pi*((rRigidHeel^3)-(rInnerHeel^3));
-	v2 = (1/2)*pi*((rRigidHeel^2)-(rInnerHeel^2))*(hBackHeelPieceRigid);
-	v3 = rigidFootPlateThickness*dRigidHeel*dFromZ2_Z3;
-            %v4 = 2*wLoftingDimensionTip*lLoftingdimensionTip*lExtrude6+(1/2)*(loftingDimension1+(2*wLoftingDimensionTip)*(dLoftingTipToSemiCircle-wLoftingDimensionTip)*lExtrude6;
-            v5 = rigidFootPlateThickness*rRigidHeel*dFromZ3_Z4;
-            v6 = 2*wExtrusion11*(rigidFootPlateThickness/2)*dFromZ2_Z3;
-            v7 = 2*((wExtrusion11/2)^2)*dFromZ2_Z3;
-            v8 = 2*(wExtrusion11)*(halfLStrapConnector*2)*hStrapConnector;
-            v9 = -2*wConnectorCut*(halfLStrapConnector*2)*depthConnectorCut;
-            v10 = -4*pi*(dPinHole^2)*((0.005/1.78)*patientHeight);
-            v11 = 2*(lengthToOuterSemiCircle^2)*rigidFootPlateThickness+(pi/2)*((rRigidHeel^2)-(rInnerHeel^2))*0.05;
-            v12 = (1/4)*pi*((rRigidHeel^2)-(rInnerHeel^2));
-            %v13 = 0.005*wPiece*0.001-(1/4)*pi*((rRigidHeel^2)-(rInnerHeel^2));
-            v14 = 0; %volume of the loft, not sure how  to calculate yet
-            v40 = (1/2)*pi*((rOuterHookCut^2)-(rInnerHookCut^2))*((0.015/1.78)*patientHeight);
+	vRigidPiece = (1/4)*(4/3)*pi*((rRigidHeel^3)-(rInnerHeel^3)) + ...
+        (1/2)*pi*((rRigidHeel^2)-(rInnerHeel^2))*(hBackHeelPieceRigid) + ...
+        rigidFootPlateThickness*dRigidHeel*dFromZ2_Z3 + ...
+        2*wLoftingDimensionTip*lLoftingDimensionTip*lExtrusion6+(1/2)*(loftingDimension1+(2*wLoftingDimensionTip)*(dLoftingTipToSemiCircleApex-wLoftingDimensionTip))*lExtrusion6 + ...
+        rigidFootPlateThickness*rRigidHeel*dFromZ3_Z4 + ...
+        2*wExtrusion11*(rigidFootPlateThickness/2)*dFromZ2_Z3 + ...
+        2*((wExtrusion11/2)^2)*dFromZ2_Z3 + ...
+        2*(wExtrusion11)*(halfLStrapConnector*2)*hStrapConnector - ...
+        2*wConnectorCut*(halfLStrapConnector*2)*depthConnectorCut - ...
+        4*pi*(dPinHole^2)*((0.005/1.78)*patientHeight) + ...
+        2*(lengthToOuterSemiCircle^2)*rigidFootPlateThickness+(pi/2)*((rRigidHeel^2)-(rInnerHeel^2))*0.05 + ...
+        (1/4)*pi*((rRigidHeel^2)-(rInnerHeel^2)) + ...
+        0.005*0.001^2-(1/4)*pi*((rRigidHeel^2)-(rInnerHeel^2)) + ...
+        (1/2)*pi*((rOuterHookCut^2)-(rInnerHookCut^2))*((0.015/1.78)*patientHeight);
      
      %% Outer Foot Piece Dimensions
      dSoftHeel = wFoot+((0.02/1.78)*patientHeight);
@@ -1335,18 +1334,18 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
      fclose(fileID);
      
 %% Outer Piece Volume Calculations
-            v15 = (1/4)*(4/3)*pi*((rSoftHeel^3)-(rInnerHeel^3));
-            v16 = (1/2)*pi*((rSoftHeel^2)-(rRigidHeel^2))*hBackHeelPieceOuter;
-            v17 = dSoftHeel*halfOuterFootPlateThickness*dFromZ2_Z4;
-            %v18 = 2*wLoftingDimensionTip*lLoftingdimensionTip*lExtrude6+(1/2)*(loftingDimension2o+(2*wLoftingDimensionTip)*(dLoftingTipToSemiCircle-wLoftingDimensionTip)*lExtrude6;
-            v19 = 2*wLoftingDimensionTip*lLoftingDimensionTip*outer_lExtrusion4;
-            v20 = ((0.005/1.78)*patientHeight)*((0.002/1.78)*patientHeight);
-            v21 = dFromZ2_Z4*dSoftHeel*halfOuterFootPlateThickness;
-            v22 = -(dFromZ2_Z3*dRigidHeel+outer_lExtrusion3*dRigidHeel+dFromZ3_Z4*rRigidHeel)*outer_lCut5;
-            v23 = outerFootPlateThickness*dFromZ4_Z5*dSoftHeel;
-            v24 = -wToePieceCut*hToePieceCut*dSoftHeel;
-            v25 = -2*wToePieceCutTop*lToePieceCutTop*outer_lCut8;
-            v26 = (1/2)*pi*dFromZ5_Z6^2*outerFootPlateThickness;
+     vOuterPiece = (1/4)*(4/3)*pi*((rSoftHeel^3)-(rInnerHeel^3)) + ...
+    	(1/2)*pi*((rSoftHeel^2)-(rRigidHeel^2))*hBackHeelPieceOuter + ...
+     	dSoftHeel*halfOuterFootPlateThickness*dFromZ2_Z4 + ...
+        2*wLoftingDimensionTip*lLoftingDimensionTip*lExtrusion6+(1/2)*(loftingDimension2+(2*wLoftingDimensionTip)*(dLoftingTipToSemiCircleApex-wLoftingDimensionTip)*lExtrusion6 + ...
+      	2*wLoftingDimensionTip*lLoftingDimensionTip*outer_lExtrusion4 + ...
+       	((0.005/1.78)*patientHeight)*((0.002/1.78)*patientHeight) + ...
+       	dFromZ2_Z4*dSoftHeel*halfOuterFootPlateThickness - ...
+       	dFromZ2_Z3*dRigidHeel+outer_lExtrusion3*dRigidHeel+dFromZ3_Z4*rRigidHeel)*outer_lCut5 + ...
+       	outerFootPlateThickness*dFromZ4_Z5*dSoftHeel - ...
+       	wToePieceCut*hToePieceCut*dSoftHeel - ...
+       	2*wToePieceCutTop*lToePieceCutTop*outer_lCut8 + ...
+      	(1/2)*pi*dFromZ5_Z6^2*outerFootPlateThickness;
       
 %% Side Piece Dimensions
     lSidePiece = (0.005/1.78)*patientHeight;
@@ -1377,10 +1376,10 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
     fclose(fileID);
       
 %% Side Piece Piece Volume Calculations
-            v27 = lSidePiece*wSidePiece*hSidePiece;
-            v28 = -hSidePiece*(lSidePiece-(2*dFromSidePieceOuterEdgeToInnerCutEdge))*(wSidePiece-(2*dFromSidePieceOuterEdgeToInnerCutEdge));
-            v29 = -2*pi*dFromSidePieceOuterEdgeToInnerCutEdge*dLargePinHoleSidePiece^2;
-            v30 = -2*dFromSidePieceOuterEdgeToInnerCutEdge*pi*dSmallPinHoleSidePiece^2;
+    vSidePiece = lSidePiece*wSidePiece*hSidePiece - ...
+        hSidePiece*(lSidePiece-(2*dFromSidePieceOuterEdgeToInnerCutEdge))*(wSidePiece-(2*dFromSidePieceOuterEdgeToInnerCutEdge)) - ...
+        2*pi*dFromSidePieceOuterEdgeToInnerCutEdge*dLargePinHoleSidePiece^2 - ...
+        2*dFromSidePieceOuterEdgeToInnerCutEdge*pi*dSmallPinHoleSidePiece^2;
             
 %% Strap Insert Piece Dimensions
      
@@ -1407,9 +1406,9 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
      fclose(fileID);
             
 %% Strap Insert Piece Volume Calculations
-            v31 = wInsertPiece*hInsertPiece*lInsertPiece;
-            v32 = -wInsertPiece*pi*(dLargePinHoleInsertPiece^2);
-            v33 = -7*wInsertPiece*pi*dSmallPinHoleInsertPiece^2;
+     vStrapInsertPiece = wInsertPiece*hInsertPiece*lInsertPiece - ...
+        wInsertPiece*pi*(dLargePinHoleInsertPiece^2) - ...
+        7*wInsertPiece*pi*dSmallPinHoleInsertPiece^2;
             
 %% Toe Insert Piece Dimensions
    	lBase = dSoftHeel;
@@ -1440,13 +1439,12 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
     fclose(fileID);
             
 %% Toe Insert Piece Volume Calculations
-            v36 = wBase*lBase*hBase;
-            v37 = 2*wBase*lToeStrapConnector*hToeStrapConnector;
-            v38 = -2*wToeStrapCut*lToeStrapConnector*hToeStrapCut;
-            v39 = -2*(wBase-wToeStrapCut)*pi*dLargePinHoleToePiece^2;
+    vToeInsertPiece = wBase*lBase*hBase + ...
+        2*wBase*lToeStrapConnector*hToeStrapConnector - ...
+        2*wToeStrapCut*lToeStrapConnector*hToeStrapCut - ...
+        2*(wBase-wToeStrapCut)*pi*dLargePinHoleToePiece^2;
             
 %% Ankle Strap Piece Dimensions
-       
 	ankleStrapRadius = (0.1/1.78)*patientHeight;
 	ankleStrapInnerLength = (0.02/1.78)*patientHeight;
 	ankleStrapOuterLength = (0.025/1.78)*patientHeight;
@@ -1471,8 +1469,8 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
     fclose(fileID);
             
 %% Ankle Strap Piece Volume Calculations
-            v34 = 2*ankleStrapInnerLength*ankleStrapThickness+(pi/2)*((ankleStrapRadius^2)-((ankleStrapRadius-(2*ankleStrapThickness))^2));
-            v35 = -2*pi*ankleStrapThickness*dLargePinHoleAnkleStrapPiece^2;
+    vAnkleStrapPiece = 2*ankleStrapInnerLength*ankleStrapThickness+(pi/2)*((ankleStrapRadius^2)-((ankleStrapRadius-(2*ankleStrapThickness))^2)) - ...
+        2*pi*ankleStrapThickness*dLargePinHoleAnkleStrapPiece^2;
             
 %% Toe Strap Piece Dimensions
     toeStrapRadius = (0.15/1.78)*patientHeight;
@@ -1505,8 +1503,9 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
        fprintf(fileID, '"lLargePin" = %7.7f\n', lLargePin);
     fclose(fileID);
             
-        %% Toe Strap Volume Calculations
-        v41 = toeStrapWidth*toeStrapExtrusion;
+%% Toe Strap Volume Calculations
+    vToeStrapPiece = 2*ankleStrapInnerLength*ankleStrapThickness+(pi/2)*((ankleStrapRadius^2)-((ankleStrapRadius-(2*ankleStrapThickness))^2)) - ...
+        2*pi*ankleStrapThickness*dLargePinHoleAnkleStrapPiece^2;
     
     largePinBodyLength = lToeStrapConnector;
     smallPinBodyLength = lSidePiece - lSmallPin;
@@ -1525,7 +1524,8 @@ function FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantar
         fprintf(fileID, '"dSmallPinHoleInsertPiece" = %7.7f\n', dSmallPinHoleInsertPiece);
     fclose(fileID);
  
- 
-
+    vFootPins = 4*pi*(dLargePinHead/2)^2*lLargePin + 4*pi*(dLargePinHoleToeStrapPiece/1)^2*largePinBodyLength + ...
+        4*pi*(dLargePinHead/2)^2*lLargePin + 4*pi*(dLargePinHoleToeStrapPiece/1)^2*largeStrapPinBodyLength + ...
+        4*pi*(dSmallPin/2)^2*lSmallPin + 4*pi*(dSmallPinHoleInsertPiece/2)^2*smallPinBodyLength;
 end
 
