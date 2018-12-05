@@ -1,4 +1,4 @@
-function HipJointBearingCalcs(fRadial, fThrust, thighAngularVelocity, patientHeight)
+function HipJointBearingCalcs(fRadial, thighAngularVelocity, patientHeight)
 
     %% Initial Constants
     shaftRPM = thighAngularVelocity * 9.5493; %converting rads/sec to rpm
@@ -10,22 +10,18 @@ function HipJointBearingCalcs(fRadial, fThrust, thighAngularVelocity, patientHei
     i = 1.0; %number of rows of balls in bearing, should be constant
     alpha = 0; %nominal contact angle of the balls, is 0 for radial bearings, should be constant
     Z = 12; %number of balls per row, shoud be constant
+    dynamicViscosity = 50;
     
     %% Parametrized Geometry
     ballDiameter = (0.00576114/2.78)*patientHeight;
-    innerLargeRingDiameter = (0.045183/1.78)*patientHeight;
-    innerSmallRingDiameter = (0.029527/1.78)*patientHeight;
-    
-    %% Determining fEquivalent based on fRadial and fThrust
-    if ((fThrust/fRadial)<=0.35)
-        fEquivalent = fRadial;
-    elseif ((fThrust/fRadial)>0.35 && (fThrust/fRadial)<10)
-        fEquivalent = fRadial * ((1+1.115)*((fThrust/fRadial)-0.35));
-    elseif ((fThrust/fRadial)>=10)
-        fEquivalent = 1.176*fThrust;
+    innerLargeRingDiameter = (0.04455384/1.78)*patientHeight;
+    innerSmallRingDiameter = (0.02952028/1.78)*patientHeight;
+    bearingLength = (0.009525/1.78)*patientHeight;
+    radialClearance = (0.0000075/1.78)*patientHeight;
+    shaftRadius = (0.0142875/1.78)*patientHeight;
 
     %% Rated Capacity Calculations
-    requiredC = fEquivalent*Ka*((life/(Kr*Lr))^0.3);
+    requiredC = fRadial*Ka*((life/(Kr*Lr))^0.3);
     
     dm = (innerLargeRingDiameter+innerSmallRingDiameter)/2;
     fc = (ballDiameter*cos(alpha))/dm;
@@ -35,7 +31,7 @@ function HipJointBearingCalcs(fRadial, fThrust, thighAngularVelocity, patientHei
     %% Bearing Life Calculations
     L10 = (calcC/fRadial); %rating life - life at which 10 percent of bearings have failed and 90 percent of them are still good. 
 
-    radialLoadLife = Kr*Lr*((calcC/(fEquivalent*Ka))^3.33);
+    radialLoadLife = Kr*Lr*((calcC/(fRadial*Ka))^3.33);
     
     %% Petroff's Equation
     frictionCoefficient = 2*(pi^2)*((dynamicViscosity*shaftRPM)/(fRadial/(shaftRadius*bearingLength)))*(shaftRadius/radialClearance);

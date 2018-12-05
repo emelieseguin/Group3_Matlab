@@ -238,9 +238,6 @@ classdef MainToUseWithGui
             plantarTorsionSpring, dorsiTorsionSpring);
             finalParts = finalParts.SetAllMassesOfComponents(); 
             %footMechanism(personHeight);
-
-            %% Others Calcs - Bolts, Bearings
-            
             
             %% Run Simulations - for different components
             %FourBarLinkageSim(fourBarArray);
@@ -298,7 +295,18 @@ classdef MainToUseWithGui
 % 
 %              main.plot4BarVelocityAcceleration(angularVelocityLink2, angularVelocityLink4, ...
 %                  angularAccelLink2, angularAccelLink4);
-            %% Inverse Dynamics
+
+%% Others Calcs - Bolts, Bearings
+            HipShaftBearingCalcs(hipShaft.Fy2, max(angularAccel.angularVelocityThigh), personHeight);
+            %HipJointBearingCalcs(reactionForceFromSheldon, angularAccel.angularVelocityThigh, patientHeight);
+            %DorsiflexionCamBearingCalcs(reactionForceFromSheldon, patientHeight);
+            %PlantarflexionCamBearingCalcs(reactionForceFromSheldon, patientHeight);
+            
+            BoltCalcs(finalParts.hipBoltsLeftMass, finalParts.hipBoltsRightMass, ...
+                finalParts.thighBoltsLeftMass, finalParts.thighBoltsLeftMass, ...
+                finalParts.shankBoltsLeftMass, finalParts.shankBoltsLeftMass);            
+
+%% Inverse Dynamics
             inverseDynamics = InverseDynamics(model, positionArray, linearAccel, ...
                 angularAccel, patient29Forces, normCopData, timeForGaitCycle);    
             %inverseDynamics.PlotMomentGraphs();
