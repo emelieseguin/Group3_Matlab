@@ -43,7 +43,13 @@ classdef FinalPartsCombined
         totalMassOfExoskeleton
         thighExoMass
         shankExoMass
-        footExoMass 
+        footExoMass
+        hipBoltsLeftMass
+        hipBoltsRightMass
+        thighBoltsLeftMass
+        thighBoltsRightMass
+        shankBoltsLeftMass
+        shankBotlsRightMass
     end
     methods
         function obj = FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantarFlexionPosition, plantarTorsionSpring, dorsiTorsionSpring)
@@ -1571,9 +1577,6 @@ classdef FinalPartsCombined
     fclose(fileID);
             
 %% Toe Strap Volume Calculations
-    %obj.vToeStrapPiece = 2*ankleStrapInnerLength*ankleStrapThickness+(pi/2)*((ankleStrapRadius^2)-((ankleStrapRadius-(2*ankleStrapThickness))^2)) - ...
-        %2*pi*ankleStrapThickness*dLargePinHoleAnkleStrapPiece^2;
-    
     obj.vToeStrapPiece = 2*toeStrapThickness*toeStrapInnerLength*toeStrapExtrusion + ...
         (toeStrapWidth-(2*toeStrapThickness))*(toeStrapOuterLength - toeStrapInnerLength)*toeStrapExtrusion - ...
         2*pi*dLargePinHoleAnkleStrapPiece^2*toeStrapThickness - ...
@@ -1582,7 +1585,6 @@ classdef FinalPartsCombined
     largePinBodyLength = lToeStrapConnector;
     smallPinBodyLength = lSidePiece - lSmallPin;
     largeStrapPinBodyLength = wInsertPiece + toeStrapThickness;
-    
     
     fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footPinDimensions.txt', 'w');
         fprintf(fileID, '"dLargePinHead" = %7.7f\n', dLargePinHead);
@@ -1600,7 +1602,6 @@ classdef FinalPartsCombined
         4*pi*(dLargePinHead/2)^2*lLargePin + 4*pi*(dLargePinHoleToeStrapPiece/1)^2*largeStrapPinBodyLength + ...
         4*pi*(dSmallPin/2)^2*lSmallPin + 4*pi*(dSmallPinHoleInsertPiece/2)^2*smallPinBodyLength;
         end   
-        
         
         function obj = SetAllMassesOfComponents(obj)
             densityOfAluminum = 2700; % kg/m^3
@@ -1671,6 +1672,34 @@ classdef FinalPartsCombined
                 4*mStrapInsertPiece + mToeInsertPiece + mAnkleStrapPiece + mToeStrapPiece + ...
                 8*mFootPins;
             % add 4 little pins into this design
+            
+            obj.hipBoltsLeftMass = + mHip2DOFJointBearing + mHip2DOFJointShaft + mHip2DOFJointOutputShaft + ...
+                mHip2DOFJointCasing + mMedialDiscBallBearing + mHipMedialDisc + mThighCase + mThighPadding + ...
+                2*mParametrizedPulley + mDorsiCamDimensions + mDorsiCamShaft + ...
+                mPlantarCamBearing + mDorsiCamBearing + mCamRetainingRing + mDorsiRetainingRing1 + ...
+                mDorsiRetainingRing2 + mPlantarCam + mPlantarCamShaft + mBotBar + 2*mLink4 + ...
+                mLink2 + 4*m4BarBolts + mTopBar + mCalfCase + mCalfPadding + ...
+                mRigidPiece + mOuterPiece + 4*mSidePiece + ...
+                4*mStrapInsertPiece + mToeInsertPiece + mAnkleStrapPiece + mToeStrapPiece + ...
+                8*mFootPins;
+            
+            obj.hipBoltsRightMass = mMetalHipAttachmemtsDimension*(1/2) + mHipPadding*(1/2);
+            
+            obj.thighBoltsLeftMass =  2*mParametrizedPulley + mDorsiCamDimensions + mDorsiCamShaft + ...
+                mPlantarCamBearing + mDorsiCamBearing + mCamRetainingRing + mDorsiRetainingRing1 + ...
+                mDorsiRetainingRing2 + mPlantarCam + mPlantarCamShaft + mBotBar + 2*mLink4 + ...
+                mLink2 + 4*m4BarBolts + mTopBar + mCalfCase + mCalfPadding + ...
+                mRigidPiece + mOuterPiece + 4*mSidePiece + ...
+                4*mStrapInsertPiece + mToeInsertPiece + mAnkleStrapPiece + mToeStrapPiece + ...
+                8*mFootPins;
+            
+            obj.thighBoltsRightMass = mThighCase + mThighPadding;
+            
+            obj.shankBoltsLeftMass = (mBotBar/2) + mRigidPiece + mOuterPiece + 4*mSidePiece + ...
+                4*mStrapInsertPiece + mToeInsertPiece + mAnkleStrapPiece + mToeStrapPiece + ...
+                8*mFootPins;
+            
+            obj.shankBotlsRightMass = mCalfCase + mCalfPadding;
         end
     end
 end
