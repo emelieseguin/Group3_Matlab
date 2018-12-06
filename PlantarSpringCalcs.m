@@ -26,6 +26,8 @@ classdef PlantarSpringCalcs
         weightExtensionSpring
         extensionCableLength
         totalLengthUnstrechedSpring
+        R1PlantarSpring
+        dPlantarSpringWire
     end
     methods
         function  obj = PlantarSpringCalcs(personHeight, plantarSpringLengthArray)
@@ -178,7 +180,8 @@ classdef PlantarSpringCalcs
 
             obj.weightExtensionSpring = GetWeightExtension(obj, R1);
             obj.extensionCableLength = CL;
-            
+            obj.R1PlantarSpring = D/2;
+            obj.dPlantarSpringWire = d;
             global logFilePath;
             logFile = fopen(logFilePath, 'a+');
                 fprintf(logFile, '\n\n****   Plantarflexion Extension Spring  ****\n\n');

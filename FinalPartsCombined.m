@@ -52,7 +52,7 @@ classdef FinalPartsCombined
         shankBotlsRightMass
     end
     methods
-        function obj = FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantarFlexionPosition, plantarTorsionSpring, dorsiTorsionSpring)
+        function obj = FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantarFlexionPosition, plantarTorsionSpring, dorsiTorsionSpring, plantarSpring, dorsiSpring)
 %% Set Up Equations for Length of Segments in final assembly 
  
     % init variables
@@ -615,6 +615,25 @@ classdef FinalPartsCombined
     HalfthighPaddingHeight = 0.5*thighCaseHeight;
     QuarterthighPaddingHeight = 0.5*HalfthighCaseHeight;
     PaddingFillet = (0.003/1.78)*patientHeight;
+    
+ % dimensions of the thigh strapping
+             
+    ThighStrapInnerRad = 0.5*thighOuterCaseDiameter; %%%%%
+    ThighStrapOuterRad = ThighStrapInnerRad + (0.002/1.78)*patientHeight; %%%%%%%
+    ThighStrapFoldInnerRad = ThighStrapOuterRad + (0.0005/1.78)*patientHeight; %%%%%%
+    ThighStrapFoldOuterRad = ThighStrapFoldInnerRad + (0.002/1.78)*patientHeight; %%%%
+    ThighFoldDifference = (0.00225/1.78)*patientHeight;%%%%
+    ThighFoldDifference2 = (0.00025/1.78)*patientHeight;%%%%
+    ThighFoldWidth = (0.004481/1.78)*patientHeight;%%%%
+    ThighFoldLipThickness = (0.001481/1.78)*patientHeight;%%%%
+    BeltEndCut = (0.01/1.78)*patientHeight;%%%%
+    ThighExcessStrap = (0.01888833/1.78)*patientHeight;%%%%
+    ThighExcessStrap2 = (0.02128551/1.78)*patientHeight;%%%%
+    ExcessStrapY = (0.00086891/1.78)*patientHeight;%%%%
+    ExcessStrapY2 = (0.00136794/1.78)*patientHeight;%%%%
+    ThighCutRad = (0.06419354/1.78)*patientHeight; %%%%
+    MedialThighStrapInnerRad = (0.088/1.78)*patientHeight;
+    MedialThighStrapOuterRad = MedialThighStrapInnerRad - (0.002/1.78)*patientHeight;
             
 
 % dorsiflexion torsional cam shaft dimensions        
@@ -839,7 +858,21 @@ classdef FinalPartsCombined
     HalfcalfCaseHeight = 0.5*calfCaseHeight;
     QuartercalfCaseHeight = 0.5*HalfcalfCaseHeight;
     calfSupportRadius = upperAttachmentDistFromCenterLine - PlantarCamOuterDiameter ; %needs to define point in space of upper point plantarflexion
-
+    StrapCutMidWidth = (0.0015/1.78)*patientHeight; %%%%%
+    StrapCutHoleWidth = (0.003/1.78)*patientHeight; %%%%
+    StrapHeight = (0.028/1.78)*patientHeight; %%%%%
+    StrapCutDepth = (0.004/1.78)*patientHeight; %%%%
+            
+     % Calf strapping dimensions %%%%%
+             
+     CalfStrapInnerRad = 0.5*calfOuterCaseDiameter; %%%%
+     CalfStrapOuterRad = CalfStrapInnerRad + (0.002/1.78)*patientHeight; %%%%%%%
+     CalfStrapFoldInnerRad = CalfStrapOuterRad + (0.0005/1.78)*patientHeight; %%%%%%
+     CalfStrapFoldOuterRad = CalfStrapFoldInnerRad + (0.002/1.78)*patientHeight; %%%%%%%%
+     StrapThickness = (0.002/1.78)*patientHeight; %%%%%
+     StrapFoldDepth = (0.013/1.78)*patientHeight; %%%%%%
+     StrapLength = (0.015/1.78)*patientHeight; %%%%
+     
 % 4-bar bolt dimensions
     boltDiameter = LinkPinDiameter;
     boltHeadDiameter = LinkPinDiameter + (0.0025/1.78)*patientHeight;
@@ -848,6 +881,7 @@ classdef FinalPartsCombined
     bolt2Length = ExtraExtrudeForFourBarTopBar - boltHeadLength;
     bolt3Length = ExtraExtrudeForFourBar + boltHeadLength;
     bolt4Length = ExtraExtrudeForFourBar + boltHeadLength;
+    bolt5Length = ((0.0025/1.78)*patientHeight) + tLinks; 
     
     fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\PlantarCamBearing.txt','w');
         fprintf(fileID, '"notchLength3"= %f\n', notchLength3); 
@@ -1061,6 +1095,9 @@ classdef FinalPartsCombined
         fprintf(fileID, '"tLinks"= %f\n', tLinks);
         fprintf(fileID, '"wLinks"= %f\n', wLinks);
         fprintf(fileID, '"LinkPinDiameter"= %f\n', LinkPinDiameter);
+        fprintf(fileID, '"boltHeadDiameter" = %f\n', boltHeadDiameter);       
+        fprintf(fileID, '"boltHeadLength" = %f\n', boltHeadLength);
+
 	fclose(fileID);
     
     obj.vLink4 = wLinks*Llink4*tLinks + ...
@@ -1079,6 +1116,7 @@ classdef FinalPartsCombined
         fprintf(fileID, '"bolt2Length" = %f\n', bolt2Length);
         fprintf(fileID, '"bolt3Length" = %f\n', bolt3Length);
         fprintf(fileID, '"bolt4Length" = %f\n', bolt4Length);
+        fprintf(fileID, '"bolt5Length" = %f\n', bolt5Length);       
     fclose(fileID);
          
     obj.v4BarBolts = pi*(boltDiameter/2)^2*bolt1Length + ...
@@ -1143,12 +1181,30 @@ classdef FinalPartsCombined
         fprintf(fileID, '"QuartercalfCaseHeight"=%f\n', QuartercalfCaseHeight);
         fprintf(fileID, '"calfSupportRadius"=%f\n', calfSupportRadius);
         fprintf(fileID, '"DistanceToCalfPlane"=%f\n', DistanceToCalfPlane);
-        fprintf(fileID, '"lowerAttachmentDistFromCenterLine"=%f\n', lowerAttachmentDistFromCenterLine);              
+        fprintf(fileID, '"lowerAttachmentDistFromCenterLine"=%f\n', lowerAttachmentDistFromCenterLine);
+        fprintf(fileID, '"StrapCutMidWidth"=%f\n', StrapCutMidWidth); %%%%
+        fprintf(fileID, '"StrapCutHoleWidth"=%f\n', StrapCutHoleWidth); %%%%
+        fprintf(fileID, '"StrapHeight"=%f\n', StrapHeight); %%%%
+        fprintf(fileID, '"StrapCutDepth"=%f\n', StrapCutDepth); %%%%
 	fclose(fileID);
           
     obj.vCalfCase = 0.65*(pi/2)*(calfOuterCaseDiameter^2-calfInnerCaseDiameter^2)*calfCaseHeight + ...
         QuartercalfCaseHeight*(2*distToCutX)*(0.02110317/1.78)*patientHeight + ...
         QuartercalfCaseHeight^2*((0.00805474/1.78)*patientHeight);
+    
+    
+    fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\calfCaseStrappingDimensions.txt','w');  %%%%
+                fprintf(fileID, '"StrapCutMidWidth"=%f\n', StrapCutMidWidth); %%%%
+                fprintf(fileID, '"StrapCutHoleWidth"=%f\n', StrapCutHoleWidth); %%%%
+                fprintf(fileID, '"StrapHeight"=%f\n', StrapHeight); %%%%
+                fprintf(fileID, '"CalfStrapInnerRad"=%f\n', CalfStrapInnerRad); %%%%
+                fprintf(fileID, '"CalfStrapOuterRad"=%f\n', CalfStrapOuterRad); %%%%
+                fprintf(fileID, '"CalfStrapFoldInnerRad"=%f\n', CalfStrapFoldInnerRad); %%%%
+                fprintf(fileID, '"CalfStrapFoldOuterRad"=%f\n', CalfStrapFoldOuterRad); %%%%
+                fprintf(fileID, '"StrapThickness"=%f\n', StrapThickness); %%%%
+                fprintf(fileID, '"StrapFoldDepth"=%f\n', StrapFoldDepth); %%%%
+                fprintf(fileID, '"StrapLength"=%f\n', StrapLength); %%%%
+    fclose(fileID); %%%%
     
  	fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\calfPaddingDimensions.txt','w');
         fprintf(fileID, '"calfInnerPaddingDiameter"= %f\n', calfInnerPaddingDiameter);
@@ -1165,6 +1221,32 @@ classdef FinalPartsCombined
     obj.vCalfPadding = (pi/2)*((calfOuterPaddingDiameter/2)^2-(calfInnerPaddingDiameter/2))^2*calfPaddingHeight - ...
         (1/2)*calfInnerPaddingDiameter*HalfcalfPaddingHeight*(calfOuterPaddingDiameter/2);
     
+    
+    fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\ThighCaseStrappingDimensions.txt','w');  %%%%
+                fprintf(fileID, '"StrapCutMidWidth"=%f\n', StrapCutMidWidth); %%%%
+                fprintf(fileID, '"StrapCutHoleWidth"=%f\n', StrapCutHoleWidth); %%%%
+                fprintf(fileID, '"StrapHeight"=%f\n', StrapHeight); %%%%
+                fprintf(fileID, '"ThighStrapInnerRad"=%f\n', ThighStrapInnerRad); %%%%
+                fprintf(fileID, '"ThighStrapOuterRad"=%f\n', ThighStrapOuterRad); %%%%
+                fprintf(fileID, '"ThighStrapFoldInnerRad"=%f\n', ThighStrapFoldInnerRad); %%%%
+                fprintf(fileID, '"ThighStrapFoldOuterRad"=%f\n', ThighStrapFoldOuterRad); %%%%
+                fprintf(fileID, '"StrapThickness"=%f\n', StrapThickness); %%%%
+                fprintf(fileID, '"StrapFoldDepth"=%f\n', StrapFoldDepth); %%%%
+                fprintf(fileID, '"StrapLength"=%f\n', StrapLength); %%%%
+                fprintf(fileID, '"ThighFoldDifference"=%f\n', ThighFoldDifference); %%%%
+                fprintf(fileID, '"ThighFoldDifference2"=%f\n', ThighFoldDifference2); %%%%
+                fprintf(fileID, '"ThighFoldWidth"=%f\n', ThighFoldWidth); %%%%
+                fprintf(fileID, '"ThighFoldLipThickness"=%f\n', ThighFoldLipThickness); %%%%
+                fprintf(fileID, '"BeltEndCut"=%f\n', BeltEndCut); %%%%
+                fprintf(fileID, '"ThighExcessStrap"=%f\n', ThighExcessStrap); %%%%
+                fprintf(fileID, '"ThighExcessStrap2"=%f\n', ThighExcessStrap2); %%%%
+                fprintf(fileID, '"ExcessStrapY"=%f\n', ExcessStrapY); %%%%
+                fprintf(fileID, '"ExcessStrapY2"=%f\n', ExcessStrapY2); %%%%
+                fprintf(fileID, '"ThighCutRad"=%f\n', ThighCutRad); %%%%
+                fprintf(fileID, '"MedialThighStrapInnerRad"=%f\n', MedialThighStrapInnerRad); %%%%
+                fprintf(fileID, '"MedialThighStrapOuterRad"=%f\n', MedialThighStrapOuterRad); %%%%
+    fclose(fileID); %%%%
+    
 	fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\thighCaseDimensions.txt','w');
         fprintf(fileID, '"thighInnerCaseDiameter"= %f\n', thighInnerCaseDiameter);
         fprintf(fileID, '"thighOuterCaseDiameter"= %f\n', thighOuterCaseDiameter);
@@ -1176,7 +1258,11 @@ classdef FinalPartsCombined
         fprintf(fileID, '"HalfthighCaseHeight"=%f\n', HalfthighCaseHeight);
         fprintf(fileID, '"QuarterthighCaseHeight"=%f\n', QuarterthighCaseHeight);
         fprintf(fileID, '"thighSupportRadius"=%f\n', thighSupportRadius);
-        fprintf(fileID, '"DistancetoThighPlane"=%f\n', DistancetoThighPlane);  
+        fprintf(fileID, '"DistancetoThighPlane"=%f\n', DistancetoThighPlane);
+        fprintf(fileID, '"StrapCutMidWidth"=%f\n', StrapCutMidWidth); %%%%
+        fprintf(fileID, '"StrapCutHoleWidth"=%f\n', StrapCutHoleWidth); %%%%
+        fprintf(fileID, '"StrapHeight"=%f\n', StrapHeight); %%%%
+        fprintf(fileID, '"StrapCutDepth"=%f\n', StrapCutDepth); %%%%
 	fclose(fileID);
        
     obj.vThighCase = (0.6)*(pi/2)*((thighOuterCaseDiameter/2)^2-(thighInnerCaseDiameter/2)^2)*thighCaseHeight + ...
@@ -1280,6 +1366,9 @@ classdef FinalPartsCombined
     dLargePinHoleToePiece = (0.005/1.78)*patientHeight;
     dLargePinHead = dLargePinHoleToePiece+(0.0025/1.78)*patientHeight;
     lLargePin = (0.00125/1.78)*patientHeight;
+    R1PlantarSpring=plantarSpring.R1PlantarSpring;
+    dPlantarSpringWire=plantarSpring.dPlantarSpringWire;
+    %=dorsiSpring. 
     
     fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footRigidPieceDimensionsUpdated.txt', 'w');
          fprintf(fileID, '"dInnerHeel" = %7.7f\n', dInnerHeel);
@@ -1324,6 +1413,10 @@ classdef FinalPartsCombined
          fprintf(fileID, '"lowerAttachmentDistFromCenterLine" = %7.7f\n', lowerAttachmentDistFromCenterLine);       
          fprintf(fileID, '"dLargePinHead" = %7.7f\n', dLargePinHead);
          fprintf(fileID, '"lLargePin" = %7.7f\n', lLargePin);
+         fprintf(fileID, '"R1PlantarSpring" = %7.7f\n', R1PlantarSpring);
+         fprintf(fileID, '"dPlantarSpringWire" = %7.7f\n', dPlantarSpringWire);
+         
+         
     fclose(fileID);
      
      %% Rigid Piece Volume Calculations
@@ -1558,6 +1651,9 @@ classdef FinalPartsCombined
 	rToeHookInnerCut = (0.0025/1.78)*patientHeight;
 	dToeHookCutExtrude = (0.015/1.78)*patientHeight;
 	rToeStrapFillet = (0.01/1.78)*patientHeight;
+    r1DorsiSpring = dorsiSpring.r1DorsiSpring;
+    dDorsiSpringWire = dorsiSpring.dDorsiSpringWire;
+    LengthToCutPlane3 = (0.05/1.78)* patientHeight;
        
 	fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\footToeStrapPieceDimensionsUpdated.txt', 'w');
        fprintf(fileID, '"toeStrapRadius" = %7.7f\n', toeStrapRadius);
@@ -1574,6 +1670,10 @@ classdef FinalPartsCombined
        fprintf(fileID, '"rToeStrapFillete" = %7.7f\n', rToeStrapFillet);
        fprintf(fileID, '"dLargePinHead" = %7.7f\n', dLargePinHead);
        fprintf(fileID, '"lLargePin" = %7.7f\n', lLargePin);
+       fprintf(fileID, '"r1DorsiSpring" = %7.7f\n', r1DorsiSpring);
+       fprintf(fileID, '"dDorsiSpringWire" = %7.7f\n', dDorsiSpringWire); 
+       fprintf(fileID, '"LengthToCutPlane3" = %7.7f\n', LengthToCutPlane3); 
+       
     fclose(fileID);
             
 %% Toe Strap Volume Calculations

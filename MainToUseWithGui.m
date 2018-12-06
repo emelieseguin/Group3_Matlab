@@ -235,7 +235,7 @@ classdef MainToUseWithGui
             
             %% Print the value for all of the components
             finalParts = FinalPartsCombined(personHeight, hipShaft, dorsiPosition, plantarFlexionArray(1), ...
-            plantarTorsionSpring, dorsiTorsionSpring);
+            plantarTorsionSpring, dorsiTorsionSpring, plantarSpring, dorsiSpring);
             finalParts = finalParts.SetAllMassesOfComponents(); 
             %footMechanism(personHeight);
             
