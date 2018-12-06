@@ -439,12 +439,13 @@ classdef FinalPartsCombined
     PulleyFilletRadius2 = (0.0028575/1.78)*patientHeight;
     PulleyCutRadius1 = (0.005334/1.78)*patientHeight;
     PulleyExtrude2 = (0.009525/1.78)*patientHeight;
-    PulleyFilletRadius3 = (0.000635/1.78)*patientHeight;PulleyExtrudeDiameter2 = (0.005715/1.78)*patientHeight;
+    PulleyFilletRadius3 = (0.000635/1.78)*patientHeight;
+    PulleyExtrudeDiameter2 = (0.005715/1.78)*patientHeight;
     PulleyAttachWidth = (0.01778/1.78)*patientHeight; 
     PulleyAttachHeight=pullyDistanceFromTheCenterLine - WbotBar;
     PulleyAttachmentAngle = 97.82997;
     PulleyAttachRadius=(0.0127/1.78)*patientHeight;
-    PulleyLipThickness = (0.00192443/1.78)*patientHeight; 
+    PulleyLipThickness = (0.00192443/1.78)*patientHeight;
     PulleyRevolveDistance = (0.015/1.78)*patientHeight;
 
     fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\ParamaterizedPulley.txt','w');
@@ -567,6 +568,7 @@ classdef FinalPartsCombined
     ExtraExtrudeForFourBarTopBar= (0.015/1.78)*patientHeight;
     HCutForFourBar = HtopBarKnee/2;
     DistanceToPulley1= (0.160049/1.78)*patientHeight;
+    TopBarBearCutRad = (0.0103325/1.78)*patientHeight;
             
 % dimensions of the calf strap case
     upperAttachmentDistFromCenterLine = plantarFlexionPosition.upperAttachmentDistFromCenterLine;
@@ -679,7 +681,7 @@ classdef FinalPartsCombined
     SpringArmCaseTopThickness = (0.0032834408007035/1.78)*patientHeight; 
     SpringArmCaseHoleDiameter = DorsiWireDiameter + (0.0001/1.78)*patientHeight; 
     SpringArmCaseDistToHole = (0.001918108044/1.78)*patientHeight; 
-    
+    SpringArmCaseBotLength = (0.004/1.78)*patientHeight;
  
  
     fileID = fopen('C:\MCG4322B\Group3\Solidworks\Equations\DorsiCamDimensions.txt','w'); 
@@ -703,7 +705,9 @@ classdef FinalPartsCombined
         fprintf(fileID, '"SpringArmCaseBotThickness"= %f\n', SpringArmCaseBotThickness); 
         fprintf(fileID, '"SpringArmCaseTopThickness"= %f\n', SpringArmCaseTopThickness); 
         fprintf(fileID, '"SpringArmCaseHoleDiameter"= %f\n', SpringArmCaseHoleDiameter); 
-        fprintf(fileID, '"SpringArmCaseDistToHole"= %f\n', SpringArmCaseDistToHole); 
+        fprintf(fileID, '"SpringArmCaseDistToHole"= %f\n', SpringArmCaseDistToHole);        
+        fprintf(fileID, '"SpringArmCaseBotLength"= %f\n', SpringArmCaseBotLength);
+   
     fclose(fileID);
     
     obj.vDorsiCamDimensions = 2*pi*(OuterDorsiCamRadius^2 - ((0.01057813/1.78)*patientHeight)^2)*DorsiCamCutDepth + ...
@@ -836,7 +840,8 @@ classdef FinalPartsCombined
     revolve3Width=PlantarCamZ3_Z4;  
     CaseBearingHeight = 0.5*(revolve3Length+(0.002/1.78)*patientHeight); 
 
-%DorsiCamBearing dimensions 
+%DorsiCamBearing dimensions
+    
     notchLength4=(0.000016666666667/1.78)*patientHeight; 
     notchAngle4=(45.0); 
     revolve1Distance4=(0.00006837620297/1.78)*patientHeight; 
@@ -844,9 +849,10 @@ classdef FinalPartsCombined
     revolve4Length2=DorsiCamShaftDp3; 
     revolve4Length=DorsiCamShaftDp3 + (0.0109888889/1.78)*patientHeight; 
     revolve4Width= 0.5*DorsiCamZ4_Z3; 
+    Halfrevolve4Width = 0.5*revolve4Width;
     CaseBearingHeightDorsi = 0.5*(revolve3Length+(0.002/1.78)*patientHeight); 
     InnerDorsiCamDiamaterInShaft= revolve4Length - ((0.005/1.78)*patientHeight);
-            
+    InnerDorsiCamRadius = 0.5*InnerDorsiCamDiamaterInShaft;
 % dimensions of the calf strap case
     upperAttachmentDistFromCenterLine = plantarFlexionPosition.upperAttachmentDistFromCenterLine;
     calfInnerCaseDiameter = (0.10/1.78)*patientHeight;
@@ -1041,6 +1047,7 @@ classdef FinalPartsCombined
         fprintf(fileID, '"PlantarCamZ6"= %f\n', PlantarCamZ6); 
         fprintf(fileID, '"PlantarCamZ7"= %f\n', PlantarCamZ7); 
         fprintf(fileID, '"CaseToZ6"= %f\n', CaseToZ6); 
+        fprintf(fileID, '"PlantarCamZspring_Z4"= %f\n', PlantarCamZspring_Z4);         
     fclose(fileID);   
           
     obj.vPlantarCamShaft = pi*(PlantarCamDp1/2)^2*PlantarCamZ1_Z2 + ...
@@ -1155,6 +1162,10 @@ classdef FinalPartsCombined
     	fprintf(fileID, '"InnerDorsiCamDiamaterInShaft"= %f\n', InnerDorsiCamDiamaterInShaft);
         fprintf(fileID, '"boltHeadDiameter" = %f\n', boltHeadDiameter);
         fprintf(fileID, '"boltHeadLength" = %f\n', boltHeadLength);
+        fprintf(fileID, '"DorsiCamShaftDpSpring" = %f\n', DorsiCamShaftDpSpring);
+        fprintf(fileID, '"Halfrevolve4Width" = %f\n', Halfrevolve4Width);
+        fprintf(fileID, '"InnerDorsiCamRadius" = %f\n', InnerDorsiCamRadius);
+        fprintf(fileID, '"TopBarBearCutRad" = %f\n', TopBarBearCutRad);
 	fclose(fileID);
           
     obj.vTopBar = TtopBar*(HtopBarHip+HtopBarAngle+HtopBarKnee)*WtopBar + ...
