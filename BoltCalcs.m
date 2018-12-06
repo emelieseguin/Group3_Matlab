@@ -18,7 +18,6 @@ function BoltCalcs(hipWeightOfPartsLeft, hipWeightOfPartsRight, thighWeightOfPar
     %two bolts boths side, total 4
     %bolts on same transverse plane
 
-    Sp = 380; %changes based on screw material picked, 380 refers to SAE 5.8 steel
     theoreticalHipSF = 1.5; %a safety factor we can pick, set to 1.5 at top of range?
     hipNumScrews = 2; %number of screws used at the interface, can be changed based on forces experienced
     hipFScrewLeftSide = hipWeightOfPartsLeft*9.81; %full weight of one entire limb portion of the exo
@@ -27,7 +26,7 @@ function BoltCalcs(hipWeightOfPartsLeft, hipWeightOfPartsRight, thighWeightOfPar
     theotricalHipAt = (hipFBolt*theoreticalHipSF)/Sp; %this would then be At at the top of range, so if we pick a bolt that works here,
     %and we keep the same bolt, it should then always work
 
-    actualHipAt = 0.3;
+    actualHipAt = 1.7;
     actualHipSF = (actualHipAt*Sp)/hipFBolt;
 
     %% Bolt Calcs at the Thigh Attachment Interface
@@ -35,9 +34,8 @@ function BoltCalcs(hipWeightOfPartsLeft, hipWeightOfPartsRight, thighWeightOfPar
     % two bolts both sides, total 4
     % bolts on same sagittal plane 
 
-    Sp = 380;
     theoreticalThighSF = 1.5;
-    thighNumScrews = 2;
+    thighNumScrews = 1;
     thighFScrewLeftSide = thighWeightOfPartsLeft*9.81; %will be the weight of the upper limb portion and everything below
     thighFScrewRightSide = thighWeightOfPartsRight*9.81; %will be the weight of the thigh attachment piece
     thighFBolt = (thighFScrewLeftSide + thighFScrewRightSide)/thighNumScrews;
@@ -46,21 +44,20 @@ function BoltCalcs(hipWeightOfPartsLeft, hipWeightOfPartsRight, thighWeightOfPar
     %thighAt at top of height range ensures we pick the right bolt with an At > larger than what was calculated
     %then we used the At of the screw we picked, along with the force on the bolt and its Sp to solve for the safety factor
     %fBolt will change when the weights change due to height changes, so we can see how the SF flucuates through our height range
-    actualThighAt = 1.0; %tentatively set to 1.0
+    actualThighAt = 1.7; %tentatively set to 1.0
     actualThighSF = (actualThighAt*Sp)/thighFBolt;
 
     %% Bolt Calcs at the Shank Attachment Interface
     % attaches shank to the exoskeleton
     % two bolts on both sides, total 4
 
-    Sp = 380;
     theoreticalShankSF = 1.5;
-    shankNumScrews = 2;
+    shankNumScrews = 1;
     shankFScrewLeftSide = shankWeightOfPartsLeft*9.81; %will be the weight of the lower limb portion of the exo
     shankFScrewRightSide = shankWeightOfPartsRight*9.81; %will be the weight of the shank attachment piece
     shankFBolt = (shankFScrewLeftSide + shankFScrewRightSide)/shankNumScrews;
     shankAt = (shankFBolt*theoreticalShankSF)/Sp;
 
-    actualShankAt = 1.0;
+    actualShankAt = 1.7;
     actualShankSF = (actualShankAt*Sp)/shankFBolt;
 end
