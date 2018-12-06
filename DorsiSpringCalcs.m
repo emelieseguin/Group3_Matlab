@@ -11,6 +11,8 @@ classdef DorsiSpringCalcs
         NumberBodyTurns = 8;
         wireDiameterSpring
         meanDiameterCoil
+        r1DorsiSpring 
+        dDorsiSpringWire
         
         R1
         R2
@@ -182,7 +184,8 @@ classdef DorsiSpringCalcs
                 fprintf(fileID, '"numBodyTurnsDorsiSpring"= %f\n', obj.NumberBodyTurns);
             fclose(fileID);
             
-            
+    obj.r1DorsiSpring= D/2; 
+    obj.dDorsiSpringWire=d;
             global logFilePath;
             logFile = fopen(logFilePath, 'a+');
                 fprintf(logFile, '\n\n****   Dorsiflexion Extension Spring  ****\n\n');
