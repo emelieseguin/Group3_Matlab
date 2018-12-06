@@ -246,7 +246,7 @@ classdef PlantarTorsionSpring
             currentFy = forceOnFoot*sin(deg2rad(currentPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
             currentFx = forceOnFoot*cos(deg2rad(currentPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
             currentMoment = currentFy*currentPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentX + currentFx*currentPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentY;
-            MomentSI = (-1)*currentMoment;%nextMoment - currentMoment;
+            MomentSI = (-1)*currentMoment;
         end
         
         function weight = GetWeightTorsion(obj, Lwork, Lsupp)

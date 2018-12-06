@@ -26,7 +26,7 @@ classdef MainToUseWithGui
         
         %% Exoskeleton Moments
         exoInverseDynamics
-        overallExoHipMoment %% -- calculate these things
+        overallExoHipMoment
         overallExoKneeMoment
         overallExoAnkleMoment
         
@@ -54,6 +54,7 @@ classdef MainToUseWithGui
             patient29ForcesCsvFileName = 'Patient29_Normal_Walking_Forces.csv';
             patient29CopData_Left = 'Patient29_ForcePlateData_LeftFoot.csv';
             patient29FootLengthInMm = 295;  % Approximated foot length
+            timeForGaitCycle = 1.48478;
 
             % Create objects to store the gait information (angles, forces) of patient 29
             patient29Angles = GaitDataAngles(patient29AnglesCsvFileName);
@@ -86,15 +87,14 @@ classdef MainToUseWithGui
 
                 % Create the position of the leg, add it to the array
                 position = GaitLegPosition(model, foot, knee, hip);
-
                 positionArray = [positionArray position];
+                
                 kneePointXArray(item) = position.KneeJointX;
                 kneePointYArray(item) = position.KneeJointY;
-
+                
+                % Create the position of the 4bar, with respect to the leg
                 linkagePosition = FourBarLinkageMathDefined_FromGait(personHeight, position.KneeJointX, position.KneeJointY, ...
                     model.dimensionMap(thighLength), model.dimensionMap(rightShankLength), hip, knee, position.ThighLine, position.ShankLine);
-                %linkagePosition = FourBarLinkagePosition(personHeight, position.KneeJointX, position.KneeJointY, ...
-                %    model.dimensionMap(rightShankLength), hip, knee, item);
                 fourBarArray = [fourBarArray linkagePosition];
 
                 intersectPointXArray(item) = linkagePosition.IntersectPointX;
@@ -117,35 +117,16 @@ classdef MainToUseWithGui
                 dorsiSpringAndCableLengthArray = [dorsiSpringAndCableLengthArray dorsiPosition.Length];
             end
             
-            % Used in the thing
-            main.gaitPositionArray = positionArray;
+            % Store the gait positioning array on Main
+            main.gaitPositionArray = positionArray; 
 
-            %% Test Stuff - not used currently - shows range of motion for 4Bar
-            % Test for the range of motion of the 4 bar
-            %fourBarTest = [];
-            %qAngle =  90; %127.71; %- proper one;
-            %while(qAngle < (180-19.5))
-            %    test = FourBarLinkageMathDefined(personHeight, position.KneeJointX, position.KneeJointY, ...
-            %        model.dimensionMap(thighLength), model.dimensionMap(rightShankLength), hip, knee, qAngle);
-            %    fourBarTest = [fourBarTest test];
-            %    qAngle = qAngle + 1;
-            %end
-
-            %% Plotting Graphs for Spring Length - wrt to height
-            % Plot the plantarflexion and dorsiflexion spring
-            %main.PlotDorsiSpringLength(dorsiSpringAndCableLengthArray);
-            %main.PlotPlantarSpringLength(plantarSpringAndCableLengthArray);
-
-            % Plot the shank spring
-            % main.PlotShankSpringLength(springLengthArray);	 
-
-            %% Spring Calcs -- note, need mCable to automate, method to find string lengths within the functions 
+            %% Spring Calcs
             % Hip torsional spring
             hipTorsionSpring = HipTorsionSpring(personHeight, patient29Angles.LHipAngleZ);
 
             %% Extension spring for Plantarflexion
             plantarSpring = PlantarSpringCalcs(personHeight, plantarSpringAndCableLengthArray);
-            plantarSpringLengthArray = [];  %% make sure this is right - dim is wrong right now - previous version correct
+            plantarSpringLengthArray = [];
             for i=1:length(plantarFlexionArray)
                 planatarPosition = plantarFlexionArray(i);
                 springLength = planatarPosition.Length - plantarSpring.extensionCableLength;
@@ -188,31 +169,124 @@ classdef MainToUseWithGui
             mDorsiPull = dorsiSpring.weightExtensionSpring + mDorsiCable;
             dorsiTorsionSpring = DorsiTorsionSpring(personHeight, mDorsiPull, dorsiSpringAndCableLengthArray);
 
-            %% Plotting the 4Bar 
-            % Plot the Intersection of the 4 bar linkage with respect to the knee joint position
-             %main.Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
-             %  intersectPointXArray, intersectPointYArray);
-             
+            %% Store 4bar variables into properties
             main.kneePointXArray = kneePointXArray;
             main.kneePointYArray = kneePointYArray;
             main.intersectPointXArray = intersectPointXArray;
             main.intersectPointYArray = intersectPointYArray;
             main.fourBarPositionArray = fourBarArray;
-             
-             %main.Plot4BarLinkageDistanceChange(distanceChangeOfTopLink, distanceChangeOfBottomLink, ...
-             %   topLinkXMovement, topLinkYMovement);
 
-            %% Shaft Analysis Things
-            % Calculates mass of each component based on anthropometric model
-            exoskeletonMasses = Exoskeleton_Mass_Anthropometric(personHeight);
-
+            %% Create the Hip Shaft
             % Calculates shaft dimensions based on anthropometric model
             hipShaft = Shaft_Length_Anthropometric(personHeight, hipTorsionSpring.shaftDiameter, ...
             hipTorsionSpring.wireDiameterSpring, hipTorsionSpring.lengthSupportLeg, hipTorsionSpring.lengthHipSpring);
 
+            
+            %% Print the value for all of the components
+            finalParts = FinalPartsCombined(personHeight, hipShaft, dorsiPosition, plantarFlexionArray(1), ...
+            plantarTorsionSpring, dorsiTorsionSpring, plantarSpring, dorsiSpring);
+            finalParts = finalParts.SetAllMassesOfComponents(); 
+
+            %% Calc the linear and angular accelerations 
+            patient29_HeelStrike = 0;
+            patient29_ToeOff = patient29Forces.ToeOffPercentage;
+            linearAccel = LinearAcceleration(positionArray, timeForGaitCycle);
+            angularAccel = AngularAcceleration(positionArray, timeForGaitCycle);
+            normCopData = NormalizeCopData(patient29CopData_Left, ...
+                patient29_HeelStrike, patient29_ToeOff, patient29FootLengthInMm);        
+
+            %% Inverse Dynamics without the exoskeleton weight
+            inverseDynamics = InverseDynamics(model, positionArray, linearAccel, ...
+                angularAccel, patient29Forces, normCopData, timeForGaitCycle);    
+            main.basicInverseDynamics = inverseDynamics;
+
+            %% Inverse Dynamics redone with the exoskeleton weight
+            % Get the approx total weight acting on each of the components
+             totalMassOfExoskelton = finalParts.totalMassOfExoskeleton; % in kg
+             thighExoMass = finalParts.thighExoMass + hipTorsionSpring.weightHipTorsionSpring; % in kg
+             shankExoMass = finalParts.shankExoMass + plantarSpring.weightExtensionSpring + ...
+                 dorsiSpring.weightExtensionSpring + plantarTorsionSpring.weightPlantarTorsionSpring + ...
+                 dorsiTorsionSpring.weightDorsiTorsionSpring + mPlantarCable + mDorsiCable;
+             footExoMass = finalParts.footExoMass;
+             
+             inverseDynamicsExo = InverseDynamicsWithExoskeleton(model, positionArray, linearAccel, ...
+                 angularAccel, patient29Forces, normCopData, timeForGaitCycle, totalMassOfExoskelton, ...
+                 thighExoMass, shankExoMass, footExoMass);             
+             
+            %% Moment Contribution from exoskeleton throughout Gait
+             hipContributedMoments = zeros(1, length(positionArray));
+             dorsiSpringContributedMoments = zeros(1, length(positionArray));
+             plantarSpringContributedMoments = zeros(1, length(positionArray));
+ 
+             dorsiTorsionContributedMoments = zeros(1, length(positionArray));
+             plantarTorsionContributedMoments = zeros(1, length(positionArray));
+ 
+             for i=(1:(length(positionArray)))
+                 % Hip Torsion Spring Moment
+                 momentAdded = hipTorsionSpring.GetMomentContribution(positionArray(i).HipAngleZ, i);
+                 hipContributedMoments(i) = momentAdded;
+  
+                 % Find the acting Dorsiflexion Spring Moment
+                 [maxDorsiLength, maxValueIndex] = max(dorsiSpringAndCableLengthArray);
+                 dorsiSpringContributedMoments(i) = dorsiSpring.GetMomentContribution(dorsiSpringAndCableLengthArray(i), ...
+                  dorsiFlexionArray(i), maxDorsiLength, maxValueIndex, i);
+ 
+                 % Find the acting Plantar Spring Moment
+                 [maxPlantarLength, maxValueIndex] = max(plantarSpringAndCableLengthArray);
+                 plantarSpringContributedMoments(i) = plantarSpring.GetMomentContribution(plantarSpringAndCableLengthArray(i), ...
+                     plantarFlexionArray(i), maxPlantarLength, maxValueIndex, i);
+ 
+                 % Cam contributed to gait moments
+                 dorsiTorsionContributedMoments(i) = dorsiTorsionSpring.GetMomentContribution(dorsiFlexionArray(i));
+                 plantarTorsionContributedMoments(i) = plantarTorsionSpring.GetMomentContribution(plantarFlexionArray(i));
+             end
+             
+            % Store the arrays for joint moments with the exoskeleton acting 
+            main.exoInverseDynamics = inverseDynamicsExo;
+            main.overallExoHipMoment = (-1)*inverseDynamicsExo.MHipZExo_Array + hipContributedMoments;
+            main.overallExoKneeMoment = (-1)*inverseDynamicsExo.MKneeZExo_Array;
+            main.overallExoAnkleMoment = (-1)*inverseDynamicsExo.MAnkleZExo_Array + dorsiSpringContributedMoments + plantarSpringContributedMoments + dorsiTorsionContributedMoments + plantarTorsionContributedMoments;
+            
+            % Store the contributed moments from the springs
+            main.hipContributedMoments = hipContributedMoments;
+            main.dorsiSpringContributedMoments = dorsiSpringContributedMoments;
+            main.plantarSpringContributedMoments = plantarSpringContributedMoments;
+
+            % Store the contributed moments from the cams
+            main.dorsiTorsionContributedMoments = dorsiTorsionContributedMoments;
+            main.plantarTorsionContributedMoments = plantarTorsionContributedMoments;
+
+            %% Calculate the Moments on the Cams themselves from picking up slack throughout Gait
+             dorsiTorsionCamMoments = zeros(1, length(positionArray));
+             plantarTorsionCamMoments = zeros(1, length(positionArray));
+             for i=(1:(length(positionArray)))
+                 % Find the cable lengths
+                 if(i==1) % Start 1, Previous 101
+                     currentDorsiSpringLength = dorsiSpringAndCableLengthArray(i);
+                     previousDorsiSpringLength = dorsiSpringAndCableLengthArray(length(positionArray));
+ 
+                     currentPlantarSpringLength = plantarSpringAndCableLengthArray(i);%plantarSpringLengthArray(i);
+                     previousPlantarSpringLength = plantarSpringAndCableLengthArray(length(positionArray));%plantarSpringLengthArray(length(positionArray));
+                 else % Start i, Previous i - 1
+                     currentDorsiSpringLength = dorsiSpringAndCableLengthArray(i);
+                     previousDorsiSpringLength = dorsiSpringAndCableLengthArray(i-1);
+ 
+                     currentPlantarSpringLength = plantarSpringAndCableLengthArray(i);%plantarSpringLengthArray(i);
+                     previousPlantarSpringLength = plantarSpringAndCableLengthArray(i-1);%plantarSpringLengthArray(i-1);
+                 end
+ 
+                 % Dorsitorsion spring
+                 dorsiTorsionCamMoments(i) = dorsiTorsionSpring.GetMomentOnCam(currentDorsiSpringLength, previousDorsiSpringLength, ...
+                     dorsiSpring.extensionCableLength, dorsiSpring.lengthUnstrechedSpring, dorsiSpring.R1, i);
+ 
+                 % Plantartorsion Spring
+                 plantarTorsionCamMoments(i) = plantarTorsionSpring.GetMomentOnCam(currentPlantarSpringLength, previousPlantarSpringLength, ...
+                     plantarSpring.extensionCableLength, plantarSpring.lengthUnstrechedSpring, plantarSpring.R1, plantarSpringLengthArray(1), i);
+             end
+             
+            %% Calculate the Shear Force Bending Moments and Safety Factor on the Shafts
             % Build the shear force bending moment diagrams with the correct forces
-            % Currently returns the right components.. However the gui shows the forces in kN which is wrong...
-            % Scale for the bending moment is also wrong, should be .12 not 1.2
+            warning('off'); % Suppress warning about nested global variables 
             [ShearF, BendM] = ShearForceBendingMoment('Prob 200', ...
                         [hipShaft.zShaftLength,hipShaft.supportDist1], ...
                         {'CF',hipShaft.Fg1,hipShaft.casingDist1}, ...
@@ -228,45 +302,40 @@ classdef MainToUseWithGui
             %ShearForceBendingMoment('Prob 200',[0.153,0.005,0.148],{'CF',-1.8161,0.005},{'CF',-0.0139,0.0165},{'CF',-0.0237,0.023},{'CF',0.8626905882,0.023},{'CF',-0.5863,0.0525},{'CF',-1.4834,0.0759},{'CF',4.895709412,0.0825},{'CF',-0.0189,0.0915},{'CF',-1.8161,0.148});
             %disp(['Max Shear Force: ', num2str(max(ShearF)), 'N,   Min Shear Force: ',  num2str(min(ShearF)), 'N']);
             %disp(['Max Bending Moment Force: ', num2str(max(BendM)), 'N*m,   Min Bending Moment Force: ',  num2str(min(BendM)), 'N*m']);
-
+            warning('on');
             % Shaft shoulder Analysis
             ShoulderCalcs(personHeight, main.GetAbsMaxValueFromArray(BendM), hipTorsionSpring.maxTorsionFromSpring,...
                 hipTorsionSpring.shaftDiameter, hipShaft);
             
-            %% Print the value for all of the components
-            finalParts = FinalPartsCombined(personHeight, hipShaft, dorsiPosition, plantarFlexionArray(1), ...
-            plantarTorsionSpring, dorsiTorsionSpring, plantarSpring, dorsiSpring);
-            finalParts = finalParts.SetAllMassesOfComponents(); 
-            %footMechanism(personHeight);
+            %% Others Calcs - Bolts, Bearings
+            HipShaftBearingCalcs(hipShaft.Fy2, max(angularAccel.angularVelocityThigh), personHeight);
+            %HipJointBearingCalcs(reactionForceFromSheldon, angularAccel.angularVelocityThigh, patientHeight);
+            %DorsiflexionCamBearingCalcs(reactionForceFromSheldon, patientHeight);
+            %PlantarflexionCamBearingCalcs(reactionForceFromSheldon, patientHeight, timeForGaitCycle);
             
-            %% Run Simulations - for different components
-            %FourBarLinkageSim(fourBarArray);
-            %GaitSimulation(positionArray);
-            %FullSimulation(fourBarArray, positionArray);
-            %PlantarFlexionSpringSim(plantarFlexionArray);
-            %DorsiFlexionSpringSim(dorsiFlexionArray);
-            %FullSimulationPart2(plantarFlexionArray, positionArray, dorsiFlexionArray);
-
-            %% Calc the linear and angular accelerations 
-            patient29_HeelStrike = 0;
-            patient29_ToeOff = patient29Forces.ToeOffPercentage;
-            timeForGaitCycle = 1.48478;
-            linearAccel = LinearAcceleration(positionArray, timeForGaitCycle);
-            angularAccel = AngularAcceleration(positionArray, timeForGaitCycle);
-            normCopData = NormalizeCopData(patient29CopData_Left, ...
-                patient29_HeelStrike, patient29_ToeOff, patient29FootLengthInMm);
-
-            % Plot the Linear Velocity and Acceleration
-                %linearAccel.PlotVelocityInterpolationCurves();
-                %linearAccel.PlotAccelerationCurves();
-                %linearAccel.PlotAvgAccelerationCurves();
-
-            % Plot the Angular Velocity and Accelerations
-                %angularAccel.PlotVelocityInterpolationCurves();
-                %angularAccel.PlotAccelerationCurves();
-                %angularAccel.PlotAvgAccelerationCurves();
+            BoltCalcs(finalParts.hipBoltsLeftMass, finalParts.hipBoltsRightMass, ...
+                finalParts.thighBoltsLeftMass, finalParts.thighBoltsLeftMass, ...
+                finalParts.shankBoltsLeftMass, finalParts.shankBoltsLeftMass); 
             
-             %% Calculate the Angular Velocity and Acceleration of the 4Bar
+%% ---------------- Additional plotting and calculations not stored within GUI --------------------------------------------
+            %% Plotting Graphs for Spring Length - wrt to height
+            % Plot the plantarflexion and dorsiflexion spring
+            %main.PlotDorsiSpringLength(dorsiSpringAndCableLengthArray);
+            %main.PlotPlantarSpringLength(plantarSpringAndCableLengthArray);
+
+            % Plot the shank spring
+            % main.PlotShankSpringLength(springLengthArray);	
+            
+             %% Plotting the 4Bar 
+            % Plot the Intersection of the 4 bar linkage with respect to the knee joint position
+            % main.Plot4BarLinkageWRTKneeJoint(kneePointXArray, kneePointYArray, ...
+            %  intersectPointXArray, intersectPointYArray);
+            % Plot the translation of the 4bar linkage withr respect to the
+            % centerline of the leg
+            % main.Plot4BarLinkageDistanceChange(distanceChangeOfTopLink, distanceChangeOfBottomLink, ...
+            %   topLinkXMovement, topLinkYMovement);
+            
+            %% Calculate the Angular Velocity and Acceleration of the 4Bar
 %                 angularVelocityLink2 = zeros(1,100);
 %                 angularVelocityLink4 = zeros(1,100);
 %                 angularAccelLink2 = zeros(1,100);
@@ -295,111 +364,24 @@ classdef MainToUseWithGui
 % 
 %              main.plot4BarVelocityAcceleration(angularVelocityLink2, angularVelocityLink4, ...
 %                  angularAccelLink2, angularAccelLink4);
-
-%% Others Calcs - Bolts, Bearings
-            HipShaftBearingCalcs(hipShaft.Fy2, max(angularAccel.angularVelocityThigh), personHeight);
-            %HipJointBearingCalcs(reactionForceFromSheldon, angularAccel.angularVelocityThigh, patientHeight);
-            %DorsiflexionCamBearingCalcs(reactionForceFromSheldon, patientHeight);
-            %PlantarflexionCamBearingCalcs(reactionForceFromSheldon, patientHeight);
             
-            BoltCalcs(finalParts.hipBoltsLeftMass, finalParts.hipBoltsRightMass, ...
-                finalParts.thighBoltsLeftMass, finalParts.thighBoltsLeftMass, ...
-                finalParts.shankBoltsLeftMass, finalParts.shankBoltsLeftMass);            
+            %% Plot the Linear Velocity and Acceleration
+            %linearAccel.PlotVelocityInterpolationCurves();
+            %linearAccel.PlotAccelerationCurves();
+            %linearAccel.PlotAvgAccelerationCurves();
 
-%% Inverse Dynamics
-            inverseDynamics = InverseDynamics(model, positionArray, linearAccel, ...
-                angularAccel, patient29Forces, normCopData, timeForGaitCycle);    
+            %% Plot the Angular Velocity and Accelerations
+            %angularAccel.PlotVelocityInterpolationCurves();
+            %angularAccel.PlotAccelerationCurves();
+            %angularAccel.PlotAvgAccelerationCurves();
+                
+            %% Plot the inverse dynamics without the weight of the exoskeleton    
             %inverseDynamics.PlotMomentGraphs();
             
-            main.basicInverseDynamics = inverseDynamics;
+            %%  Plot the inverse dynamics with the weight of the exoskeleton
+            %inverseDynamicsExo.PlotMomentGraphs();
 
-            %% With Dynamics with the exoskeleton
-             totalMassOfExoskelton = finalParts.totalMassOfExoskeleton; % in kg
-             thighExoMass = finalParts.thighExoMass + hipTorsionSpring.weightHipTorsionSpring; % in kg
-             shankExoMass = finalParts.shankExoMass + plantarSpring.weightExtensionSpring + ...
-                 dorsiSpring.weightExtensionSpring + plantarTorsionSpring.weightPlantarTorsionSpring + ...
-                 dorsiTorsionSpring.weightDorsiTorsionSpring + mPlantarCable + mDorsiCable;
-             footExoMass = finalParts.footExoMass;
-             
-             inverseDynamicsExo = InverseDynamicsWithExoskeleton(model, positionArray, linearAccel, ...
-                 angularAccel, patient29Forces, normCopData, timeForGaitCycle, totalMassOfExoskelton, ...
-                 thighExoMass, shankExoMass, footExoMass);             
-             %inverseDynamicsExo.PlotMomentGraphs();
-
-            %% Moment Contribution
-             hipContributedMoments = zeros(1, length(positionArray));
-             dorsiSpringContributedMoments = zeros(1, length(positionArray));
-             plantarSpringContributedMoments = zeros(1, length(positionArray));
- 
-             dorsiTorsionContributedMoments = zeros(1, length(positionArray));
-             plantarTorsionContributedMoments = zeros(1, length(positionArray));
- 
-             for i=(1:(length(positionArray)))
-                 % Hip Torsion Spring Moment
-                 momentAdded = hipTorsionSpring.GetMomentContribution(positionArray(i).HipAngleZ, i);
-                 hipContributedMoments(i) = momentAdded;
-  
-                 % Dorsiflexion Spring Moment
-                 [maxDorsiLength, maxValueIndex] = max(dorsiSpringAndCableLengthArray);
-                 dorsiSpringContributedMoments(i) = dorsiSpring.GetMomentContribution(dorsiSpringAndCableLengthArray(i), ...
-                  dorsiFlexionArray(i), maxDorsiLength, maxValueIndex, i);
- 
-                 % Plantar Spring Moment
-                 [maxPlantarLength, maxValueIndex] = max(plantarSpringAndCableLengthArray);
-                 plantarSpringContributedMoments(i) = plantarSpring.GetMomentContribution(plantarSpringAndCableLengthArray(i), ...
-                     plantarFlexionArray(i), maxPlantarLength, maxValueIndex, i);
- 
-                 % Cam contributed to gait moments
-                 dorsiTorsionContributedMoments(i) = dorsiTorsionSpring.GetMomentContribution(dorsiFlexionArray(i));
-                 plantarTorsionContributedMoments(i) = plantarTorsionSpring.GetMomentContribution(plantarFlexionArray(i));
-             end
-             
-            % Exoskeleton
-            main.exoInverseDynamics = inverseDynamicsExo;
-            main.overallExoHipMoment = (-1)*inverseDynamicsExo.MHipZExo_Array + hipContributedMoments;
-            main.overallExoKneeMoment = (-1)*inverseDynamicsExo.MKneeZExo_Array;
-            main.overallExoAnkleMoment = (-1)*inverseDynamicsExo.MAnkleZExo_Array + dorsiSpringContributedMoments + plantarSpringContributedMoments + dorsiTorsionContributedMoments + plantarTorsionContributedMoments;
-            
-            % Springs
-            main.hipContributedMoments = hipContributedMoments;
-            main.dorsiSpringContributedMoments = dorsiSpringContributedMoments;
-            main.plantarSpringContributedMoments = plantarSpringContributedMoments;
-
-            % Cams
-            main.dorsiTorsionContributedMoments = dorsiTorsionContributedMoments;
-            main.plantarTorsionContributedMoments = plantarTorsionContributedMoments;
-
-            %% Moments on the Cams from picking up slack
-             dorsiTorsionCamMoments = zeros(1, length(positionArray));
-             plantarTorsionCamMoments = zeros(1, length(positionArray));
-             for i=(1:(length(positionArray)))
-                 % Find the cable lengths
-                 if(i==1) % Start 1, Previous 101
-                     currentDorsiSpringLength = dorsiSpringAndCableLengthArray(i);
-                     previousDorsiSpringLength = dorsiSpringAndCableLengthArray(length(positionArray));
- 
-                     currentPlantarSpringLength = plantarSpringAndCableLengthArray(i);%plantarSpringLengthArray(i);
-                     previousPlantarSpringLength = plantarSpringAndCableLengthArray(length(positionArray));%plantarSpringLengthArray(length(positionArray));
-                 else % Start i, Previous i - 1
-                     currentDorsiSpringLength = dorsiSpringAndCableLengthArray(i);
-                     previousDorsiSpringLength = dorsiSpringAndCableLengthArray(i-1);
- 
-                     currentPlantarSpringLength = plantarSpringAndCableLengthArray(i);%plantarSpringLengthArray(i);
-                     previousPlantarSpringLength = plantarSpringAndCableLengthArray(i-1);%plantarSpringLengthArray(i-1);
-                 end
- 
-                 % Dorsitorsion spring
-                 % - actually the moment on the cam itself, not on the ankle
-                 dorsiTorsionCamMoments(i) = dorsiTorsionSpring.GetMomentOnCam(currentDorsiSpringLength, previousDorsiSpringLength, ...
-                     dorsiSpring.extensionCableLength, dorsiSpring.lengthUnstrechedSpring, dorsiSpring.R1, i);
- 
-                 % Plantartorsion Spring
-                 % ---- actually the moment on the cam itself, not on the ankle
-                 plantarTorsionCamMoments(i) = plantarTorsionSpring.GetMomentOnCam(currentPlantarSpringLength, previousPlantarSpringLength, ...
-                     plantarSpring.extensionCableLength, plantarSpring.lengthUnstrechedSpring, plantarSpring.R1, plantarSpringLengthArray(1), i);
-             end
-
-            %% Plotting Moments
+            %% Plotting Moments including the exoskeleton weight 
             %main.PlotMomentContribution(hipContributedMoments, dorsiSpringContributedMoments, plantarSpringContributedMoments, ...
             %    dorsiTorsionContributedMoments, plantarTorsionContributedMoments);
             %main.PlotCamMoments(dorsiTorsionCamMoments, plantarTorsionCamMoments);
@@ -413,7 +395,11 @@ classdef MainToUseWithGui
         end
     end
     
+    %% Various Plots not shown in the GUI - but used in the report
+    % Commented for sake of runtime and cleanliness
+    
     methods(Static)
+        
         function PlotTotalMoments(hipMoment, hipExoMoment, hipExoContributionMoment, ...
     kneeMoment, kneeExoMoment, ankleMoment, ankleExoMoment, dorsiSpringContributionMoment, ...
     dorsiCamContributionMoment, plantarSpringContributionMoment, plantarCamContributionMoment)
@@ -421,10 +407,10 @@ classdef MainToUseWithGui
     figure
     % Plot the plantarflexion cable and spring length graph
     top = subplot(3,1,1);
-    plot(top, 1:length(hipMoment), (-1)*hipMoment, 'LineWidth',1);
+    plot(top, 0:length(hipMoment)-1, (-1)*hipMoment, 'LineWidth',1);
     hold on
     grid on
-    plot(top, 1:length(hipExoMoment), (-1)*hipExoMoment, 'LineWidth',1);
+    plot(top, 0:length(hipExoMoment)-1, (-1)*hipExoMoment, 'LineWidth',1);
     hold on
     plot(top, 1:length(hipExoContributionMoment), hipExoContributionMoment, 'LineWidth',1);
     title('All Hip Moment');
@@ -432,35 +418,33 @@ classdef MainToUseWithGui
     xlabel('Gait Cycle (%)') 
     set(top, 'LineWidth',1)
     legend(top, 'Reg Hip', 'Exo Hip', 'Cont Hip')
-    %axis(top, [0 length(hipMomentArray) (min(hipMomentArray)-1) (max(hipMomentArray)+1)]);
     
      % Plot the plantarflexion cable and spring length graph
     middle = subplot(3,1,2);
-    plot(middle, 1:length(kneeMoment), (-1)*kneeMoment, 'LineWidth', 1);
+    plot(middle, 0:length(kneeMoment)-1, (-1)*kneeMoment, 'LineWidth', 1);
     hold on
     grid on
-    plot(middle, 1:length(kneeExoMoment), (-1)*kneeExoMoment, 'LineWidth', 1);
+    plot(middle, 0:length(kneeExoMoment)-1, (-1)*kneeExoMoment, 'LineWidth', 1);
     title('All Knee Moments');
     ylabel('Moment (Nm)')
     xlabel('Gait Cycle (%)') 
     set(middle, 'LineWidth',1)
     legend(middle, 'Reg Knee', 'Exo Knee')
-    %axis(middle, [0 length(dorsiMomentArray) (min(dorsiMomentArray)-1) (max(dorsiMomentArray)+1)]);
      
     % Plot the plantarflexion cable and spring length graph
     top = subplot(3,1,3);
-    plot(top, 1:length(ankleMoment), (-1)*ankleMoment, 'LineWidth', 1);
+    plot(top, 0:length(ankleMoment)-1, (-1)*ankleMoment, 'LineWidth', 1);
     hold on
     grid on
-    plot(top, 1:length(ankleExoMoment), (-1)*ankleExoMoment, 'LineWidth', 1);
+    plot(top, 0:length(ankleExoMoment)-1, (-1)*ankleExoMoment, 'LineWidth', 1);
     hold on
-    plot(top, 1:length(dorsiSpringContributionMoment), dorsiSpringContributionMoment, 'LineWidth', 1);
+    plot(top, 0:length(dorsiSpringContributionMoment)-1, dorsiSpringContributionMoment, 'LineWidth', 1);
     hold on
-    plot(top, 1:length(dorsiCamContributionMoment), dorsiCamContributionMoment, 'LineWidth', 1);
+    plot(top, 0:length(dorsiCamContributionMoment)-1, dorsiCamContributionMoment, 'LineWidth', 1);
     hold on
-    plot(top, 1:length(plantarSpringContributionMoment), plantarSpringContributionMoment, 'LineWidth', 1);
+    plot(top, 0:length(plantarSpringContributionMoment)-1, plantarSpringContributionMoment, 'LineWidth', 1);
     hold on
-    plot(top, 1:length(plantarCamContributionMoment), plantarCamContributionMoment, 'LineWidth', 1);
+    plot(top, 0:length(plantarCamContributionMoment)-1, plantarCamContributionMoment, 'LineWidth', 1);
     
     title('Moment Contribution Plantar Spring over Gait Cycle');
     ylabel('Moment (Nm)')
@@ -475,92 +459,81 @@ end
         figure
         % Plot the dorsiTorsionMoments cable and spring length graph
         top = subplot(2,1,1);
-        plot(top, 1:length(dorsiTorsionMoments), dorsiTorsionMoments, 'LineWidth',2);
+        plot(top, 0:length(dorsiTorsionMoments)-1, dorsiTorsionMoments, 'LineWidth',2);
         hold on
         grid on
-        title('Moment on Dorsi Torsion Cam');
+        title('Moment on Dorsiflexion Cam');
         ylabel('Moment (Nm)')
         xlabel('Gait Cycle (%)') 
         set(top, 'LineWidth',1)
-        %legend(top, 'Spring and Cable Length')
-        %axis(top, [0 length(dorsiTorsionMoments) (min(dorsiTorsionMoments)-1) (max(dorsiTorsionMoments)+1)]);
 
         % Plot the plantarTorsionMoments cable and spring length graph
         top = subplot(2,1,2);
-        plot(top, 1:length(plantarTorsionMoments), plantarTorsionMoments, 'LineWidth',2);
+        plot(top, 0:length(plantarTorsionMoments)-1, plantarTorsionMoments, 'LineWidth',2);
         hold on
         grid on
         title('Moment On Plantarflexion Cam');
         ylabel('Moment (Nm)')
         xlabel('Gait Cycle (%)') 
         set(top, 'LineWidth',1)
-        %legend(top, 'Spring and Cable Length')
-        %axis(top, [0 length(dorsiTorsionMoments) (min(dorsiTorsionMoments)-1) (max(dorsiTorsionMoments)+1)]);
     end
 
     function PlotMomentContribution(hipMomentArray, dorsiMomentArray, plantarMomentArray, ...
         dorsiTorsionMoments, plantarTorsionMoments)
         figure
-    %     % Plot the plantarflexion cable and spring length graph
-    %     top = subplot(4,1,1);
-    %     plot(top, 1:length(hipMomentArray), hipMomentArray, 'LineWidth',2);
-    %     hold on
-    %     grid on
-    %     title('Moment Contribution Hip Spring over Gait Cycle');
-    %     ylabel('Moment (Nm)')
-    %     xlabel('Gait Cycle (%)') 
-    %     set(top, 'LineWidth',1)
-    %     %legend(top, 'Spring and Cable Length')
-    %     %axis(top, [0 length(hipMomentArray) (min(hipMomentArray)-1) (max(hipMomentArray)+1)]);
-    %     
-    %     % Plot the plantarflexion cable and spring length graph
-    %     middle = subplot(4,1,2);
-    %     plot(middle, 1:length(dorsiMomentArray), dorsiMomentArray, 'LineWidth',2);
-    %     hold on
-    %     grid on
-    %     title('Moment Contribution Dorsi Spring over Gait Cycle');
-    %     ylabel('Moment (Nm)')
-    %     xlabel('Gait Cycle (%)') 
-    %     set(middle, 'LineWidth',1)
-    %     %legend(top, 'Spring and Cable Length')
-    %     axis(middle, [0 length(dorsiMomentArray) (min(dorsiMomentArray)-1) (max(dorsiMomentArray)+1)]);
-    %     
-    %     % Plot the plantarflexion cable and spring length graph
-    %     top = subplot(4,1,3);
-    %     plot(top, 1:length(plantarMomentArray), plantarMomentArray, 'LineWidth',2);
-    %     hold on
-    %     grid on
-    %     title('Moment Contribution Plantar Spring over Gait Cycle');
-    %     ylabel('Moment (Nm)')
-    %     xlabel('Gait Cycle (%)') 
-    %     set(top, 'LineWidth',1)
-    %     %legend(top, 'Spring and Cable Length')
-    %     axis(top, [0 length(plantarMomentArray) (min(plantarMomentArray)-1) (max(plantarMomentArray)+1)]);
-    %     
-
+        % Plot the hip torsion spring moment applied
+        top = subplot(5,1,1);
+        plot(top, 0:length(hipMomentArray)-1, hipMomentArray, 'LineWidth',2);
+        hold on
+        grid on
+        title('Moment Contribution Hip Spring over Gait Cycle');
+        ylabel('Moment (Nm)')
+        xlabel('Gait Cycle (%)') 
+        set(top, 'LineWidth',1)
+        
+        % Plot the dorsiflexion extension spring moment applied
+        middle = subplot(5,1,2);
+        plot(middle, 0:length(dorsiMomentArray)-1, dorsiMomentArray, 'LineWidth',2);
+        hold on
+        grid on
+        title('Moment Contribution Dorsi Extension Spring over Gait Cycle');
+        ylabel('Moment (Nm)')
+        xlabel('Gait Cycle (%)') 
+        set(middle, 'LineWidth',1)
+        %legend(top, 'Spring and Cable Length')
+        axis(middle, [0 length(dorsiMomentArray) (min(dorsiMomentArray)-1) (max(dorsiMomentArray)+1)]);
+        
+        % Plot the plantarflexion extension spring moment applied
+        top = subplot(5,1,3);
+        plot(top, 0:length(plantarMomentArray)-1, plantarMomentArray, 'LineWidth',2);
+        hold on
+        grid on
+        title('Moment Contribution Plantar Extension Spring over Gait Cycle');
+        ylabel('Moment (Nm)')
+        xlabel('Gait Cycle (%)') 
+        set(top, 'LineWidth',1)
+        %legend(top, 'Spring and Cable Length')
+        axis(top, [0 length(plantarMomentArray) (min(plantarMomentArray)-1) (max(plantarMomentArray)+1)]);
+        
         % Plot the dorsiTorsionMoments cable and spring length graph
-        top = subplot(2,1,1);
-        plot(top, 1:length(dorsiTorsionMoments), dorsiTorsionMoments, 'LineWidth',2);
+        top = subplot(5,1,4);
+        plot(top, 0:length(dorsiTorsionMoments)-1, dorsiTorsionMoments, 'LineWidth',2);
         hold on
         grid on
         title('Moment Contribution Dorsi Torsion Spring over Gait Cycle');
         ylabel('Moment (Nm)')
         xlabel('Gait Cycle (%)') 
         set(top, 'LineWidth',1)
-        %legend(top, 'Spring and Cable Length')
-        %axis(top, [0 length(dorsiTorsionMoments) (min(dorsiTorsionMoments)-1) (max(dorsiTorsionMoments)+1)]);
 
         % Plot the plantarTorsionMoments cable and spring length graph
-        top = subplot(2,1,2);
-        plot(top, 1:length(plantarTorsionMoments), plantarTorsionMoments, 'LineWidth',2);
+        top = subplot(5,1,5);
+        plot(top, 0:length(plantarTorsionMoments)-1, plantarTorsionMoments, 'LineWidth',2);
         hold on
         grid on
         title('Moment Contribution Plantar Torsion Spring over Gait Cycle');
         ylabel('Moment (Nm)')
         xlabel('Gait Cycle (%)') 
-        set(top, 'LineWidth',1)
-        %legend(top, 'Spring and Cable Length')
-        %axis(top, [0 length(dorsiTorsionMoments) (min(dorsiTorsionMoments)-1) (max(dorsiTorsionMoments)+1)]);    
+        set(top, 'LineWidth',1)  
     end
 
     function maxValue = GetAbsMaxValueFromArray(array)
@@ -572,10 +545,6 @@ end
             maxValue = min(array);
         end
     end
-
-    %% Various Plots
-    %PlotPatientGaitAngles(patient29Angles);
-    %PlotPatientGaitForces(patient29Forces);
 
     function Plot4BarLinkageDistanceChange(topLinkageDistanceChangeArray, bottomLinkageDistanceChangeArray, ...
     topLinkXMovement, topLinkYMovement)
@@ -722,7 +691,6 @@ end
 
     function PlotPatientGaitForces(patientForces)
         figure
-        % Graph number 1
         topLeft = subplot(3,1,1);
         plot(topLeft, patientForces.Time, patientForces.LGRFX);
         title(topLeft,'Ground Reaction Force X');
@@ -743,34 +711,27 @@ end
                  angularAccelLink2, angularAccelLink4)
             figure
             top = subplot(2,1,1);
-            plot(top, 1:length(angularVelocityLink2), angularVelocityLink2, 'LineWidth',2);
+            plot(top, 0:length(angularVelocityLink2)-1, angularVelocityLink2, 'LineWidth',2);
             hold on
             grid on
-            plot(top, 1:length(angularVelocityLink4), angularVelocityLink4, 'LineWidth',2);
+            plot(top, 0:length(angularVelocityLink4)-1, angularVelocityLink4, 'LineWidth',2);
             title('Angular Velocity of the Crossing Links');
             ylabel('Angular Velocity (rad/s)')
             xlabel('Gait Cycle (%)') 
             set(top, 'LineWidth',1)
             legend(top, 'Link 2','Link 4')
-            %axis(top, [0 100 min()])
 
             bottom = subplot(2,1,2);
-            plot(bottom, 1:length(angularAccelLink2), angularAccelLink2, 'LineWidth',2);
+            plot(bottom, 0:length(angularAccelLink2)-1, angularAccelLink2, 'LineWidth',2);
             hold on
             grid on
-            plot(bottom, 1:length(angularAccelLink4), angularAccelLink4, 'LineWidth',2);
+            plot(bottom, 0:length(angularAccelLink4)-1, angularAccelLink4, 'LineWidth',2);
             title('Angular Acceleration of the Crossing Links');
             xlabel('Gait Cycle (%)') 
             ylabel('Angular Acceleration (rad/s^2)') 
             set(bottom, 'LineWidth',1)
             legend(bottom, 'Link 2','Link 4')
-            %axis(bottom, [0 100 -0.45 -0.3]) 
     end
 
     end
 end
-
-
-
-
-

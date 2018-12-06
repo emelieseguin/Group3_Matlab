@@ -1,13 +1,8 @@
 function ShoulderCalcs (personHeight, maxShaftMoment, maxTorsionFromSpring, ...
     shaftDiameter, shaft)
-    %% Keep for not to test read in values
-    %personHeight = 1.78; %m
     maxShaftMoment = UnitConversion.NewtonM2PoundFInch(maxShaftMoment);
-    %maxShaftMoment = -1.053062; %lbf in 
-        %Mmax = -0.11898; %Nm
     maxTorsionFromSpring = UnitConversion.NewtonM2PoundFInch(maxTorsionFromSpring);
-    %maxTorsionFromSpring = 20.188551; %lbf in
-        %Tmax = 2.281; %Nm
+
 %% Design Variables - Calcs 1
     d = UnitConversion.Meters2Inches(shaft.diameter3); % This is the actual small shaft diameter
     Sut = 47000; %Psi

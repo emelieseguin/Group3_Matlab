@@ -1,12 +1,12 @@
 classdef DorsiTorsionSpring
     properties
-        % Hard Drawn
+        % Material Properties of the Spring - Hard Drawn Steel
         YoungsModulus = 200000000000; % Young's Modulus [Pa]
         Density = 7850; % kg/m^3
         A = 140000; % Area from Shigley table 10-4
         m = 0.19; % Constant from Shigley table 10-4
         
-        % Spring dimensions - can put more
+        % Spring dimensions
         NumberBodyTurns = 3.5; % least amount possible
         wireDiameterSpring
         meanDiameterCoil
@@ -227,13 +227,11 @@ classdef DorsiTorsionSpring
                     
                 end
                 MomentSI = (obj.effectiveWDorsiPull)*Si/angleI; %[Nm]
-                %MomentSI = (obj.effectiveWDorsiPull-obj.wDorsiPull)*obj.S/angleI; %[Nm]
                 disp(rad2deg(angleI));
             end            
         end
         
         function MomentSI = GetMomentContribution(obj, currentDorsiFlexionSpringPosition)
-           
             forceOnFoot = obj.effectiveWDorsiPull-obj.wDorsiPull;
             currentFy = forceOnFoot*sin(deg2rad(currentDorsiFlexionSpringPosition.AppliedToeCableForceAngle));
             currentFx = forceOnFoot*cos(deg2rad(currentDorsiFlexionSpringPosition.AppliedToeCableForceAngle));

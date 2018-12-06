@@ -106,7 +106,10 @@ function [ShearF, BendM] = ShearForceBendingMoment( varargin)
 
         function [sf, bm] = SF(x)
             sf = 0; bm = 0;
+            
+            
             NewCcrossed = 0; NewMcrossed = 0;
+            
             for i = 1:nc
                 if x > Cloc{i}
                     if i > Ccrossed

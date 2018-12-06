@@ -2,22 +2,15 @@ classdef AnthropometricModel
     properties
         errorMessage
         dimensionMap
-        weightMap % this is a mass map - not weight
+        weightMap % this is a mass map
         comPercentageMap
         height
-        weight % this is a mass - not weight
+        weight % this is a mass
         % TalocalcanealAngle in Radians
         TalocalcanealAngleRad
     end
     methods
         function obj = AnthropometricModel(height, weight)
-            % Here we can put restrictions on the height and weight, can
-            % throw an error if they don't meet our restrictions
-            if(height <= 0.0 || weight <= 0.0)
-                obj.errorMessage = "You have entered invalid parameters.";
-                error ('You have entered a height or weight less than 0.')
-            end
-
             obj.height = height;
             obj.weight = weight; % This is actually mass
             obj.TalocalcanealAngleRad = deg2rad(41);
@@ -83,7 +76,6 @@ classdef AnthropometricModel
             comMap(pFootCOMy) = (1/3);
             comMap(pShankCOM) = 0.433;
             comMap(pThighCOM) = 0.433;
-            %comMap(pTotalLegCOM) = (dimensionMap(thighLength) + dimensionMap(rightShankLength))*0.161;
         end
     end    
 end

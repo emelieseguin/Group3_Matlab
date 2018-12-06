@@ -1,4 +1,6 @@
-function P = InterX(L1,varargin)
+% Taken From -- https://www.mathworks.com/matlabcentral/fileexchange/22441-curve-intersections?focused=5165138&tab=function
+
+function P = LineIntersection(L1,varargin)
 %INTERX Intersection of curves
 %   P = INTERX(L1,L2) returns the intersection points of two curves L1 
 %   and L2. The curves L1,L2 can be either closed or open and are described

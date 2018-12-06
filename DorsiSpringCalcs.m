@@ -1,6 +1,6 @@
 classdef DorsiSpringCalcs
     properties
-       % Material Properties
+       % Material Properties of Spring
         YoungsModulus = 200000000000; % Young's Modulus - Steel [Pa]
         ShearModulus = 79300000000; % Shear Modulus  - Steel
         Density = 7850; % kg/m^3
@@ -225,15 +225,8 @@ classdef DorsiSpringCalcs
                 currentFx = obj.k*yCurrent*cos(deg2rad(currentDorsiFlexionSpringPosition.AppliedToeCableForceAngle));
                 currentMoment = currentFy*currentDorsiFlexionSpringPosition.distanceFromAnkle2ToeCableX + currentFx*currentDorsiFlexionSpringPosition.distanceFromAnkle2ToeCableY;            
                 
-                %% Next Position Moment
-                %yNext = (nextSpringCableLength-obj.extensionCableLength-(obj.lengthUnstrechedSpring + (4*obj.R1)));
-                %nextFy = obj.k*yNext*sin(deg2rad(nextDorsiFlexionSpringPosition.AppliedToeCableForceAngle));
-                %nextFx = obj.k*yNext*cos(deg2rad(nextDorsiFlexionSpringPosition.AppliedToeCableForceAngle));
-
-                %nextMoment = nextFy*nextDorsiFlexionSpringPosition.distanceFromAnkle2ToeCableX + nextFx*nextDorsiFlexionSpringPosition.distanceFromAnkle2ToeCableY;
-
                 %% Next Moment
-                MomentSI = (currentMoment);%(nextMoment- currentMoment);
+                MomentSI = (currentMoment);
             else
                 MomentSI = 0;
             end

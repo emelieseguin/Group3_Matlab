@@ -182,59 +182,7 @@ classdef Shaft_Length_Anthropometric
             % check
             Rty = Fg1+ Fg2 + Fg3 + Fg4 +Fg5 + Fg6 + Fg7 + Fy2;
 
-            %% Forces on the hip pin joint --- redo
-            % summation of moments and forces on 2 DOF pin joint
-            %r2DOFPin = 0.005; % the diameter of the 2DOF joint pin
-            %l2DOFPin = 0.03; % the length of the 2 DOF joint pin
-            %v2DOFPin = pi * r2DOFPin.^2 * l2DOFPin; % the volume of the 2 DOF joint pin
-            %m2DOFPin = obj.DensitySt * v2DOFPin; % the mass of the 2 DOF joint pin
-            %mBelow2DOFJoint = ExoskeletonMassvar.mBelow2DOFJoint;
-
-            %F1pin = ExoskeletonMassvar.mBelow2DOFJoint*g + m2DOFPin*g; % the reaction force on the 2 DOF pin joint
-
-            %% Force from the cam ---- redo or put somewhere else
-            % Plantarflexion cam design parameters
-            %lPlantarSpring = (5/178)*patientHeight; % the length of the plantarflexion spring
-            %lPlantarString = (27.59/178)*patientHeight - lPlantarSpring; % the length of the string minus the spring
-            %rPlantarString = (0.1/178)*patientHeight; % the radius of the plantar flexion string
-            %vPlantarString = lPlantarString*pi*rPlantarString.^2; % the volume of the plantar flexion string
-            %mPlantarString = vPlantarString * obj.DensitySt; % mass of the plantar flexion string
-
-            %rPlantarCamSpring = (0.05/178)*patientHeight; % the radius of the torsional spring wire
-            %RPlantarCamSpring = (2/178)*patientHeight; % the mean radius of the torsional spring coil
-            %nPlantarCamSpring = 2; % the number of body turns of the torsional spring
-            %vPlantarCamSpring = pi*rPlantarCamSpring.^2*2*pi*nPlantarCamSpring*RPlantarCamSpring; % the volume of the torsional spring
-            %mPlantarCamSpring = obj.DensitySt * vPlantarCamSpring; % the mass of the torsional spring
-
-            %mPlantarCamCase = 0.005713; % the mass of the casing around the cam and cam shaft
-
-            %mPlantarCam = 0.0064341; % the mass of the plantar flexion cam
-
-            %PlantarCamZ1 = 0; % the beginning of the cam shaft
-            %PlantarCamZ2 = (.5/178)*patientHeight; % the distance to the first step down (circlip) of the the shaft
-            %PlantarCamZ3 = (.6/178)*patientHeight; % the distance to the first step up (bearing) after the circlip 
-            %PlantarCamZ4 = (1.1/178)*patientHeight; % the distance to the second step up after the bearing
-            %PlantarCamZspring = PlantarCamZ4 + (2/178)*patientHeight;
-            %PlantarCamZ5 = PlantarCamZspring + (0.7/178)*patientHeight; % the distance to the edge of the cam
-            %PlantarCamZ6 = PlantarCamZ5 + (0.1/178)*patientHeight; % the distance to the end of the cam
-            %PlantarCamZ7 = PlantarCamZ6 + (0.5/178)*patientHeight; % the distance to the end of the shaft
-
-            %PlantarCamDpSpring = (1.4/178)*patientHeight;
-            %PlantarCamDp1 = PlantarCamDpSpring-(0.4/178)*patientHeight; % the diamater of the shaft up to the circlip
-            %PlantarCamDp2 = PlantarCamDpSpring-(0.6/178)*patientHeight; % the diameter of the shaft at the circlip
-            %PlantarCamDp3 = PlantarCamDpSpring-(0.4/178)*patientHeight; % the diameter of the shaft after the circlip/diameter of inside of bearing
-            %PlantarCamDp5 = PlantarCamDpSpring-(0.4/178)*patientHeight; 
-            %PlantarCamDp6 = PlantarCamDpSpring-(0.6/178)*patientHeight; 
-            %PlantarCamDp7 = PlantarCamDpSpring-(0.4/178)*patientHeight;
-            
-            
-            %% Update the mass on the hip shaft
-            %PlantarCamShaftMiZi = (obj.DensityAl*pi/4) * (PlantarCamDp1.^2 * (PlantarCamZ2-PlantarCamZ1)*((PlantarCamZ2+PlantarCamZ1)/2) + PlantarCamDp2.^2 * (PlantarCamZ3-PlantarCamZ2)*((PlantarCamZ3+PlantarCamZ2)/2) +PlantarCamDp3.^2 * (PlantarCamZ4-PlantarCamZ3)* ((PlantarCamZ4+PlantarCamZ3)/2) +PlantarCamDp4.^2 * (PlantarCamZ5-PlantarCamZ4)* ((PlantarCamZ5+PlantarCamZ4)/2) +PlantarCamDp5.^2 * (PlantarCamZ7-PlantarCamZ5)* ((PlantarCamZ7+PlantarCamZ5)/2)); % the summation of masses and their centres of mass
-            %mPlantarCamShaft = (obj.DensityAl*pi/4) * (PlantarCamDp1.^2 * (PlantarCamZ2-PlantarCamZ1)+ PlantarCamDp2.^2 * (PlantarCamZ3-PlantarCamZ2) +PlantarCamDp3.^2 * (PlantarCamZ4-PlantarCamZ3) +PlantarCamDp4.^2 * (PlantarCamZ5-PlantarCamZ4) +PlantarCamDp5.^2 * (PlantarCamZ7-PlantarCamZ5)); % the total mass of the plantar flexion cam shaft
-            %PlantarCamZtot = PlantarCamShaftMiZi/mPlantarCamShaft; % the center of mass of the plantar cam shaft
-
-            %Fy1 = g * (mPlantarCamShaft + mPlantarCam + mPlantarCamCase + mPlantarCamSpring);
-                        
+            %% Distances along the shaft used to build the shaft in solidworks                       
             distFromZ6_Z9 = z9-z6;
             distFromZ9_Z11 = z11-z9;
             distFromZ11_Z12 = z12-z11;

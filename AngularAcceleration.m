@@ -164,7 +164,6 @@ classdef AngularAcceleration
             title(bottom,'Foot Angular Acceleration');
             xlabel('% Gait Cycle') 
             ylabel('Degrees/s^2') 
-            %axis(bottom, [0 100 -100 100]);
         end
         
         
@@ -191,7 +190,6 @@ classdef AngularAcceleration
             title(bottom,'Foot Angular Acceleration');
             xlabel('% Gait Cycle') 
             ylabel('Degrees/s^2') 
-            %axis(bottom, [0 100 -100 100]);
         end
     end
 end

@@ -1,6 +1,6 @@
 classdef HipTorsionSpring
     properties
-        % Hard Drawn Steel
+        % Chosen Material Properties for the Spring - Hard Drawn Steel
         YoungsModulus = 200000000000; % Young's Modulus [Pa]
         Density = 7850; % kg/m^3
         A = 140000; % Area from Shigley table 10-4 -> equivalent to 1.783 GPa mm^m
@@ -76,7 +76,7 @@ classdef HipTorsionSpring
             %Check safety factor
                 n = Sa/SigmaA; 
 
-           %convert variables to SI units
+            % Convert variables back to SI units
             D = UnitConversion.Inches2Meters(D); 
             d = UnitConversion.Inches2Meters(d); 
             E = UnitConversion.Psi2Pa(E); 
@@ -124,7 +124,7 @@ classdef HipTorsionSpring
         end
         
         function MomentSI = GetMomentContribution(obj, currentHipAngle, i)
-            
+            %% Calculation to find moment contribution on the hip
             MomentSI = 0;
             if(currentHipAngle < 0)
                 d = UnitConversion.Meters2Inches(obj.wireDiameterSpring); 
@@ -132,8 +132,7 @@ classdef HipTorsionSpring
                 Lwork = UnitConversion.Meters2Inches(obj.lengthWorkingLeg); 
                 Lsupp = UnitConversion.Meters2Inches(obj.lengthSupportLeg);
                 E = UnitConversion.Pa2Psi(obj.YoungsModulus);  
-                %angleDiff = deg2rad(nextHipAngle-currentHipAngle);
-                %angleDiff = (deg2rad(nextHipAngle-currentHipAngle));%/(timeForGaitCycle/100);
+
                 angle = deg2rad(currentHipAngle);
                 MomentImperial = (-1)*(3*pi/64)*((angle*(d.^4)*E)/(3*pi*D*obj.NumberBodyTurns+Lwork+Lsupp));
                 if(i > 57) % Flexing - ' -'ve moment applied by spring '
@@ -141,9 +140,6 @@ classdef HipTorsionSpring
                    MomentImperial = (-1)*(3*pi/64)*((angle*(d.^4)*E)/(3*pi*D*obj.NumberBodyTurns+Lwork+Lsupp)); %uses newly calcuated angle
                 end 
 
-                % CCW is +'ve so times -1 
-                %MomentImperial = (-1)*(3*pi/64)*((angleDiff*(d.^4)*E)/(3*pi*D*obj.NumberBodyTurns+Lwork+Lsupp));
-                %MomentImperial = (-1)*(3*pi/64)*((angle*(d.^4)*E)/(3*pi*D*obj.NumberBodyTurns+Lwork+Lsupp));
                 MomentSI = UnitConversion.PoundFInch2NewtonM(MomentImperial);
             end 
         end
@@ -151,8 +147,6 @@ classdef HipTorsionSpring
         function weight = GetWeightTorsion(obj, Lwork, Lsupp)
             V = ((pi*(obj.wireDiameterSpring.^2))/4)*(obj.NumberBodyTurns+Lwork+Lsupp);%Units in meters
             weight = V*obj.Density; %Units in Kg
-            
-
         end
     end
 end

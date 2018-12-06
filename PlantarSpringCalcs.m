@@ -219,12 +219,6 @@ classdef PlantarSpringCalcs
                 currentFy = obj.k*yCurrent*sin(deg2rad(currentPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
                 currentFx = obj.k*yCurrent*cos(deg2rad(currentPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
                 currentMoment = currentFy*currentPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentX + currentFx*currentPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentY;            
-                %% Next Position Moment
-                %yNext = (nextSpringCableLength-obj.extensionCableLength-(obj.lengthUnstrechedSpring + (4*obj.R1)));
-                %nextFy = obj.k*yNext*sin(deg2rad(nextPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
-                %nextFx = obj.k*yNext*cos(deg2rad(nextPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
-
-                %nextMoment = nextFy*nextPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentX + nextFx*nextPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentY;
 
                 %% Next Moment
                 MomentSI = (-1)*currentMoment;%nextMoment - currentMoment;

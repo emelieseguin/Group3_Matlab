@@ -1,15 +1,15 @@
 function HipJointBearingCalcs(fRadial, thighAngularVelocity, patientHeight)
 
     %% Initial Constants
-    shaftRPM = thighAngularVelocity * 9.5493; %converting rads/sec to rpm
-    Ka = 1.5; %Light impact application, picked value at top of range for safety
-    designLife = 40000; %Inbetween 8-hour service every working day (30000 hours) and continuous 24-hour service (50000 hours)
+    shaftRPM = thighAngularVelocity * 9.5493; % Converting rads/sec to rpm
+    Ka = 1.5; % Light impact application, picked value at top of range for safety
+    designLife = 40000; % Inbetween 8-hour service every working day (30000 hours) and continuous 24-hour service (50000 hours)
     life = shaftRPM*designLife*60;
-    Kr = 1; %from standard 90% reliability
-    Lr = (9.6)*10^6; %life corresponding to rated capacity
-    i = 1.0; %number of rows of balls in bearing, should be constant
-    alpha = 0; %nominal contact angle of the balls, is 0 for radial bearings, should be constant
-    Z = 12; %number of balls per row, shoud be constant
+    Kr = 1; % From standard 90% reliability
+    Lr = (9.6)*10^6; % Life corresponding to rated capacity
+    i = 1.0; % Number of rows of balls in bearing, should be constant
+    alpha = 0; % Nominal contact angle of the balls, is 0 for radial bearings, should be constant
+    Z = 12; % Number of balls per row, shoud be constant
     dynamicViscosity = 50;
     
     %% Parametrized Geometry
