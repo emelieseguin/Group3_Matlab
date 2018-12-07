@@ -67,7 +67,6 @@ function ShoulderCalcs (personHeight, maxShaftMoment, maxTorsionFromSpring, ...
         sigmaMPrime = (((32*kF*Mm/pi/(d.^3)).^2)+3*((16*kFS*Tm/pi/(d.^3)).^2)).^(1/2);
     % Safety factor - using Goodman criterion
         nF = (sigmaAPrime/Se+sigmaMPrime/Sut).^(-1);
-        disp(['nF = ',num2str(nF)]);
         
     % Check minimum d is less than design d
     check2String = '';

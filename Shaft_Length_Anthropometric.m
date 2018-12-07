@@ -61,6 +61,7 @@ classdef Shaft_Length_Anthropometric
             dp1 = dp4 - (0.0048/1.78)*patientHeight;
             dp2 = dp4 - (0.0078/1.78)*patientHeight;
             dp3 = dp4 - (0.0048/1.78)*patientHeight;
+            obj.dp3 = dp3;
             dp5 = dp4 - (0.0048/1.78)*patientHeight;
             dp6 = dp4 - (0.0078/1.78)*patientHeight;
             dp7 = dp4 - (0.0048/1.78)*patientHeight;
@@ -136,8 +137,8 @@ classdef Shaft_Length_Anthropometric
             obj.mRetainingRing2 = vRetainingRing2 * obj.DensityAl; % Mass of retaining ring 2
             % Dimensions of the key
             lShaftKeyHip = z4 - z3; % the length of the key in the z direction along the shaft
-            wShaftKeyHip = (0.6/178)*patientHeight; % the width of the key in the x direction
-            hShaftKeyHip = (0.6/178)*patientHeight; % the height of the key in the y direction
+            wShaftKeyHip = (0.5/178)*patientHeight; % the width of the key in the x direction
+            hShaftKeyHip = (0.5/178)*patientHeight; % the height of the key in the y direction
             vShaftKeyHip = lShaftKeyHip * wShaftKeyHip * hShaftKeyHip; % volume of the key
             obj.mShaftKeyHip = vShaftKeyHip * obj.DensityAl; % mass of the key
 

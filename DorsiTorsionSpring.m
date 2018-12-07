@@ -172,7 +172,7 @@ classdef DorsiTorsionSpring
         end
         
         function MomentSI = GetMomentOnCam(obj, currentSpringCableLength, previousSpringCableLength, extensionCableLength, ...
-                lengthUnstrechedSpring, R1, i)
+                R1, i)
             %% Current Position Moment
             yCurrent = (currentSpringCableLength-extensionCableLength-(obj.neutralValue + (4*R1)));
             MomentSI = 0;
@@ -227,7 +227,6 @@ classdef DorsiTorsionSpring
                     
                 end
                 MomentSI = (obj.effectiveWDorsiPull)*Si/angleI; %[Nm]
-                disp(rad2deg(angleI));
             end            
         end
         

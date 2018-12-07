@@ -170,13 +170,8 @@ classdef PlantarTorsionSpring
         end
 
         function MomentSI = GetMomentOnCam(obj, currentSpringCableLength, previousSpringCableLength, extensionCableLength, ...
-        lengthUnstrechedSpring, R1, lengthAt0, i)
-    
-    
-            if(i == 101)
-                disp('made it');
-            end
-            
+        R1, i)
+                
             %% Current Position Moment
             yCurrent = (currentSpringCableLength-extensionCableLength-(obj.neutralValue + (4*R1)));
             MomentSI = 0;

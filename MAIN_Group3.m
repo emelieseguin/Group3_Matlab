@@ -1133,9 +1133,6 @@ if(isWeightWithinBounds && isHeightWithinBounds)
     setappdata(handles.mainContent_panel, 'mass', numMass)
     setappdata(handles.mainContent_panel, 'height', numHeight)
     
-     %%%%%%%% Where to call main and stuff here -- it will be validated here
-    %MainToUseWithGui(numHeight, numWeight);
-    
     try
     SetPanelVariablesFromMain(hObject, eventdata, handles);
     

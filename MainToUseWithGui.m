@@ -277,20 +277,20 @@ classdef MainToUseWithGui
  
                  % Dorsitorsion spring
                  dorsiTorsionCamMoments(i) = dorsiTorsionSpring.GetMomentOnCam(currentDorsiSpringLength, previousDorsiSpringLength, ...
-                     dorsiSpring.extensionCableLength, dorsiSpring.lengthUnstrechedSpring, dorsiSpring.R1, i);
+                     dorsiSpring.extensionCableLength, dorsiSpring.R1, i);
  
                  % Plantartorsion Spring
                  plantarTorsionCamMoments(i) = plantarTorsionSpring.GetMomentOnCam(currentPlantarSpringLength, previousPlantarSpringLength, ...
-                     plantarSpring.extensionCableLength, plantarSpring.lengthUnstrechedSpring, plantarSpring.R1, plantarSpringLengthArray(1), i);
+                     plantarSpring.extensionCableLength, plantarSpring.R1, i);
              end
+             
+            %% Shear force on the 4-bar Pins
+            ShearForceOnPins(personHeight, finalParts.mOnPins);
              
             %% Calculate the Shear Force Bending Moments and Safety Factor on the Shafts
             % Build the shear force bending moment diagrams with the correct forces
             warning('off'); % Suppress warning about nested global variables 
-            
-            % Need weight from below from final Parts
-            % Calc Fy2 here
-            % Hip spring from the actual mass
+
             g = 9.81; % N/kg
             MassOfComponentsOfAttachedExoLeg = finalParts.mLegComponents + plantarSpring.weightExtensionSpring + ...
                  dorsiSpring.weightExtensionSpring + plantarTorsionSpring.weightPlantarTorsionSpring + ...
@@ -310,17 +310,24 @@ classdef MainToUseWithGui
                         {'CF',((-1)*hipShaft.mRetainingRing2*g),hipShaft.retainingRingDist2});
                     
                     
-            %disp(['Max Shear Force: ', num2str(max(ShearF)), 'N,   Min Shear Force: ',  num2str(min(ShearF)), 'N']);
-            %disp(['Max Bending Moment Force: ', num2str(max(BendM)), 'N*m,   Min Bending Moment Force: ',  num2str(min(BendM)), 'N*m']);
+                    %% Log max/min shear force and max/min bending moment
+                    logFile = fopen(logFilePath, 'a+');
+                        fprintf(logFile, '\n\n****   Hip Shaft Forces and Moments  ****\n\n');
+                        fprintf(logFile, '    Minimum Bending Moment = %4.4f Nm\n', round(min(BendM), 4));
+                        fprintf(logFile, '    Maximum Bending Moment = %4.4f Nm\n', round(max(BendM), 4));
+                        
+                        fprintf(logFile, '    Minimum Shear Force = %4.4f N\n', round(min(ShearF), 4));
+                        fprintf(logFile, '    Maximum Shear Force = %4.4f N\n', round(max(ShearF), 4));
+                    fclose(logFile);
             warning('on');
-            
-            % Shear force on the 4-bar Pins
-            ShearForceOnPins(personHeight, finalParts.mOnPins);
-            
             
             % Shaft shoulder Analysis
             ShoulderCalcs(personHeight, main.GetAbsMaxValueFromArray(BendM), hipTorsionSpring.maxTorsionFromSpring,...
                 hipTorsionSpring.shaftDiameter, hipShaft);
+            
+            % Shaft Analysis
+            HipShaftBendingMomentAnalysis(main.GetAbsMaxValueFromArray(BendM), hipShaft, ...
+                hipTorsionSpring.maxTorsionFromSpring);
             
             %% Others Calcs - Bolts, Bearings
             HipShaftBearingCalcs(Fy2, max(angularAccel.angularVelocityThigh), personHeight);
