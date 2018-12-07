@@ -19,7 +19,6 @@ classdef DorsiFlexionSpringPosition
         distAboveToe = 0.065; % in [m] approximated
         percentageFromHeelToFootAttch = 0.8;
         
-        
         %% Values used in solidworks
         pullyDistanceFromTheCenterLine
        
