@@ -309,10 +309,14 @@ classdef MainToUseWithGui
                         {'CF',((-1)*MassOfComponentsOfAttachedExoLeg*g),hipShaft.exoLegDist}, ...
                         {'CF',((-1)*hipShaft.mRetainingRing2*g),hipShaft.retainingRingDist2});
                     
-                  
+                    
             %disp(['Max Shear Force: ', num2str(max(ShearF)), 'N,   Min Shear Force: ',  num2str(min(ShearF)), 'N']);
             %disp(['Max Bending Moment Force: ', num2str(max(BendM)), 'N*m,   Min Bending Moment Force: ',  num2str(min(BendM)), 'N*m']);
             warning('on');
+            
+            % Shear force on the 4-bar Pins
+            ShearForceOnPins(personHeight, finalParts.mOnPins);
+            
             
             % Shaft shoulder Analysis
             ShoulderCalcs(personHeight, main.GetAbsMaxValueFromArray(BendM), hipTorsionSpring.maxTorsionFromSpring,...

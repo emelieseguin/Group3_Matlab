@@ -51,6 +51,9 @@ classdef FinalPartsCombined
         shankBoltsLeftMass
         shankBotlsRightMass
         
+        %% Mass on the 4bar Pins
+        mOnPins
+        
         %% Masses on the Hip Shaft
         mLegComponents
     end
@@ -1812,6 +1815,9 @@ classdef FinalPartsCombined
                 8*mFootPins;
             
             obj.shankBotlsRightMass = mCalfCase + mCalfPadding;
+            
+            %% Set masses on the 4bar pins
+            obj.mOnPins = mBotBar + mCalfCase + mCalfPadding;
         
             %% Set the masses on the Hip Shaft
             obj.mLegComponents = mMedialDiscBallBearing + mHipMedialDisc + mThighCase + mThighPadding + ...
