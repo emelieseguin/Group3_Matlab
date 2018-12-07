@@ -287,28 +287,39 @@ classdef MainToUseWithGui
             %% Calculate the Shear Force Bending Moments and Safety Factor on the Shafts
             % Build the shear force bending moment diagrams with the correct forces
             warning('off'); % Suppress warning about nested global variables 
+            
+            % Need weight from below from final Parts
+            % Calc Fy2 here
+            % Hip spring from the actual mass
+            g = 9.81; % N/kg
+            MassOfComponentsOfAttachedExoLeg = finalParts.mLegComponents + plantarSpring.weightExtensionSpring + ...
+                 dorsiSpring.weightExtensionSpring + plantarTorsionSpring.weightPlantarTorsionSpring + ...
+                 dorsiTorsionSpring.weightDorsiTorsionSpring + mPlantarCable + mDorsiCable;
+            Fy2 = (hipShaft.mRetainingRing1*g) + (hipShaft.mShaftKeyHip*g) + ...
+                (hipTorsionSpring.weightHipTorsionSpring*g) + (hipShaft.weightShaft*g) + ...
+                (MassOfComponentsOfAttachedExoLeg*g) + (hipShaft.mRetainingRing2*g);
+            
             [ShearF, BendM] = ShearForceBendingMoment('Prob 200', ...
                         [hipShaft.zShaftLength,hipShaft.supportDist1], ...
-                        {'CF',hipShaft.Fg1,hipShaft.casingDist1}, ...
-                        {'CF',hipShaft.Fg2,hipShaft.retainingRingDist1}, ...
-                        {'CF',hipShaft.Fy2,hipShaft.supportDist1}, ...
-                        {'CF',hipShaft.Fg3,hipShaft.keyDist}, ...
-                        {'CF',hipShaft.Fg4,hipShaft.springDist}, ...
-                        {'CF',hipShaft.Fg5,hipShaft.comOfShaftDist}, ...
-                        {'CF',hipShaft.Fg6,hipShaft.bearingDist}, ...
-                        {'CF',hipShaft.Fg7,hipShaft.exoLegDist}, ...
-                        {'CF',hipShaft.Fg8,hipShaft.retainingRingDist2}, ...
-                        {'CF',hipShaft.Fg9, hipShaft.casingDist2});
-            %ShearForceBendingMoment('Prob 200',[0.153,0.005,0.148],{'CF',-1.8161,0.005},{'CF',-0.0139,0.0165},{'CF',-0.0237,0.023},{'CF',0.8626905882,0.023},{'CF',-0.5863,0.0525},{'CF',-1.4834,0.0759},{'CF',4.895709412,0.0825},{'CF',-0.0189,0.0915},{'CF',-1.8161,0.148});
+                        {'CF',((-1)*hipShaft.mRetainingRing1*g),hipShaft.retainingRingDist1}, ...
+                        {'CF',Fy2,hipShaft.supportDist1}, ...
+                        {'CF',((-1)*hipShaft.mShaftKeyHip*g),hipShaft.keyDist}, ...
+                        {'CF',((-1)*hipTorsionSpring.weightHipTorsionSpring*g),hipShaft.springDist}, ...
+                        {'CF',((-1)*hipShaft.weightShaft*g),hipShaft.comOfShaftDist}, ...
+                        {'CF',((-1)*MassOfComponentsOfAttachedExoLeg*g),hipShaft.exoLegDist}, ...
+                        {'CF',((-1)*hipShaft.mRetainingRing2*g),hipShaft.retainingRingDist2});
+                    
+                  
             %disp(['Max Shear Force: ', num2str(max(ShearF)), 'N,   Min Shear Force: ',  num2str(min(ShearF)), 'N']);
             %disp(['Max Bending Moment Force: ', num2str(max(BendM)), 'N*m,   Min Bending Moment Force: ',  num2str(min(BendM)), 'N*m']);
             warning('on');
+            
             % Shaft shoulder Analysis
             ShoulderCalcs(personHeight, main.GetAbsMaxValueFromArray(BendM), hipTorsionSpring.maxTorsionFromSpring,...
                 hipTorsionSpring.shaftDiameter, hipShaft);
             
             %% Others Calcs - Bolts, Bearings
-            HipShaftBearingCalcs(hipShaft.Fy2, max(angularAccel.angularVelocityThigh), personHeight);
+            HipShaftBearingCalcs(Fy2, max(angularAccel.angularVelocityThigh), personHeight);
             %HipJointBearingCalcs(reactionForceFromSheldon, angularAccel.angularVelocityThigh, patientHeight);
             %DorsiflexionCamBearingCalcs(reactionForceFromSheldon, patientHeight);
             %PlantarflexionCamBearingCalcs(reactionForceFromSheldon, patientHeight, timeForGaitCycle);
@@ -378,6 +389,9 @@ classdef MainToUseWithGui
             %% Plot the inverse dynamics without the weight of the exoskeleton    
             %inverseDynamics.PlotMomentGraphs();
             
+            %% Plot the Shear Force Bending Moment diagrams for the hip shaft
+            %main.PlotShearForceBendingMoment(ShearF, BendM, hipShaft.zShaftLength);  
+            
             %%  Plot the inverse dynamics with the weight of the exoskeleton
             %inverseDynamicsExo.PlotMomentGraphs();
 
@@ -399,6 +413,31 @@ classdef MainToUseWithGui
     % Commented for sake of runtime and cleanliness
     
     methods(Static)
+        function PlotShearForceBendingMoment(ShearF, BendM, ShaftLength)
+            xAxisShear = linspace(0,ShaftLength,length(ShearF));
+            xAxisBendingMoment = linspace(0,ShaftLength,length(BendM)); 
+            
+            figure
+            % Plot the shear force diagram on the hip shaft
+            top = subplot(2,1,1);
+            plot(top, xAxisShear, ShearF, 'LineWidth',2);
+            title('Shear Force Diagram');
+            ylabel('Shear Force (N)')
+            xlabel('Length (m)') 
+            set(top, 'LineWidth',1)
+            grid on
+            axis(top, [0 ShaftLength (min(ShearF)-1) (max(ShearF)+2)]);
+
+            % Plot the bending moment on the hip shaft
+            middle = subplot(2,1,2);
+            plot(middle, xAxisBendingMoment, BendM, 'LineWidth', 2);
+            title('Bending Moment Diagram');
+            ylabel('Moment (Nm)')
+            xlabel('Gait Cycle (%)') 
+            set(middle, 'LineWidth',1)
+            grid on
+            axis(middle, [0 ShaftLength (min(BendM)-0.1) (max(BendM)+0.1)]);
+        end
         
         function PlotTotalMoments(hipMoment, hipExoMoment, hipExoContributionMoment, ...
     kneeMoment, kneeExoMoment, ankleMoment, ankleExoMoment, dorsiSpringContributionMoment, ...

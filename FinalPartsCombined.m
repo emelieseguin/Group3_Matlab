@@ -50,6 +50,9 @@ classdef FinalPartsCombined
         thighBoltsRightMass
         shankBoltsLeftMass
         shankBotlsRightMass
+        
+        %% Masses on the Hip Shaft
+        mLegComponents
     end
     methods
         function obj = FinalPartsCombined(patientHeight, hipShaft, dorsiCablePosition, plantarFlexionPosition, plantarTorsionSpring, dorsiTorsionSpring, plantarSpring, dorsiSpring)
@@ -1752,7 +1755,7 @@ classdef FinalPartsCombined
             mThighCase = obj.vThighCase * densityOfPVC;
             mThighPadding = obj.vThighPadding * densityOfMemoryFoam;
 
-            mRigidPiece = obj.vRigidPiece * densityOfPVC; % could be carbon fiber
+            mRigidPiece = obj.vRigidPiece * densityOfPVC;
             mOuterPiece = obj.vOuterPiece * densityOfRubber; 
             mSidePiece = obj.vSidePiece * densityOfPVC;
             mStrapInsertPiece = obj.vStrapInsertPiece * densityOfPVC;
@@ -1770,7 +1773,6 @@ classdef FinalPartsCombined
                 2*mPlantarCamShaft + 2*mBotBar + 4*mLink4 + 2*mLink2 + 8*m4BarBolts + 2*mTopBar + 2*mCalfCase + ...
                 2*mCalfPadding + 2*mThighCase + 2*mThighPadding + 2*mRigidPiece + 2*mOuterPiece + 8*mSidePiece + ...
                 8*mStrapInsertPiece + 2*mToeInsertPiece + 2*mAnkleStrapPiece + 2*mToeStrapPiece + 16*mFootPins; 
-            % add the small pins - 8 small pins total
             
             obj.thighExoMass = mMetalHipAttachmemtsDimension*(1/2) + mHipPadding*(1/2) ...
                 + mHip2DOFJointBearing + mHip2DOFJointShaft + mHip2DOFJointOutputShaft + ...
@@ -1782,7 +1784,6 @@ classdef FinalPartsCombined
             obj.footExoMass = mRigidPiece + mOuterPiece + 4*mSidePiece + ...
                 4*mStrapInsertPiece + mToeInsertPiece + mAnkleStrapPiece + mToeStrapPiece + ...
                 8*mFootPins;
-            % add 4 little pins into this design
             
             obj.hipBoltsLeftMass = + mHip2DOFJointBearing + mHip2DOFJointShaft + mHip2DOFJointOutputShaft + ...
                 mHip2DOFJointCasing + mMedialDiscBallBearing + mHipMedialDisc + mThighCase + mThighPadding + ...
@@ -1811,6 +1812,13 @@ classdef FinalPartsCombined
                 8*mFootPins;
             
             obj.shankBotlsRightMass = mCalfCase + mCalfPadding;
+        
+            %% Set the masses on the Hip Shaft
+            obj.mLegComponents = mMedialDiscBallBearing + mHipMedialDisc + mThighCase + mThighPadding + ...
+                2*mParametrizedPulley + mDorsiCamDimensions + mDorsiCamShaft + ...
+                mPlantarCamBearing + mDorsiCamBearing + mCamRetainingRing + mDorsiRetainingRing1 + ...
+                mDorsiRetainingRing2 + mPlantarCam + mPlantarCamShaft + mBotBar + 2*mLink4 + ...
+                mLink2 + 4*m4BarBolts + mTopBar + mCalfCase + mCalfPadding;
         end
     end
 end

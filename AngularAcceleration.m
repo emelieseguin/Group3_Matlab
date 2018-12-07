@@ -26,7 +26,6 @@ classdef AngularAcceleration
     
     methods
         function obj = AngularAcceleration(positionArray, timeForGaitCycle)
-            
             % Calculate the time between positions - Should be timeForGaitCycle/101
             obj.captureRate = timeForGaitCycle / length(positionArray);
             obj.timeForGaitCycle = timeForGaitCycle;
