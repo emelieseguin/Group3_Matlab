@@ -1099,10 +1099,12 @@ fclose(f);
 readMass = get(handles.weightEditTextBox,'String');
 [numMass, status] = str2num(readMass);
 isMassNumber = CheckIfNumberInput(readMass, status, logFilePath, 'weight');
+numMass = round(numMass, 2);
 
 readHeight = get(handles.heightEditTextBox,'String'); 
 [numHeight, status] = str2num(readHeight);
 isHeightNumber = CheckIfNumberInput(readHeight, status, logFilePath, 'height');
+numHeight = round(numHeight, 2);
 
 %% Check to make sure that they are in the required range
 isWeightWithinBounds = false;

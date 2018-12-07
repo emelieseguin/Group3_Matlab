@@ -16,7 +16,6 @@ function HipShaftBendingMomentAnalysis(maxBendingMoment, hipShaft, ...
     ShaftSafetyFactor = shaftDiameter/MinShaftDiameter;
     
     %% Keyway safety factor
-
     ForceOnKey = momentFromTorsionSpring/shaftDiameter;
     SsyAl = 0.577*YieldStrengthAl;
     KeySafetyFactor = (SsyAl*wShaftKeyHip*lShaftKeyHip)/ForceOnKey;
