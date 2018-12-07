@@ -1,4 +1,4 @@
-function varargout = AboutDimensions(varargin)
+function varargout = About(varargin)
 % ABOUTDIMENSIONS MATLAB code for AboutDimensions.fig
 %      ABOUTDIMENSIONS, by itself, creates a new ABOUTDIMENSIONS or raises the existing
 %      singleton*.

@@ -170,13 +170,8 @@ classdef PlantarTorsionSpring
         end
 
         function MomentSI = GetMomentOnCam(obj, currentSpringCableLength, previousSpringCableLength, extensionCableLength, ...
-        lengthUnstrechedSpring, R1, lengthAt0, i)
-    
-    
-            if(i == 101)
-                disp('made it');
-            end
-            
+        R1, i)
+                
             %% Current Position Moment
             yCurrent = (currentSpringCableLength-extensionCableLength-(obj.neutralValue + (4*R1)));
             MomentSI = 0;
@@ -246,7 +241,7 @@ classdef PlantarTorsionSpring
             currentFy = forceOnFoot*sin(deg2rad(currentPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
             currentFx = forceOnFoot*cos(deg2rad(currentPlantarFlexionSpringPosition.AppliedHeelCableForceAngle));
             currentMoment = currentFy*currentPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentX + currentFx*currentPlantarFlexionSpringPosition.distanceFromAnkle2LowAttachmentY;
-            MomentSI = (-1)*currentMoment;%nextMoment - currentMoment;
+            MomentSI = (-1)*currentMoment;
         end
         
         function weight = GetWeightTorsion(obj, Lwork, Lsupp)

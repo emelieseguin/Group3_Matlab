@@ -22,7 +22,7 @@ function varargout = MAIN_Group3(varargin)
 
 % Edit the above text to modify the response to help MAIN_Group3
 
-% Last Modified by GUIDE v2.5 27-Nov-2018 21:19:22
+% Last Modified by GUIDE v2.5 06-Dec-2018 11:42:46
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -73,7 +73,7 @@ set(handles.Gait_Inverse_Button,'visible','off');
 set(handles.ExoInverseButton,'visible','off');
 
 axes(handles.displayImageAxis);
-imshow('TempDesignImage.jpg');
+imshow('FullExoskeletonRender.JPG');
 
 % Update handles structure
 guidata(hObject, handles);
@@ -233,8 +233,8 @@ function DrawLeg(gaitPositionArray, axesToDrawOn, handles)
     CalcToToeLine = animatedline(gaitPositionArray(gaitIndex).CalcToToeX, gaitPositionArray(gaitIndex).CalcToToeY,'Parent', axesToDrawOn,'Color','r','LineWidth',2.5);
     
     set(axesToDrawOn,'XColor','none', 'YColor', 'none')
-    axesToDrawOn.XLim = [-0.5 1];
-    axesToDrawOn.YLim = [-1 0.5];
+    axesToDrawOn.XLim = [-0.70 0.8];
+    axesToDrawOn.YLim = [-1.25 0.25];
     setappdata(handles.patientGaitPanel, 'ThighLine', ThighLine)
     setappdata(handles.patientGaitPanel, 'ShankLine', ShankLine)
     setappdata(handles.patientGaitPanel, 'AnkleToCalcLine', AnkleToCalcLine)
@@ -249,8 +249,8 @@ AnkleToMetaLine = animatedline(gaitPositionArray(index).AnkleToMetaX, gaitPositi
 CalcToToeLine = animatedline(gaitPositionArray(index).CalcToToeX, gaitPositionArray(index).CalcToToeY,'Parent', axesToDrawOn,'Color','r','LineWidth',2.5);
 
 set(axesToDrawOn,'XColor','none', 'YColor', 'none')
-axesToDrawOn.XLim = [-0.5 1];
-axesToDrawOn.YLim = [-1 0.5];
+axesToDrawOn.XLim = [-0.70 0.8];
+axesToDrawOn.YLim = [-1.25 0.25];
 setappdata(handles.patientGaitPanel, 'ThighLine', ThighLine)
 setappdata(handles.patientGaitPanel, 'ShankLine', ShankLine)
 setappdata(handles.patientGaitPanel, 'AnkleToCalcLine', AnkleToCalcLine)
@@ -333,7 +333,7 @@ function fourBarSimFull_Callback(hObject, eventdata, handles)
     set(handles.fourBarPercentGaitLabel, 'String', previousIndex-1);
     DrawLegWithIndex(gaitPositionArray, handles.fourBarSimAxes, previousIndex, handles);
     DrawFourBar(fourBarPositionArray, handles.fourBarSimAxes, handles);
-    
+
 
 % --- Executes on button press in fourBarSimNext.
 function fourBarSimNext_Callback(hObject, eventdata, handles)
@@ -403,13 +403,13 @@ set(handles.plantarflexionPanel, 'visible', 'off');
 set(handles.inversePanel, 'visible', 'off');
 set(handles.exoinversePanel, 'visible', 'off');
 % Show Spring and Cable Length
-dorsiSpringAndCableLengthArray = getappdata(handles.dorsiflexionPanel, 'dorsiSpringAndCableLengthArray')
+dorsiSpringAndCableLengthArray = getappdata(handles.dorsiflexionPanel, 'dorsiSpringAndCableLengthArray');
 plot(handles.dorsiSpringCableLengthAxes, 0:length(dorsiSpringAndCableLengthArray)-1, dorsiSpringAndCableLengthArray, 'LineWidth',2);
 axes(handles.dorsiSpringCableLengthAxes);
 ylabel('Length (m)');
 grid on
 % Show just the spring length
-dorsiSpringLengthArray = getappdata(handles.dorsiflexionPanel, 'dorsiSpringLengthArray')
+dorsiSpringLengthArray = getappdata(handles.dorsiflexionPanel, 'dorsiSpringLengthArray');
 plot(handles.dorsiSpringExtensionAxes, 0:length(dorsiSpringLengthArray)-1, dorsiSpringLengthArray, 'LineWidth',2);
 axes(handles.dorsiSpringExtensionAxes);
 ylabel('Length (m)');
@@ -472,7 +472,7 @@ set(handles.dorsiSpringExtensionLabel, 'String', round(dorsiSpringLengthArray(do
 
 
 % --- Executes on button press in simDorsiSpringFull.
-function simDorsiSpringFull_Callback(hObject, eventdata, handles)
+function simDorsiSpringFull_Callback(~, ~, handles)
 gaitPositionArray = getappdata(handles.patientGaitPanel, 'gaitPositionArray');
 dorsiSpringAndCablePosition = getappdata(handles.dorsiflexionPanel, 'dorsiSpringAndCablePosition');
 dorsiSpringLengthArray = getappdata(handles.dorsiflexionPanel, 'dorsiSpringLengthArray');
@@ -514,7 +514,7 @@ setappdata(handles.dorsiflexionPanel, 'plantarFlexionLine3', dorsiFlexionLine3)
 
 %% --------------------------- Plantarflexion Panel -----------------------%
 % --- Executes on button press in plantarflexionButton.
-function plantarflexionButton_Callback(hObject, eventdata, handles)
+function plantarflexionButton_Callback(~, eventdata, handles)
 set(handles.mainContent_panel, 'visible', 'off');
 set(handles.patientGaitPanel, 'visible', 'off');
 set(handles.fourBarPanel, 'visible', 'off');
@@ -549,7 +549,7 @@ set(handles.plantarSpringExtensionLabel, 'String', round(plantarSpringLengthArra
 
 
 % --- Executes on button press in simPlantarSpringFull.
-function simPlantarSpringFull_Callback(hObject, eventdata, handles)
+function simPlantarSpringFull_Callback(~, ~, handles)
 gaitPositionArray = getappdata(handles.patientGaitPanel, 'gaitPositionArray');
 plantarSpringAndCablePosition = getappdata(handles.plantarflexionPanel, 'plantarSpringAndCablePosition');
 plantarSpringLengthArray = getappdata(handles.plantarflexionPanel, 'plantarSpringLengthArray');
@@ -576,7 +576,7 @@ cla reset;
     DrawPlantarStringAttachment(plantarSpringAndCablePosition, handles.plantarSpringSimAxes, handles)
 
 % --- Executes on button press in simPlantarSpringNext.
-function simPlantarSpringNext_Callback(hObject, eventdata, handles)
+function simPlantarSpringNext_Callback(~, ~, handles)
 gaitPositionArray = getappdata(handles.patientGaitPanel, 'gaitPositionArray');
 plantarSpringAndCablePosition = getappdata(handles.plantarflexionPanel, 'plantarSpringAndCablePosition');
 plantarSpringLengthArray = getappdata(handles.plantarflexionPanel, 'plantarSpringLengthArray');
@@ -645,56 +645,54 @@ set(handles.exoinversePanel, 'visible', 'off');
 set(handles.basicHipMoment, 'visible', 'on');
 set(handles.basicKneeMoment, 'visible', 'off');
 set(handles.basicAnkleMoment, 'visible', 'off');
-axes(handles.basicHipFBD);
-% Show Hip FBD
-imshow('BasicThighFBD.jpg', 'InitialMagnification','fit');
 
 % Hip Moment Graph
 basicHipMoments = getappdata(handles.inversePanel, 'basicHipMoments');
 plot(handles.basicHipMomentGraph, 0:length(basicHipMoments)-1, basicHipMoments, 'LineWidth',2);
 axes(handles.basicHipMomentGraph);
 grid on
+ylabel('Moment (Nm)');
+xlabel('Gait Percent (%)');
 
 % --- Executes on button press in basicHipMomentButton.
 function basicHipMomentButton_Callback(hObject, eventdata, handles)
 set(handles.basicHipMoment, 'visible', 'on');
 set(handles.basicKneeMoment, 'visible', 'off');
 set(handles.basicAnkleMoment, 'visible', 'off');
-axes(handles.basicHipFBD);
-imshow('BasicThighFBD.jpg');
 % Hip Moment Graph
 basicHipMoments = getappdata(handles.inversePanel, 'basicHipMoments');
 plot(handles.basicHipMomentGraph, 0:length(basicHipMoments)-1, basicHipMoments, 'LineWidth',2);
 axes(handles.basicHipMomentGraph);
 grid on
+ylabel('Moment (Nm)');
+xlabel('Gait Percent (%)');
 
 % --- Executes on button press in basicKneeMomentButton.
 function basicKneeMomentButton_Callback(hObject, eventdata, handles)
 set(handles.basicHipMoment, 'visible', 'off');
 set(handles.basicKneeMoment, 'visible', 'on');
 set(handles.basicAnkleMoment, 'visible', 'off');
-axes(handles.basicKneeFBD);
-imshow('BasicShankFBD.jpg');
 % Knee Moment Graph
 basicKneeMoments = getappdata(handles.inversePanel, 'basicKneeMoments');
 plot(handles.basicKneeMomentGraph, 0:length(basicKneeMoments)-1, basicKneeMoments, 'LineWidth',2);
 axes(handles.basicKneeMomentGraph);
 grid on
+ylabel('Moment (Nm)');
+xlabel('Gait Percent (%)');
 
 % --- Executes on button press in basicAnkleMomentButton.
 function basicAnkleMomentButton_Callback(hObject, eventdata, handles)
 set(handles.basicHipMoment, 'visible', 'off');
 set(handles.basicKneeMoment, 'visible', 'off');
 set(handles.basicAnkleMoment, 'visible', 'on');
-% Show fbd
-axes(handles.basicAnkleFBD);
-imshow('BasicFootFBD.jpg');
 
 % Knee Moment Graph
 basicAnkleMoments = getappdata(handles.inversePanel, 'basicAnkleMoments');
 plot(handles.basicAnkleMomentGraph, 0:length(basicAnkleMoments)-1, basicAnkleMoments, 'LineWidth',2);
 axes(handles.basicAnkleMomentGraph);
 grid on
+ylabel('Moment (Nm)');
+xlabel('Gait Percent (%)');
 
 %% -------------------------- Exoskeleton Moments Tab ---------------------%
 % --- Executes on button press in ExoInverseButton.
@@ -715,6 +713,9 @@ set(handles.hipMomentOriginalCheckBox,'value',1)
 set(handles.hipMomentExoCheckBox,'value',1)
 set(handles.hipMomentTorsionalSpringCheckBox,'value',0)
 
+axes(handles.exoHipFBD);
+imshow('HipExoMomentLegend.jpg');
+
 axes(handles.exoHipMomentGraph); % Make averSpec the current axes.
 cla reset; % Do a complete and total reset of the axes.
 
@@ -727,6 +728,8 @@ basicHipMoments = getappdata(handles.inversePanel, 'basicHipMoments');
 plot(handles.exoHipMomentGraph, 0:length(basicHipMoments)-1, basicHipMoments, 'LineWidth', 2, 'color', 'blue');
 grid on
 hold on
+ylabel('Moment (Nm)');
+xlabel('Gait Percent (%)');
 
 
 %-------------------------- HIP ------------------------------------%
@@ -740,6 +743,9 @@ set(handles.hipMomentOriginalCheckBox,'value',1)
 set(handles.hipMomentExoCheckBox,'value',1)
 set(handles.hipMomentTorsionalSpringCheckBox,'value',0)
 
+axes(handles.exoHipFBD);
+imshow('HipExoMomentLegend.jpg');
+
 axes(handles.exoHipMomentGraph); % Make averSpec the current axes.
 cla reset; % Do a complete and total reset of the axes.
 
@@ -752,6 +758,8 @@ basicHipMoments = getappdata(handles.inversePanel, 'basicHipMoments');
 plot(handles.exoHipMomentGraph, 0:length(basicHipMoments)-1, basicHipMoments, 'LineWidth', 2, 'color', 'blue');
 grid on
 hold on
+ylabel('Moment (Nm)');
+xlabel('Gait Percent (%)');
 
 % --- Executes on button press in updateExoHipMomentGraph.
 function updateExoHipMomentGraph_Callback(hObject, eventdata, handles)
@@ -783,6 +791,8 @@ if(hipSpringMomentPlot)
     grid on
     hold on
 end
+ylabel('Moment (Nm)');
+xlabel('Gait Percent (%)');
 
 %-------------------------- KNEE ------------------------------------%
 % --- Executes on button press in exoKneeMomentButton.
@@ -793,6 +803,9 @@ set(handles.exoAnkleMoment, 'visible', 'off');
 
 set(handles.kneeMomentOriginalCheckBox,'value',1)
 set(handles.kneeMomentExoCheckBox,'value',1)
+
+axes(handles.exoKneeFBD);
+imshow('KneeExoMomentLegend.jpg');
 
 axes(handles.exoKneeMomentGraph); % Make averSpec the current axes.
 cla reset; % Do a complete and total reset of the axes.
@@ -805,7 +818,9 @@ hold on
 basicKneeMoments = getappdata(handles.inversePanel, 'basicKneeMoments');
 plot(handles.exoKneeMomentGraph, 0:length(basicKneeMoments)-1, basicKneeMoments, 'LineWidth', 2, 'color', 'blue');
 grid on 
-hold on  
+hold on
+ylabel('Moment (Nm)');
+xlabel('Gait Percent (%)');
 
 % --- Executes on button press in updateExoKneeMomentGraph.
 function updateExoKneeMomentGraph_Callback(hObject, eventdata, handles)
@@ -827,6 +842,8 @@ if(kneeMomentExoPlot)
     grid on
     hold on
 end
+ylabel('Moment (Nm)');
+xlabel('Gait Percent (%)');
 
 
 %-------------------------- ANKLE ------------------------------------%
@@ -841,6 +858,9 @@ set(handles.ankleMomentExoCheckBox,'value',1)
 set(handles.ankleMomentDorsiSpringCheckBox,'value',0)
 set(handles.ankleMomentPlantarSpringCheckBox,'value',0)
 
+axes(handles.exoAnkleFBD);
+imshow('AnkleExoMomentLegend.jpg');
+
 axes(handles.exoAnkleMomentGraph); % Make averSpec the current axes.
 cla reset; % Do a complete and total reset of the axes.
 
@@ -853,6 +873,8 @@ basicAnkleMoments = getappdata(handles.inversePanel, 'basicAnkleMoments');
 plot(handles.exoAnkleMomentGraph, 0:length(basicAnkleMoments)-1, basicAnkleMoments, 'LineWidth', 2, 'color', 'blue');
 grid on 
 hold on
+ylabel('Moment (Nm)');
+xlabel('Gait Percent (%)');
 
 
 % --- Executes on button press in updateExoAnkleMomentGraph.
@@ -891,33 +913,8 @@ if(anklePlantarPlot)
     plot(handles.exoAnkleMomentGraph, 0:length(dorsiSpringContributedMoments)-1, dorsiSpringContributedMoments, 'LineWidth', 2, 'color', 'green');
     grid on 
 end
-
-%ankleMomentOriginalCheckBox
-%ankleMomentExoCheckBox
-%ankleMomentDorsiSpringCheckBox
-%ankleMomentPlantarSpringCheckBox
-
-
-%basicAnkleMoments = getappdata(handles.inversePanel, 'basicAnkleMoments');
-%overallExoAnkleMoment = getappdata(handles.exoinversePanel, 'overallExoAnkleMoment');
-%dorsiSpringContributedMoments = getappdata(handles.inversePanel, 'dorsiSpringContributedMoments');
-%dorsiSpringContributedMoments = getappdata(handles.inversePanel, 'plantarSpringContributedMoments');
-
-
-%% Set variables for the basicInverseDynamics
-%setappdata(handles.inversePanel, 'basicHipMoments', mainCalcs.basicInverseDynamics.MHipZ_Array);
-%setappdata(handles.inversePanel, 'basicKneeMoments', mainCalcs.basicInverseDynamics.MKneeZ_Array);
-%setappdata(handles.inversePanel, 'basicAnkleMoments', mainCalcs.basicInverseDynamics.MAnkleZ_Array);
-
-%% Set variables for the exoInverseDynamics
-%setappdata(handles.exoinversePanel, 'overallExoHipMoment', mainCalcs.overallExoHipMoment);
-%setappdata(handles.exoinversePanel, 'overallExoKneeMoment', mainCalcs.overallExoHipMoment);
-%setappdata(handles.exoinversePanel, 'overallExoAnkleMoment', mainCalcs.overallExoAnkleMoment);
-%setappdata(handles.inversePanel, 'hipContributedMoments', mainCalcs.hipContributedMoments);
-%setappdata(handles.inversePanel, 'dorsiSpringContributedMoments', mainCalcs.dorsiSpringContributedMoments);
-%setappdata(handles.inversePanel, 'plantarSpringContributedMoments', mainCalcs.plantarSpringContributedMoments);
-
-
+ylabel('Moment (Nm)');
+xlabel('Gait Percent (%)');
 
 %------------------------------------------------------------------------
 
@@ -1074,12 +1071,12 @@ function displayImageAxis_CreateFcn(hObject, eventdata, handles)
 % Hint: place code in OpeningFcn to populate displayImageAxis
 
 
-% --- Executes on button press in MoreInfoDimensionsButton.
-function MoreInfoDimensionsButton_Callback(hObject, eventdata, handles)
+% --- Executes on button press in AboutButton.
+function AboutButton_Callback(hObject, eventdata, handles)
 %% Pop up the About Dimensions figure 
 %set(handles.popup, 'Value', 1);
 % Now launch the BoatGUI function
-run AboutDimensions.m;
+run About.m;
 
 % -------------------------- Run The CAD Program -------------------------%
 % --- Executes on button press in RunCADButton.
@@ -1123,7 +1120,7 @@ end
 
 %% If all of them are valid, enter the dimensions into main
 if(isWeightWithinBounds && isHeightWithinBounds)
-    initialLog = [  'Initial Dimensions:', newline, ...
+    initialLog = [  'Initial Dimensions to Parameterize the Design Around:', newline, ...
                     '      Height: ', num2str(numHeight), 'm', newline, ...
                     '      Weight: ', num2str(numMass), 'kg', newline];
     AppendToLog(logFilePath, initialLog);
@@ -1136,14 +1133,11 @@ if(isWeightWithinBounds && isHeightWithinBounds)
     setappdata(handles.mainContent_panel, 'mass', numMass)
     setappdata(handles.mainContent_panel, 'height', numHeight)
     
-     %%%%%%%% Where to call main and stuff here -- it will be validated here
-    %MainToUseWithGui(numHeight, numWeight);
-    
-    %try
+    try
     SetPanelVariablesFromMain(hObject, eventdata, handles);
     
     % Once the code has ran, then make the buttons visible
-    set(handles.fourBarButton,'visible','on') ;
+    set(handles.fourBarButton,'visible','on');
     set(handles.patientGaitButton,'visible','on');
     set(handles.dorsiflexionButton,'visible','on');
     set(handles.plantarflexionButton,'visible','on');
@@ -1153,13 +1147,17 @@ if(isWeightWithinBounds && isHeightWithinBounds)
     % Update and read out the log once the CAD has been run
     logFileText = fileread('C:\MCG4322B\Group3\Log\group3_LOG.txt');
     set(handles.LogFileText, 'String', logFileText);
-    %catch e
-    %    set(handles.LogFileText, 'String', ['An error occured while trying to process the inputted data.', ...
-    %        ' Please try another set of dimensions.', newline, 'The error was: ', e.message])
-    %end
+    catch e
+        set(handles.LogFileText, 'String', ['An error occured while trying to process the inputted data.', ...
+            ' Please try another set of dimensions.', newline, 'The error was: ', e.message])
+    end
 else
     AppendToLog(logFilePath, [newline,'Please enter valid dimensions to begin the build.', newline, ...
-        'Click the "More info on dimensions" button for more details on the allowed ranges of dimensions.']);
+        'Click the "About" button for more details on the allowed ranges of dimensions or visit the Readme file.']);
+    
+    % Update and read out the log once the CAD has been run
+    logFileText = fileread('C:\MCG4322B\Group3\Log\group3_LOG.txt');
+    set(handles.LogFileText, 'String', logFileText);
 end
 
 

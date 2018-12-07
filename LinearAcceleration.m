@@ -129,10 +129,8 @@ classdef LinearAcceleration
             xScaleTime = linspace(0, obj.timeForGaitCycle, (length(obj.linearVelocityThighX)));
             thighVelocityX_YScale = obj.linearVelocityThighX;
             
-            %plot(topLeft, thighVelocityX_XScale, thighVelocityX_YScale, 'ro', 'MarkerSize', 5);
             plot(topLeft, xScaleTime, thighVelocityX_YScale, 'ro', 'MarkerSize', 5);
             hold on
-            %fplot(topLeft, obj.linearVelocityEq_ThighX, [min(thighVelocityX_XScale), max(thighVelocityX_XScale)], 'b-', 'LineWidth', 2);
             fplot(topLeft, obj.linearVelocityEq_ThighX, [min(xScaleTime), max(xScaleTime)], 'b-', 'LineWidth', 2);
             title(topLeft,'Thigh Linear Velocity X');
             
@@ -141,10 +139,8 @@ classdef LinearAcceleration
             thighVelocityY_XScale = 0:(length(obj.linearVelocityThighY) -1);
             thighVelocityY_YScale = obj.linearVelocityThighY;
             
-            %plot(topRight, thighVelocityY_XScale, thighVelocityY_YScale, 'ro', 'MarkerSize', 5);
             plot(topRight, xScaleTime, thighVelocityY_YScale, 'ro', 'MarkerSize', 5);
             hold on
-            %fplot(topRight, obj.linearVelocityEq_ThighY, [min(thighVelocityY_XScale), max(thighVelocityY_XScale)], 'b-', 'LineWidth', 2);
             fplot(topRight, obj.linearVelocityEq_ThighY, [min(xScaleTime), max(xScaleTime)], 'b-', 'LineWidth', 2);
             title(topRight,'Thigh Linear Velocity Y');
             
@@ -154,10 +150,8 @@ classdef LinearAcceleration
             shankVelocityX_XScale = 0:(length(obj.linearVelocityShankX) -1);
             shankVelocityX_YScale = obj.linearVelocityShankX;
             
-            %plot(middleLeft, shankVelocityX_XScale, shankVelocityX_YScale, 'ro', 'MarkerSize', 5);
             plot(middleLeft, xScaleTime, shankVelocityX_YScale, 'ro', 'MarkerSize', 5);
             hold on
-            %fplot(middleLeft, obj.linearVelocityEq_ShankX, [min(shankVelocityX_XScale), max(shankVelocityX_XScale)], 'b-', 'LineWidth', 2);
             fplot(middleLeft, obj.linearVelocityEq_ShankX, [min(xScaleTime), max(xScaleTime)], 'b-', 'LineWidth', 2);
             title(middleLeft,'Shank Linear Velocity X');
             
@@ -166,10 +160,8 @@ classdef LinearAcceleration
             shankVelocityY_XScale = 0:(length(obj.linearVelocityShankY) -1);
             shankVelocityY_YScale = obj.linearVelocityShankY;
             
-            %plot(middleRight, shankVelocityY_XScale, shankVelocityY_YScale, 'ro', 'MarkerSize', 5);
             plot(middleRight, xScaleTime, shankVelocityY_YScale, 'ro', 'MarkerSize', 5);
             hold on
-            %fplot(middleRight, obj.linearVelocityEq_ShankY, [min(shankVelocityY_XScale), max(shankVelocityY_XScale)], 'b-', 'LineWidth', 2);
             fplot(middleRight, obj.linearVelocityEq_ShankY, [min(xScaleTime), max(xScaleTime)], 'b-', 'LineWidth', 2);
             title(middleRight,'Shank Linear Velocity Y');
             
@@ -179,10 +171,8 @@ classdef LinearAcceleration
             footVelocityX_XScale = 0:(length(obj.linearVelocityFootX) -1);
             footVelocityX_YScale = obj.linearVelocityFootX;
             
-            %plot(bottomLeft, footVelocityX_XScale, footVelocityX_YScale, 'ro', 'MarkerSize', 5);
             plot(bottomLeft, xScaleTime, footVelocityX_YScale, 'ro', 'MarkerSize', 5);
             hold on
-            %fplot(bottomLeft, obj.linearVelocityEq_FootX, [min(footVelocityX_XScale), max(footVelocityX_XScale)], 'b-', 'LineWidth', 2);
             fplot(bottomLeft, obj.linearVelocityEq_FootX, [min(xScaleTime), max(xScaleTime)], 'b-', 'LineWidth', 2);
             title(bottomLeft,'Foot Linear Velocity X');
             
@@ -191,10 +181,8 @@ classdef LinearAcceleration
             footVelocityY_XScale = 0:(length(obj.linearVelocityFootY) -1);
             footVelocityY_YScale = obj.linearVelocityFootY;
             
-            %plot(middleLeft, footVelocityY_XScale, footVelocityY_YScale, 'ro', 'MarkerSize', 5);
             plot(middleLeft, xScaleTime, footVelocityY_YScale, 'ro', 'MarkerSize', 5);
             hold on
-            %fplot(middleLeft, obj.linearVelocityEq_FootY, [min(footVelocityY_XScale), max(footVelocityY_XScale)], 'b-', 'LineWidth', 2);
             fplot(middleLeft, obj.linearVelocityEq_FootY, [min(xScaleTime), max(xScaleTime)], 'b-', 'LineWidth', 2);
             title(middleLeft,'Foot Linear Velocity Y');
         end

@@ -1,5 +1,6 @@
 function SetAnthropometricNames()
     
+    %% Global variables names set to be used for anthropometric model
     % Foot Dimensions Naming
     global footWidth footLength footHeight toeLength;
     footWidth = 'Foot Width';
